@@ -25,7 +25,7 @@ function calculate() {
             total_x_2 +
             'mm and 1x ' +
             (total_x - 150.0) +
-            'mm MGN9 or MGN12 rail, depending on your toolhead'
+            'mm MGN9 or MGN12 rail'
     }
 
     if (isNaN(total_y)) {
