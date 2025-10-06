@@ -1,5 +1,5 @@
 <div style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; max-width: 720px; margin: 30px auto; line-height: 1.5; text-align: center;">
-  <h1 style="margin-bottom: 0.2em;">Creations — live site</h1>
+  <h1 style="margin-bottom: 0.2em;">Kanrog Creations — live site</h1>
   <p style="margin-top: 0.2em; color: #444;">
     This repository contains the source for the site. If you just want to view the live page, click the button below — that's the fastest way to see everything.
   </p>
