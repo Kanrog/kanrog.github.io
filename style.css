@@ -17,11 +17,17 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, var(--black) 0%, var(--dark-gray) 100%);
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(168, 85, 247, 0.04) 0%, transparent 50%),
+        #0a0a0a;
+    background-attachment: fixed;
     color: var(--white);
     min-height: 100vh;
     line-height: 1.6;
 }
+
 
 .container {
     max-width: 1200px;
