@@ -225,6 +225,15 @@ h1 {
     color: #FFD700;
 }
 
+.articles:hover {
+    border-color: #FF1493;
+}
+
+.articles:hover i {
+    color: #FF1493;
+}
+
+
 /* Contact Form Styles */
 .contact-form {
     max-width: 600px;
