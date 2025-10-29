@@ -478,3 +478,10 @@ footer {
 .portfolio:hover i {
     color: #9b59b6;
 }
+.article-thumbnail {
+    width: 100%;
+    height: 250px; /* Adjust to fit your design */
+    border: none;
+    pointer-events: none; /* Important: prevents iframe from blocking clicks */
+    display: block;
+}
