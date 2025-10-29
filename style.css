@@ -485,3 +485,9 @@ footer {
     pointer-events: none; /* Important: prevents iframe from blocking clicks */
     display: block;
 }
+.article-thumbnail {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
