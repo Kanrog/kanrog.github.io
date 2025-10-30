@@ -384,6 +384,88 @@ a:hover {
         gap: 10px;
     }
 }
+/* Material Comparison Table - Better Formatting */
+.material-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--dark-gray) !important;
+    border: 2px solid var(--primary-purple) !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+    color: var(--white) !important;
+}
+
+.material-table caption {
+    background: var(--medium-gray) !important;
+    color: var(--primary-purple) !important;
+    border-bottom: 2px solid var(--primary-purple) !important;
+    text-align: left;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.material-table th,
+.material-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: var(--white) !important;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.material-table thead th {
+    background: var(--medium-gray) !important;
+    color: var(--primary-purple) !important;
+    font-weight: 700;
+    border-bottom: 2px solid var(--primary-purple) !important;
+}
+
+.material-table tbody tr:hover {
+    background: rgba(155, 89, 182, 0.1) !important;
+}
+
+.material-table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.material-table tbody th {
+    color: var(--light-purple) !important;
+    font-weight: 600;
+}
+
+/* Star ratings */
+.rating {
+    display: inline-flex;
+    gap: 2px;
+    line-height: 1;
+}
+
+.rating .star {
+    font-size: 1rem;
+}
+
+.rating .star.filled {
+    color: #f5b301; /* gold */
+}
+
+.rating .star.empty {
+    color: #666;
+}
+
+/* Table scroll container */
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+/* Legend text */
+.legend {
+    color: var(--light-purple) !important;
+    font-size: 0.9rem;
+    margin: 0.5rem 0 1rem;
+}
 
 /* Print Styles */
 @media print {
