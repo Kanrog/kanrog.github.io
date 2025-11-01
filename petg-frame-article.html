@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why PETG Isn't Good for 3D Printed Printer Frames</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .meta {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        article {
+            padding: 40px;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .highlight-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .highlight-box li {
+            margin-bottom: 8px;
+        }
+
+        strong {
+            color: #764ba2;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            article {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Why PETG Isn't Good for 3D Printed Printer Frames</h1>
+            <div class="meta">A comprehensive guide to choosing the right material for your 3D printer frame</div>
+        </header>
+
+        <article>
+            <h2>The Problem with PETG</h2>
+            <p>PETG isn't ideal for 3D printed printer frames primarily due to its tendency to creep under constant load. While PETG has decent tensile strength (40-50 MPa compared to PLA's 50-60 MPa), it exhibits significant viscoelastic deformation when subjected to sustained stress over time. Research shows that at just 50% of its ultimate strength, PETG experiences creep strain equal to roughly 5% of its elastic strain within 5 hours, and this doubles to 10% after 20 hours. This means a printer frame made from PETG would gradually deform and sag under the constant weight of the printer's components, motors, and print head assembly, leading to misalignment and print quality issues. The material essentially "flows" slowly under load, with molecular chains reorienting along stress axes. Additionally, PETG's heat deflection temperature of only 70°C means it can soften in warm environments or near heated components. For structural applications requiring dimensional stability under constant load—like printer frames—materials with higher stiffness and lower creep rates such as aluminum extrusions or even PLA (which has higher tensile strength and better dimensional stability) are far superior choices.</p>
+
+            <div class="highlight-box">
+                <h3>Key Issues with PETG:</h3>
+                <ul>
+                    <li><strong>Creep under load:</strong> 5% deformation in 5 hours, 10% in 20 hours at 50% strength</li>
+                    <li><strong>Tensile strength:</strong> 40-50 MPa (lower than PLA)</li>
+                    <li><strong>Heat resistance:</strong> Only 70°C heat deflection temperature</li>
+                    <li><strong>Viscoelastic behavior:</strong> Material gradually "flows" under constant stress</li>
+                </ul>
+            </div>
+
+            <h2>Why PLA is Excellent (For Open Frames)</h2>
+            <p>PLA is actually an excellent choice for 3D printed printer frames as long as the printer operates in a temperature-controlled environment without an enclosure. With the highest tensile strength among common 3D printing materials at 50-60 MPa, PLA offers superior rigidity and dimensional stability under load compared to both PETG and ABS. Its higher stiffness means less deflection under the constant weight of printer components, and it exhibits better resistance to creep deformation at room temperature. The main limitation is PLA's low heat deflection temperature of approximately 55°C, which means it will soften and deform if exposed to elevated temperatures. This makes PLA unsuitable for enclosed printer builds where chamber temperatures can reach 40-50°C or higher, or in hot ambient environments. However, for open-frame printers operating in climate-controlled spaces (typical room temperature of 20-25°C), PLA provides an ideal combination of high strength, low cost, ease of printing, and excellent long-term dimensional stability. Many successful DIY printer designs use PLA structural components specifically because of these advantages, proving that when thermal conditions are appropriate, PLA outperforms more "advanced" materials for frame applications.</p>
+
+            <div class="highlight-box">
+                <h3>PLA Advantages:</h3>
+                <ul>
+                    <li><strong>Highest tensile strength:</strong> 50-60 MPa (best among common materials)</li>
+                    <li><strong>Superior rigidity:</strong> Less deflection under constant load</li>
+                    <li><strong>Better creep resistance:</strong> At room temperature</li>
+                    <li><strong>Easy to print:</strong> Low cost and excellent printability</li>
+                    <li><strong>Perfect for:</strong> Open-frame printers in climate-controlled environments</li>
+                    <li><strong>Avoid for:</strong> Enclosed builds where chamber temps reach 40-50°C+</li>
+                </ul>
+            </div>
+
+            <h2>Why ABS/ASA is Outstanding (For Enclosed Builds)</h2>
+            <p>ABS and ASA are outstanding materials for 3D printed printer frames, especially when building enclosed printers or operating in warmer environments. ABS offers a heat deflection temperature of approximately 98°C—significantly higher than both PLA and PETG—allowing it to maintain structural integrity even in heated chambers or hot ambient conditions. While ABS has lower tensile strength (34-36 MPa) compared to PLA, it compensates with superior impact resistance and toughness, meaning it can absorb shocks and vibrations without cracking or shattering. This makes ABS frames more durable and resistant to the mechanical stresses of printer operation over time. ASA (Acrylonitrile Styrene Acrylate) shares these same mechanical properties while adding excellent UV resistance and weatherability, making it ideal for printers in workshops, garages, or environments with temperature fluctuations. Both materials exhibit good layer adhesion and can be post-processed with acetone vapor smoothing to further strengthen parts and improve aesthetics. The main trade-off is printability—ABS and ASA require higher printing temperatures, heated beds, and good ventilation due to fumes, and they're prone to warping during printing. However, for builders willing to dial in their print settings, ABS/ASA frames offer the best combination of heat resistance, toughness, and long-term durability, making them the go-to choice for enclosed printer builds and professional applications.</p>
+
+            <div class="highlight-box">
+                <h3>ABS/ASA Advantages:</h3>
+                <ul>
+                    <li><strong>Excellent heat resistance:</strong> 98°C heat deflection temperature</li>
+                    <li><strong>Superior toughness:</strong> High impact resistance, won't shatter</li>
+                    <li><strong>Good for vibrations:</strong> Absorbs mechanical stresses well</li>
+                    <li><strong>ASA bonus:</strong> UV resistance and weatherability</li>
+                    <li><strong>Post-processing:</strong> Can be acetone vapor smoothed for extra strength</li>
+                    <li><strong>Best for:</strong> Enclosed printers and professional/workshop environments</li>
+                    <li><strong>Trade-offs:</strong> Harder to print, requires ventilation, prone to warping</li>
+                </ul>
+            </div>
+
+            <h2>Conclusion</h2>
+            <p>When choosing a material for your 3D printer frame, consider your specific use case. For open-frame printers in controlled environments, PLA offers the best combination of strength, rigidity, and ease of use. For enclosed builds or hot environments, ABS/ASA provides the heat resistance and toughness needed for long-term reliability. PETG, despite being a popular printing material, should be avoided for structural frame components due to its tendency to creep and deform under constant load, which will compromise your printer's accuracy and performance over time.</p>
+        </article>
+
+        <footer>
+            <p>&copy; 2025 - Material Selection Guide for 3D Printer Frames</p>
+        </footer>
+    </div>
+</body>
+</html>
