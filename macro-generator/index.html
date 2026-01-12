@@ -6,124 +6,75 @@
     <title>Klipper Macro Generator | Kanrog</title>
     
     <link rel="stylesheet" href="../style.css">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        /* =================================================================
-           GENERATOR SPECIFIC OVERRIDES 
-           (Necessary because these aren't in your main style.css)
-           ================================================================= */
-        
-        /* Replicating your .links-section styling for the generator cards */
-        .generator-card {
+        /* Custom overrides for the generator tool */
+        .generator-section {
             background: var(--medium-gray);
             border: 2px solid var(--primary-purple);
             border-radius: 15px;
             padding: 30px;
-            margin-bottom: 30px;
+            margin-top: 20px;
             box-shadow: 0 0 30px rgba(155, 89, 182, 0.3);
         }
 
         .generator-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
-            gap: 30px; 
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+            gap: 25px; 
+            margin-bottom: 30px;
         }
 
         .sub-card { 
             background: var(--dark-gray);
-            border: 2px solid var(--border-color);
-            padding: 25px; 
-            border-radius: 12px; 
-            transition: all 0.3s ease;
-        }
-
-        .sub-card:hover { 
-            border-color: var(--primary-purple);
-            transform: translateY(-5px);
+            border: 1px solid var(--border-color);
+            padding: 20px; 
+            border-radius: 10px;
         }
 
         .input-field { 
             width: 100%; 
             background: var(--medium-gray); 
             color: var(--white); 
-            border: 2px solid var(--border-color); 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-top: 8px;
-            box-sizing: border-box;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: var(--primary-purple);
-            box-shadow: 0 0 10px rgba(155, 89, 182, 0.3);
+            border: 1px solid var(--border-color); 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin-top: 5px;
         }
 
         .preview-box { 
             background: #000; 
-            border-radius: 15px; 
-            padding: 20px; 
-            border: 2px solid var(--border-color);
-            text-align: center; 
+            border-radius: 10px; 
+            border: 2px solid var(--primary-purple);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* Using your .submit-btn style for the Generate button */
-        .btn-generate {
+        /* Fixed Canvas Dimensions */
+        #previewCanvas {
+            background: #111;
+            border-radius: 4px;
+        }
+
+        .btn-main {
             width: 100%;
-            padding: 20px;
+            padding: 15px;
             background: var(--primary-purple);
+            color: white;
             border: none;
             border-radius: 8px;
-            color: var(--white);
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            margin-top: 20px;
-        }
-
-        .btn-generate:hover {
-            background: var(--dark-purple);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(155, 89, 182, 0.5);
-        }
-
-        pre.code-block { 
-            background: var(--dark-gray); 
-            color: #00ff88; 
-            padding: 30px; 
-            border-radius: 12px; 
-            overflow-x: auto; 
-            font-family: 'Consolas', monospace; 
-            border: 2px solid var(--border-color);
-            white-space: pre-wrap;
-        }
-
-        .input-error { border-color: #e74c3c !important; }
-        .error-inline { color: #e74c3c; font-size: 0.85rem; margin-top: 5px; font-weight: bold; }
-        .input-warning { border-color: #f39c12 !important; }
-        .warning-text { color: #f39c12; font-size: 0.85rem; margin-top: 5px; font-weight: bold; }
-
-        .hidden { display: none !important; }
-
-        /* Navigation specifically for sub-pages */
-        .sub-nav {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .sub-nav a {
-            color: var(--light-purple);
-            text-decoration: none;
             font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
         }
-        .sub-nav a:hover { color: var(--white); }
+
+        .btn-main:hover { background: var(--dark-purple); }
+        .hidden { display: none !important; }
+        .error-text { color: #e74c3c; font-size: 0.8rem; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -132,21 +83,15 @@
             <div class="logo-container">
                 <img src="../Kanrog LOGO wtext.png" alt="Kanrog Creations Logo" class="logo">
             </div>
-            <p class="tagline">Tinkering in three dimensions.</p>
-            
-            <nav class="sub-nav">
-                <a href="../index.html"><i class="fas fa-home"></i> HOME</a>
-                <a href="https://github.com/Kanrog" target="_blank"><i class="fab fa-github"></i> GITHUB</a>
-            </nav>
+            <p class="tagline">Klipper Macro Architect</p>
         </header>
 
         <main>
-            <section class="generator-card animate__animated animate__fadeIn">
-                <h2 style="text-align:center; color: var(--primary-purple);"><i class="fas fa-terminal"></i> Macro Architect</h2>
-                
+            <section class="generator-section animate__animated animate__fadeIn">
                 <div class="generator-grid">
                     <div class="inputs-column">
                         <div class="sub-card">
+                            <h3 style="color: var(--primary-purple);"><i class="fas fa-robot"></i> Machine</h3>
                             <label>Kinematics</label>
                             <select id="kin" class="input-field" onchange="updateUI()">
                                 <option value="bedslinger">Bedslinger</option>
@@ -157,58 +102,45 @@
                                 <input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()">
                                 <input type="number" id="maxY" class="input-field" value="235" oninput="updateUI()">
                             </div>
-                            <div style="margin-top: 15px;">
-                                <label>Safety Margin (mm)</label>
-                                <input type="number" id="margin" class="input-field" value="20" oninput="updateUI()">
-                                <div id="err-margin" class="error-inline hidden">Margin Error</div>
-                            </div>
                         </div>
 
-                        <div class="sub-card" style="margin-top: 20px;">
-                            <label>Nozzle Temp (°C)</label>
+                        <div class="sub-card" style="margin-top: 15px;">
+                            <h3 style="color: var(--primary-purple);"><i class="fas fa-thermometer-half"></i> Safety</h3>
+                            <label>Nozzle Temp</label>
                             <input type="number" id="printTemp" class="input-field" value="210" oninput="updateUI()">
-                            <div id="err-printTemp" class="error-inline hidden">Temp Alert</div>
-                            
-                            <label style="margin-top: 15px; display: block;">Bed Temp (°C)</label>
-                            <input type="number" id="bedTemp" class="input-field" value="60" oninput="updateUI()">
-                            <div id="err-bedTemp" class="error-inline hidden">Temp Alert</div>
+                            <div id="err-printTemp" class="error-text hidden">Invalid Temp</div>
                         </div>
                     </div>
 
                     <div class="visual-column">
-                            <div class="preview-box" style="background: #000; padding: 20px; border-radius: 12px; border: 2px solid #3a3a3a;">
-                                <canvas id="previewCanvas" width="300" height="200" style="display: block; margin: 0 auto;"></canvas>
+                        <div class="preview-box">
+                            <canvas id="previewCanvas" width="300" height="200"></canvas>
+                            <div style="margin-top: 10px; font-size: 0.8rem; color: var(--light-purple);">
+                                <i class="fas fa-circle" style="color: #ff4d4d;"></i> Home 
+                                <i class="fas fa-square" style="color: var(--primary-purple); margin-left: 10px;"></i> Bed
                             </div>
-                        <div class="sub-card" style="margin-top: 20px;">
-                            <label>Z-Probe</label>
-                            <select id="probeType" class="input-field">
-                                <option value="none">Manual Leveling</option>
-                                <option value="bltouch">BLTouch</option>
-                                <option value="inductive">Inductive</option>
-                            </select>
-                            <label style="margin-top: 15px; display: block;">Z-Tilt Support?</label>
-                            <select id="useZTilt" class="input-field">
-                                <option value="false">No</option>
-                                <option value="true">Yes</option>
-                            </select>
+                        </div>
+                        <div class="sub-card" style="margin-top: 15px;">
+                             <label>Z-Tilt Adjust?</label>
+                             <select id="useZTilt" class="input-field">
+                                 <option value="false">No</option>
+                                 <option value="true">Yes</option>
+                             </select>
                         </div>
                     </div>
                 </div>
 
-                <button id="generateBtn" class="btn-generate" onclick="generateMacros()">
-                    GENERATE CONFIGURATION
-                </button>
+                <button class="btn-main" onclick="generateMacros()">Generate Macros</button>
             </section>
 
-            <section id="outputCard" class="generator-card hidden">
+            <section id="outputCard" class="generator-section hidden">
                 <h2 style="color: var(--primary-purple);">macros.cfg</h2>
-                <button class="submit-btn" style="width: auto; padding: 10px 20px; margin-bottom: 15px;" onclick="copyToClipboard()">Copy to Clipboard</button>
-                <pre id="gcodeOutput" class="code-block"></pre>
+                <pre id="gcodeOutput" style="background: var(--dark-gray); padding: 15px; color: #00ff88; overflow: auto;"></pre>
             </section>
         </main>
 
         <footer>
-            <p>&copy; 2025 Kanrog Creations. All rights reserved.</p>
+            <p>&copy; 2026 Kanrog Creations. All rights reserved.</p>
         </footer>
     </div>
 
