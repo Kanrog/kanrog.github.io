@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        /* Custom overrides for the generator tool */
         .generator-section {
             background: var(--medium-gray);
             border: 2px solid var(--primary-purple);
@@ -22,16 +21,17 @@
 
         .generator-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-            gap: 25px; 
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
+            gap: 30px; 
             margin-bottom: 30px;
         }
 
         .sub-card { 
             background: var(--dark-gray);
             border: 1px solid var(--border-color);
-            padding: 20px; 
-            border-radius: 10px;
+            padding: 25px; 
+            border-radius: 12px;
+            margin-bottom: 20px;
         }
 
         .input-field { 
@@ -39,30 +39,25 @@
             background: var(--medium-gray); 
             color: var(--white); 
             border: 1px solid var(--border-color); 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin-top: 5px;
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-top: 8px;
+            box-sizing: border-box;
         }
 
         .preview-box { 
             background: #000; 
-            border-radius: 10px; 
+            border-radius: 12px; 
             border: 2px solid var(--primary-purple);
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 20px;
+            text-align: center;
         }
 
-        /* Fixed Canvas Dimensions */
-        #previewCanvas {
-            background: #111;
-            border-radius: 4px;
-        }
+        #previewCanvas { background: #111; border-radius: 4px; }
 
         .btn-main {
             width: 100%;
-            padding: 15px;
+            padding: 20px;
             background: var(--primary-purple);
             color: white;
             border: none;
@@ -70,11 +65,35 @@
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
+            font-size: 1.2rem;
         }
 
-        .btn-main:hover { background: var(--dark-purple); }
+        .btn-main:hover { background: var(--dark-purple); transform: translateY(-2px); }
         .hidden { display: none !important; }
-        .error-text { color: #e74c3c; font-size: 0.8rem; font-weight: bold; margin-top: 5px; }
+        .error-text { color: #e74c3c; font-size: 0.85rem; font-weight: bold; margin-top: 8px; display: block; }
+        .warning-text { color: #f39c12; font-size: 0.85rem; font-weight: bold; margin-top: 8px; display: block; }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 12px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        pre.code-block { 
+            background: var(--dark-gray); 
+            color: #00ff88; 
+            padding: 30px; 
+            border-radius: 12px; 
+            overflow: auto; 
+            font-family: 'Consolas', monospace; 
+            border: 2px solid var(--border-color);
+            white-space: pre-wrap;
+            height: 600px;
+        }
     </style>
 </head>
 <body>
@@ -91,24 +110,46 @@
                 <div class="generator-grid">
                     <div class="inputs-column">
                         <div class="sub-card">
-                            <h3 style="color: var(--primary-purple);"><i class="fas fa-robot"></i> Machine</h3>
-                            <label>Kinematics</label>
+                            <h3><i class="fas fa-robot"></i> 1. Kinematics</h3>
+                            <label>Archetype</label>
                             <select id="kin" class="input-field" onchange="updateUI()">
                                 <option value="bedslinger">Bedslinger</option>
                                 <option value="corexy">CoreXY</option>
                                 <option value="delta">Delta</option>
                             </select>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()">
-                                <input type="number" id="maxY" class="input-field" value="235" oninput="updateUI()">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                                <div><label>X (mm)</label><input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()"></div>
+                                <div><label>Y (mm)</label><input type="number" id="maxY" class="input-field" value="235" oninput="updateUI()"></div>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <label>Safe Margin (mm)</label>
+                                <input type="number" id="margin" class="input-field" value="20" oninput="updateUI()">
+                                <span id="err-margin" class="error-text hidden">Margin leaves no space!</span>
                             </div>
                         </div>
 
-                        <div class="sub-card" style="margin-top: 15px;">
-                            <h3 style="color: var(--primary-purple);"><i class="fas fa-thermometer-half"></i> Safety</h3>
-                            <label>Nozzle Temp</label>
-                            <input type="number" id="printTemp" class="input-field" value="210" oninput="updateUI()">
-                            <div id="err-printTemp" class="error-text hidden">Invalid Temp</div>
+                        <div class="sub-card">
+                            <h3><i class="fas fa-atom"></i> 2. Material</h3>
+                            <label>Presets</label>
+                            <select id="material" class="input-field" onchange="updateMaterialPresets(); updateUI();">
+                                <option value="PLA">PLA (Standard)</option>
+                                <option value="PETG">PETG (Mid)</option>
+                                <option value="ABS">ABS (High)</option>
+                                <option value="TPU">TPU (Flex)</option>
+                                <option value="Custom">Custom</option>
+                            </select>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                                <div>
+                                    <label>Nozzle (°C)</label>
+                                    <input type="number" id="printTemp" class="input-field" value="210" oninput="setCustomMaterial(); updateUI();">
+                                    <span id="err-printTemp" class="error-text hidden">Invalid!</span>
+                                </div>
+                                <div>
+                                    <label>Bed (°C)</label>
+                                    <input type="number" id="bedTemp" class="input-field" value="60" oninput="setCustomMaterial(); updateUI();">
+                                    <span id="err-bedTemp" class="error-text hidden">Invalid!</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -118,24 +159,41 @@
                             <div style="margin-top: 10px; font-size: 0.8rem; color: var(--light-purple);">
                                 <i class="fas fa-circle" style="color: #ff4d4d;"></i> Home 
                                 <i class="fas fa-square" style="color: var(--primary-purple); margin-left: 10px;"></i> Bed
+                                <i class="fas fa-minus" style="color: #ff00ff; margin-left: 10px;"></i> Purge
                             </div>
                         </div>
-                        <div class="sub-card" style="margin-top: 15px;">
-                             <label>Z-Tilt Adjust?</label>
-                             <select id="useZTilt" class="input-field">
-                                 <option value="false">No</option>
-                                 <option value="true">Yes</option>
-                             </select>
+
+                        <div class="sub-card" style="margin-top: 20px;">
+                            <h3><i class="fas fa-lightbulb"></i> 3. Lighting</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div><label>LED Name</label><input type="text" id="ledName" class="input-field" value="status_leds"></div>
+                                <div><label>Active?</label><select id="useLED" class="input-field"><option value="true">Yes</option><option value="false">No</option></select></div>
+                            </div>
+                            <div style="margin-top:10px;">
+                                <label>Idle Color</label>
+                                <select id="colorIdle" class="input-field"><option value="BLUE">Blue</option><option value="GREEN">Green</option><option value="PURPLE">Purple</option></select>
+                            </div>
+                        </div>
+
+                        <div class="sub-card">
+                            <h3><i class="fas fa-tools"></i> 4. Hardware</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div><label>Z-Tilt?</label><select id="useZTilt" class="input-field"><option value="false">No</option><option value="true">Yes</option></select></div>
+                                <div><label>Probe</label><select id="probeType" class="input-field"><option value="none">Manual</option><option value="bltouch">BLTouch</option></select></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <button class="btn-main" onclick="generateMacros()">Generate Macros</button>
+                <button class="btn-main" id="generateBtn" onclick="generateMacros()">Generate Configuration</button>
             </section>
 
             <section id="outputCard" class="generator-section hidden">
-                <h2 style="color: var(--primary-purple);">macros.cfg</h2>
-                <pre id="gcodeOutput" style="background: var(--dark-gray); padding: 15px; color: #00ff88; overflow: auto;"></pre>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="color: var(--primary-purple); margin:0;">macros.cfg</h2>
+                    <button class="submit-btn" style="width: auto; padding: 10px 20px;" onclick="copyToClipboard()">Copy to Clipboard</button>
+                </div>
+                <pre id="gcodeOutput" class="code-block"></pre>
             </section>
         </main>
 
