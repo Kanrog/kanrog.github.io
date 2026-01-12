@@ -1,6 +1,6 @@
 /**
  * THE KANROG UNIVERSAL MACRO LIBRARY
- * VERSION: DE-OPTIMIZED / FULLY EXPANDED 2026.01.12
+ * VERSION: FINAL MANUAL LEVELING & E_CAL UPDATE 2026.01.12
  */
 
 const GCODE_TEMPLATES = {
@@ -125,7 +125,7 @@ gcode:
     },
 
     // =================================================================
-    // 4. DIAGNOSTICS & PROBE CHECK
+    // 4. DIAGNOSTICS & PROBE CHECK & MANUAL LEVELING
     // =================================================================
     diagnostics: (kin, probeType) => {
         // Build Probe Logic Explicitly
@@ -136,6 +136,30 @@ description: Test probe accuracy
 gcode:
     G28
     PROBE_ACCURACY samples=10`;
+        }
+
+        // Build Manual Leveling Logic Explicitly (Requested addition)
+        let manual_level_block = "";
+        if (probeType === 'none') {
+            manual_level_block = `#=====================================================
+# Manual Bed Level
+#=====================================================
+
+[gcode_macro LEVEL_BED]
+description: run manual bed leveling
+gcode:
+    G28
+    BED_SCREWS_ADJUST
+
+#=====================================================
+# Calibrate Z-Endstop location
+#=====================================================
+
+[gcode_macro Z_Calibrate]
+description: Calibrate Z endstop
+gcode:
+    G28
+    Z_ENDSTOP_CALIBRATE`;
         }
 
         // Build Delta Calibration Logic Explicitly
@@ -186,16 +210,21 @@ gcode:
     PID_CALIBRATE HEATER=heater_bed TARGET={printer["gcode_macro _USER_VARS"].bed_temp}
     SAVE_CONFIG
 
+#=====================================================
+# Calibrate Extruder ## https://www.rolohaun3d.ca/klipper
+#=====================================================
 [gcode_macro E_CALIBRATE]
-description: Extrude 50mm for rotation distance check
+description: Calibrate rotation_distance
 gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %} G28 {% endif %}
+    # Safety: Heating Required
     M109 S{printer["gcode_macro _USER_VARS"].print_temp}
-    M83
-    G1 E50 F300
-    M400
+    G91
+    G1 E50 F60
 
 ${probe_macro_block}
+
+${manual_level_block}
 
 ${delta_cal_block}\n\n`;
     },
