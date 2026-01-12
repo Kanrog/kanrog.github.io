@@ -1,11 +1,7 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: FINAL UNABRIDGED 2026.01.12
- * * This file handles:
- * 1. UI Visualization (HTML5 Canvas)
- * 2. Color Mixing Calculations
- * 3. Material Logistics
- * 4. Template Assembly
+ * VERSION: DE-OPTIMIZED / FULLY EXPANDED 2026.01.12
+ * This file handles all calculations, safety checks, and UI updates.
  */
 
 const canvas = document.getElementById('previewCanvas');
@@ -24,23 +20,91 @@ const COLOR_MAP = {
 };
 
 /**
- * Update the Canvas Visualization
+ * Handle Material Preset Changes
+ * Automatically sets temperatures based on selected filament.
+ */
+function updateMaterialPresets() {
+    const mat = document.getElementById('material').value;
+    const pInput = document.getElementById('printTemp');
+    const bInput = document.getElementById('bedTemp');
+    
+    if (mat === "PLA") {
+        pInput.value = 210;
+        bInput.value = 60;
+    } else if (mat === "PETG") {
+        pInput.value = 240;
+        bInput.value = 80;
+    } else if (mat === "ABS") {
+        pInput.value = 250;
+        bInput.value = 100;
+    } else if (mat === "TPU") {
+        pInput.value = 230;
+        bInput.value = 50;
+    }
+    // If Custom, do nothing (preserve user input)
+}
+
+/**
+ * Switch Dropdown to 'Custom' if user types manually
+ */
+function setCustomMaterial() {
+    document.getElementById('material').value = "Custom";
+}
+
+/**
+ * Update UI, Canvas & Safety Checks
+ * This function runs on every user interaction.
  */
 function updateUI() {
-    // Collect Inputs for Visualization
+    // Gather Inputs
     const kin = document.getElementById('kin').value;
     const x = parseFloat(document.getElementById('maxX').value) || 235;
     const y = parseFloat(document.getElementById('maxY').value) || 235;
     const m = parseFloat(document.getElementById('margin').value) || 20;
     const usePurge = document.getElementById('usePurge').value === 'true';
 
-    // Reset Canvas
+    // --- SAFETY CHECK SYSTEM ---
+    const warningBox = document.getElementById('warningBox');
+    const warningMsg = document.getElementById('warningMsg');
+    const genBtn = document.getElementById('generateBtn');
+    
+    let isUnsafe = false;
+    let errorText = "";
+
+    if (kin === 'delta') {
+        // Delta Safety: Margin must be less than Radius (X/2)
+        const radius = x / 2;
+        if (m >= radius - 10) {
+            isUnsafe = true;
+            errorText = `Margin (${m}mm) is too close to Radius (${radius}mm). Increase X or decrease Margin.`;
+        }
+    } else {
+        // Cartesian Safety: X/Y must be > Margin * 2
+        if ((x - (m * 2) <= 10) || (y - (m * 2) <= 10)) {
+            isUnsafe = true;
+            errorText = `Margin (${m}mm) leaves no printable space on Bed (${x}x${y}). Decrease Margin.`;
+        }
+    }
+
+    if (isUnsafe) {
+        warningMsg.innerText = errorText;
+        warningBox.classList.remove('hidden');
+        genBtn.disabled = true;
+        genBtn.classList.add('btn-disabled');
+    } else {
+        warningBox.classList.add('hidden');
+        genBtn.disabled = false;
+        genBtn.classList.remove('btn-disabled');
+    }
+    // ---------------------------
+
+    // Draw Canvas Visualization
     ctx.clearRect(0, 0, 300, 200);
     const scale = 120 / Math.max(x, y);
     const cx = 150; 
     const cy = 100;
 
-    // Draw Bed
+    // Draw Bed (Circle for Delta, Square for others)
     ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
     ctx.beginPath();
     if (kin === 'delta') {
@@ -50,7 +114,7 @@ function updateUI() {
     }
     ctx.fill();
 
-    // Draw Safe Zone
+    // Draw Safe Zone (Dashed Line)
     ctx.strokeStyle = "#a29bfe";
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
@@ -61,7 +125,7 @@ function updateUI() {
     }
     ctx.stroke();
 
-    // Draw Origin
+    // Draw Origin (Red Dot)
     ctx.fillStyle = "#ff4d4d";
     ctx.setLineDash([]);
     ctx.beginPath();
@@ -72,7 +136,7 @@ function updateUI() {
     }
     ctx.fill();
 
-    // Draw Purge Line
+    // Draw Purge Line (Pink Line)
     if (usePurge) {
         ctx.strokeStyle = "#ff00ff";
         ctx.lineWidth = 2;
@@ -105,6 +169,7 @@ function getRGBString(colorName, brightness) {
 
 /**
  * Main Generator Function
+ * Aggregates all data and calls template functions.
  */
 function generateMacros() {
     // 1. MECHANICS
@@ -116,6 +181,7 @@ function generateMacros() {
 
     // 2. LOGISTICS
     const bowden = document.getElementById('bowden').value || 450;
+    const probeType = document.getElementById('probeType').value;
     const useChamber = document.getElementById('useChamber').value === 'true';
     const usePurge = document.getElementById('usePurge').value === 'true';
     const heatStyle = document.getElementById('heatStyle').value;
@@ -171,13 +237,13 @@ function generateMacros() {
         output += GCODE_TEMPLATES.lighting(ledName, idleRGB, printRGB);
     }
     
-    output += GCODE_TEMPLATES.diagnostics(kin);
+    output += GCODE_TEMPLATES.diagnostics(kin, probeType);
     output += GCODE_TEMPLATES.torture(maxX, maxY, maxZ, margin, stressSpeed);
     
-    // Pass Material to Core Ops for Mesh Loading
-    output += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle, material);
+    // Pass ProbeType and Material to Core Ops for Mesh Loading logic
+    output += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle, material, probeType);
     
-    output += GCODE_TEMPLATES.utility(useChamber);
+    output += GCODE_TEMPLATES.utility(useChamber, probeType, bTemp);
 
     // 8. RENDER
     document.getElementById('gcodeOutput').innerText = output;
@@ -185,16 +251,10 @@ function generateMacros() {
     document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
 }
 
-/**
- * Copy to clipboard helper
- */
 function copyToClipboard() {
     navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText).then(() => alert("Copied!"));
 }
 
-/**
- * File Download helper
- */
 function downloadConfig() {
     const blob = new Blob([document.getElementById('gcodeOutput').innerText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -205,4 +265,7 @@ function downloadConfig() {
 }
 
 // Initial Visualization
-window.onload = updateUI;
+window.onload = function() {
+    updateMaterialPresets();
+    updateUI();
+};

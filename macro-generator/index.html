@@ -11,55 +11,64 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        /* Generator-Specific Layout Overrides 
-           No consolidation. Full verbose styling for layout integrity.
-        */
+        /* =========================================
+           GENERATOR SPECIFIC STYLES
+           (Restored for full control)
+           ========================================= */
+        
+        /* Grid Layout for the Interface */
         .generator-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
-            gap: 30px; 
+            gap: 40px; 
             margin-top: 30px;
         }
 
         .inputs-column {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
 
         .visual-column {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
 
+        /* Card Styling Overrides */
         .sub-card { 
             background: rgba(255, 255, 255, 0.03); 
-            padding: 25px; 
-            border-radius: 15px; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease;
+            padding: 30px; 
+            border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            transition: all 0.3s ease;
         }
 
-        .sub-card:hover {
-            border-color: rgba(162, 155, 254, 0.3);
+        .sub-card:hover { 
+            border-color: rgba(162, 155, 254, 0.4); 
+            transform: translateY(-2px);
         }
 
         .sub-card h3 {
             margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+            margin-bottom: 25px;
+            font-size: 1.3rem;
             color: #fff;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
         }
 
-        .sub-card h3 i {
-            margin-right: 10px;
-            color: #a29bfe;
+        .sub-card h3 i { 
+            margin-right: 12px; 
+            color: #a29bfe; 
+            font-size: 1.1em;
         }
 
+        /* Canvas Visualizer */
         .preview-box { 
             background: rgba(0, 0, 0, 0.6); 
             border-radius: 20px; 
@@ -67,35 +76,40 @@
             border: 1px solid rgba(162, 155, 254, 0.3); 
             text-align: center; 
             margin-bottom: 25px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
         }
 
         canvas { 
             max-width: 100%; 
             height: auto; 
-            filter: drop-shadow(0 0 25px rgba(162, 155, 254, 0.5)); 
+            filter: drop-shadow(0 0 25px rgba(162, 155, 254, 0.4)); 
         }
 
         .legend {
-            margin-top: 15px;
-            font-size: 0.8rem;
-            opacity: 0.8;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            opacity: 0.9;
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 50px;
         }
 
-        .input-group {
-            margin-bottom: 20px;
+        /* Form Elements */
+        .input-group { 
+            margin-bottom: 25px; 
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
             color: #bdc3c7;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
         }
 
         .input-field { 
@@ -103,10 +117,10 @@
             background: #1e272e; 
             color: #ecf0f1; 
             border: 1px solid #353b48; 
-            padding: 12px 15px; 
-            border-radius: 8px; 
+            padding: 14px 18px; 
+            border-radius: 10px; 
             font-family: 'Segoe UI', sans-serif;
-            font-size: 1rem;
+            font-size: 1.05rem;
             transition: all 0.2s ease;
             box-sizing: border-box;
         }
@@ -115,18 +129,26 @@
             outline: none;
             border-color: #a29bfe;
             background: #2c3e50;
-            box-shadow: 0 0 10px rgba(162, 155, 254, 0.1);
+            box-shadow: 0 0 15px rgba(162, 155, 254, 0.15);
         }
 
-        /* Brightness Slider Specifics */
+        /* Custom Slider Styling */
         .range-container {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-top: 10px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 8px;
+            margin-top: 12px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .range-label {
+            margin: 0;
+            font-size: 0.8rem;
+            min-width: 70px;
+            color: #a29bfe;
         }
 
         input[type=range] {
@@ -134,33 +156,60 @@
             accent-color: #a29bfe;
             cursor: pointer;
             height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
         }
 
         .range-value {
-            font-family: 'Consolas', monospace;
-            color: #a29bfe;
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #fff;
             font-weight: bold;
-            min-width: 45px;
+            min-width: 50px;
             text-align: right;
+            font-size: 1.1rem;
         }
 
+        /* Warning Banner Logic */
+        .warning-banner {
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .btn-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        /* Code Block Styling */
         pre.code-block { 
             background: #0f0f10; 
             color: #00ff88; 
-            padding: 35px; 
-            border-radius: 12px; 
+            padding: 40px; 
+            border-radius: 16px; 
             overflow-x: auto; 
             font-family: 'JetBrains Mono', 'Fira Code', monospace; 
-            height: 700px; 
+            height: 800px; 
             border: 1px solid #333; 
             white-space: pre-wrap; 
-            font-size: 0.9rem;
-            line-height: 1.6;
-            margin-top: 25px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-top: 30px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.7);
         }
 
-        .hidden { display: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -178,9 +227,10 @@
         <section class="card animate__animated animate__fadeIn">
             <h1><i class="fas fa-terminal"></i> Klipper Macro Architect</h1>
             <p>Design a robust, safety-compliant configuration suite for your 3D printer.</p>
-            <hr style="opacity: 0.1; margin: 25px 0;">
+            <hr style="opacity: 0.1; margin: 30px 0;">
             
             <div class="generator-grid">
+                
                 <div class="inputs-column">
                     
                     <div class="sub-card">
@@ -223,22 +273,23 @@
                         
                         <div class="input-group">
                             <label for="material">Primary Filament System</label>
-                            <select id="material" class="input-field">
+                            <select id="material" class="input-field" onchange="updateMaterialPresets()">
                                 <option value="PLA">PLA (Standard / Low Temp)</option>
                                 <option value="PETG">PETG (Durable / Mid Temp)</option>
                                 <option value="ABS">ABS/ASA (Engineering / High Temp)</option>
                                 <option value="TPU">TPU (Flex / Slow Retract)</option>
+                                <option value="Custom">Custom / Other</option>
                             </select>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div class="input-group">
                                 <label for="printTemp">Nozzle Target (°C)</label>
-                                <input type="number" id="printTemp" class="input-field" value="210">
+                                <input type="number" id="printTemp" class="input-field" value="210" oninput="setCustomMaterial()">
                             </div>
                             <div class="input-group">
                                 <label for="bedTemp">Bed Target (°C)</label>
-                                <input type="number" id="bedTemp" class="input-field" value="60">
+                                <input type="number" id="bedTemp" class="input-field" value="60" oninput="setCustomMaterial()">
                             </div>
                         </div>
                     </div>
@@ -249,7 +300,7 @@
                     <div class="preview-box">
                         <canvas id="previewCanvas" width="300" height="200"></canvas>
                         <div class="legend">
-                            <span style="color: #ff4d4d;"><i class="fas fa-circle"></i> Home Origin</span>
+                            <span style="color: #ff4d4d;"><i class="fas fa-circle"></i> Home</span>
                             <span style="color: #a29bfe;"><i class="fas fa-minus"></i> Safe Zone</span>
                             <span style="color: #ff00ff;"><i class="fas fa-minus"></i> Purge Line</span>
                         </div>
@@ -261,6 +312,16 @@
                         <div class="input-group">
                             <label for="bowden">Bowden Tube Length (mm)</label>
                             <input type="number" id="bowden" class="input-field" value="450">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="probeType">Z-Probe Model</label>
+                            <select id="probeType" class="input-field">
+                                <option value="none">Manual Leveling (No Probe)</option>
+                                <option value="inductive">Inductive / Capacitive</option>
+                                <option value="bltouch">BLTouch / 3DTouch</option>
+                                <option value="tap">Voron Tap / Klicky / Euclid</option>
+                            </select>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -320,7 +381,7 @@
                             </select>
                             
                             <div class="range-container">
-                                <label for="brightIdleRange" style="margin:0; font-size: 0.8rem; min-width: 60px;">Brightness:</label>
+                                <label for="brightIdleRange" class="range-label">Brightness:</label>
                                 <input type="range" id="brightIdleRange" min="0" max="1" step="0.05" value="0.2" oninput="document.getElementById('valIdle').innerText = Math.round(this.value * 100) + '%'">
                                 <span id="valIdle" class="range-value">20%</span>
                             </div>
@@ -340,7 +401,7 @@
                             </select>
 
                             <div class="range-container">
-                                <label for="brightPrintRange" style="margin:0; font-size: 0.8rem; min-width: 60px;">Brightness:</label>
+                                <label for="brightPrintRange" class="range-label">Brightness:</label>
                                 <input type="range" id="brightPrintRange" min="0" max="1" step="0.05" value="1.0" oninput="document.getElementById('valPrint').innerText = Math.round(this.value * 100) + '%'">
                                 <span id="valPrint" class="range-value">100%</span>
                             </div>
@@ -357,7 +418,12 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary animate__animated animate__pulse animate__infinite" style="width: 100%; padding: 25px; font-size: 1.4rem; margin-top: 30px;" onclick="generateMacros()">
+            <div id="warningBox" class="warning-banner hidden animate__animated animate__shakeX">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="warningMsg">Configuration Error</span>
+            </div>
+
+            <button id="generateBtn" class="btn btn-primary animate__animated animate__pulse animate__infinite" style="width: 100%; padding: 25px; font-size: 1.4rem; margin-top: 30px;" onclick="generateMacros()">
                 <i class="fas fa-code"></i> GENERATE CONFIGURATION
             </button>
         </section>
