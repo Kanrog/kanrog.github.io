@@ -15,14 +15,14 @@
         .sub-card { background: var(--dark-gray); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; margin-bottom: 20px; transition: 0.3s; }
         .sub-card:hover { border-color: var(--primary-purple); transform: translateY(-5px); }
         .input-field { width: 100%; background: var(--medium-gray); color: var(--white); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-top: 8px; box-sizing: border-box; }
-        .preview-box { background: #000; border-radius: 12px; border: 2px solid var(--primary-purple); padding: 20px; text-align: center; }
+        .preview-box { background: #000; border-radius: 12px; border: 2px solid var(--primary-purple); padding: 20px; text-align: center; margin-bottom: 20px; }
         #previewCanvas { background: #111; border-radius: 4px; display: block; margin: 0 auto; }
         .legend { margin-top: 15px; font-size: 0.85rem; color: var(--light-purple); display: flex; justify-content: center; gap: 15px; }
         .error-text { color: #e74c3c; font-size: 0.85rem; font-weight: bold; margin-top: 8px; display: block; }
         .warning-text { color: #f39c12; font-size: 0.85rem; font-weight: bold; margin-top: 8px; display: block; }
-        .input-error { border-color: #e74c3c !important; }
         .btn-main { width: 100%; padding: 20px; background: var(--primary-purple); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
         .btn-main:hover { background: var(--dark-purple); transform: translateY(-2px); }
+        .btn-success { background: #27ae60 !important; }
         pre.code-block { background: var(--dark-gray); color: #00ff88; padding: 30px; border-radius: 12px; overflow: auto; font-family: 'Consolas', monospace; border: 2px solid var(--border-color); white-space: pre-wrap; height: 600px; }
         .hidden { display: none !important; }
     </style>
@@ -35,14 +35,14 @@
         </header>
         <main>
             <div class="disclaimer-box animate__animated animate__pulse animate__infinite">
-                <p><i class="fas fa-exclamation-triangle"></i> <strong>BETA RELEASE:</strong> Use at your own risk. Verify all movements at low speeds before full operation.</p>
+                <p><i class="fas fa-exclamation-triangle"></i> <strong>BETA RELEASE:</strong> Use at your own risk. Verify all movements at low speeds.</p>
             </div>
             <section class="generator-section animate__animated animate__fadeIn">
                 <div class="generator-grid">
+                    
                     <div class="inputs-column">
                         <div class="sub-card">
                             <h3><i class="fas fa-robot"></i> 1. Kinematics</h3>
-                            <label>Archetype</label>
                             <select id="kin" class="input-field" onchange="updateUI()">
                                 <option value="bedslinger">Bedslinger</option>
                                 <option value="corexy">CoreXY</option>
@@ -58,6 +58,15 @@
                                 <span id="err-margin" class="error-text hidden">Invalid Margin</span>
                             </div>
                         </div>
+
+                        <div class="preview-box">
+                            <canvas id="previewCanvas" width="300" height="200"></canvas>
+                            <div class="legend">
+                                <span><i class="fas fa-circle" style="color: #ff4d4d;"></i> Home</span>
+                                <span><i class="fas fa-minus" style="color: #ff00ff;"></i> Purge</span>
+                            </div>
+                        </div>
+
                         <div class="sub-card">
                             <h3><i class="fas fa-atom"></i> 2. Material</h3>
                             <select id="material" class="input-field" onchange="updateMaterialPresets(); updateUI();">
@@ -69,39 +78,39 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="visual-column">
-                        <div class="preview-box">
-                            <canvas id="previewCanvas" width="300" height="200"></canvas>
-                            <div class="legend">
-                                <span><i class="fas fa-circle" style="color: #ff4d4d;"></i> Home</span>
-                                <span><i class="fas fa-minus" style="color: #ff00ff;"></i> Purge</span>
-                            </div>
-                        </div>
-                        <div class="sub-card" style="margin-top: 20px;">
+                        <div class="sub-card">
                             <h3><i class="fas fa-lightbulb"></i> 3. Lights & Stress</h3>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <input type="text" id="ledName" class="input-field" value="status_leds">
-                                <select id="useLED" class="input-field"><option value="true">Active</option><option value="false">Off</option></select>
+                                <div><label>LED Name</label><input type="text" id="ledName" class="input-field" value="status_leds"></div>
+                                <div><label>Active?</label><select id="useLED" class="input-field"><option value="true">Yes</option><option value="false">No</option></select></div>
                             </div>
-                            <select id="tortureLevel" class="input-field" style="margin-top:10px;">
+                            <label style="margin-top: 15px; display: block;">Stress Intensity</label>
+                            <select id="tortureLevel" class="input-field">
                                 <option value="standard">Standard</option><option value="aggressive">Aggressive</option>
                             </select>
                         </div>
+
                         <div class="sub-card">
                             <h3><i class="fas fa-tools"></i> 4. Hardware</h3>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <select id="probeType" class="input-field"><option value="none">Manual</option><option value="bltouch">BLTouch</option><option value="tap">Voron Tap</option></select>
-                                <select id="useZTilt" class="input-field"><option value="false">No Z-Tilt</option><option value="true">Z-Tilt</option></select>
+                                <div><label>Probe</label><select id="probeType" class="input-field"><option value="none">Manual</option><option value="bltouch">BLTouch</option><option value="tap">Voron Tap</option></select></div>
+                                <div><label>Z-Tilt?</label><select id="useZTilt" class="input-field"><option value="false">No</option><option value="true">Yes</option></select></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <button class="btn-main" id="generateBtn" onclick="generateMacros()">Generate Configuration</button>
             </section>
+
             <section id="outputCard" class="generator-section hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="color: var(--primary-purple); margin:0;">Generated macros.cfg</h2>
-                    <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="copyToClipboard()">Copy</button>
+                    <h2 style="color: var(--primary-purple); margin:0;">Output</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="copyToClipboard()">Copy</button>
+                        <button class="btn-main btn-success" style="width: auto; padding: 10px 20px;" onclick="downloadMacros()">Download .cfg</button>
+                    </div>
                 </div>
                 <pre id="gcodeOutput" class="code-block"></pre>
             </section>
