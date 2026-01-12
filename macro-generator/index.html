@@ -13,10 +13,8 @@
     <style>
         /* =================================================================
            GENERATOR SPECIFIC STYLES
-           Expanded for full readability and control.
            ================================================================= */
         
-        /* Main Grid Layout */
         .generator-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
@@ -24,20 +22,12 @@
             margin-top: 30px;
         }
 
-        /* Column Flex Containers */
-        .inputs-column {
+        .inputs-column, .visual-column {
             display: flex;
             flex-direction: column;
             gap: 25px;
         }
 
-        .visual-column {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        /* Card Component Styling */
         .sub-card { 
             background: rgba(255, 255, 255, 0.03); 
             padding: 30px; 
@@ -52,7 +42,6 @@
             transform: translateY(-2px);
         }
 
-        /* Card Headers */
         .sub-card h3 {
             margin-top: 0;
             margin-bottom: 25px;
@@ -64,13 +53,8 @@
             align-items: center;
         }
 
-        .sub-card h3 i { 
-            margin-right: 12px; 
-            color: #a29bfe; 
-            font-size: 1.1em;
-        }
+        .sub-card h3 i { margin-right: 12px; color: #a29bfe; }
 
-        /* Canvas Container */
         .preview-box { 
             background: rgba(0, 0, 0, 0.6); 
             border-radius: 20px; 
@@ -87,7 +71,6 @@
             filter: drop-shadow(0 0 25px rgba(162, 155, 254, 0.4)); 
         }
 
-        /* Legend Styling */
         .legend {
             margin-top: 20px;
             font-size: 0.85rem;
@@ -100,12 +83,8 @@
             border-radius: 50px;
         }
 
-        /* Input Group Wrappers */
-        .input-group { 
-            margin-bottom: 25px; 
-        }
+        .input-group { margin-bottom: 25px; }
 
-        /* Label Styling */
         label {
             display: block;
             margin-bottom: 10px;
@@ -116,7 +95,6 @@
             letter-spacing: 1.2px;
         }
 
-        /* Input Field Styling */
         .input-field { 
             width: 100%; 
             background: #1e272e; 
@@ -137,7 +115,23 @@
             box-shadow: 0 0 15px rgba(162, 155, 254, 0.15);
         }
 
-        /* Slider Container */
+        /* Error States */
+        .input-error {
+            border-color: #e74c3c !important;
+            background: rgba(231, 76, 60, 0.1) !important;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.2);
+        }
+
+        .error-inline {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
         .range-container {
             display: flex;
             align-items: center;
@@ -149,14 +143,8 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .range-label {
-            margin: 0;
-            font-size: 0.8rem;
-            min-width: 70px;
-            color: #a29bfe;
-        }
+        .range-label { margin: 0; font-size: 0.8rem; min-width: 70px; color: #a29bfe; }
 
-        /* Slider Input */
         input[type=range] {
             flex-grow: 1;
             accent-color: #a29bfe;
@@ -174,22 +162,6 @@
             text-align: right;
             font-size: 1.1rem;
         }
-
-        /* Warning Banner Logic */
-        .warning-banner {
-            background: rgba(231, 76, 60, 0.1);
-            border: 2px solid #e74c3c;
-            color: #e74c3c;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
         
         .btn-disabled {
             opacity: 0.4;
@@ -198,7 +170,6 @@
             filter: grayscale(100%);
         }
 
-        /* Code Block Styling */
         pre.code-block { 
             background: #0f0f10; 
             color: #00ff88; 
@@ -215,9 +186,7 @@
             box-shadow: inset 0 0 30px rgba(0,0,0,0.7);
         }
 
-        .hidden { 
-            display: none !important; 
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -240,10 +209,8 @@
             <div class="generator-grid">
                 
                 <div class="inputs-column">
-                    
                     <div class="sub-card">
                         <h3><i class="fas fa-robot"></i> 1. Kinematics & Volume</h3>
-                        
                         <div class="input-group">
                             <label for="kin">Motion Archetype</label>
                             <select id="kin" class="input-field" onchange="updateUI()">
@@ -252,33 +219,22 @@
                                 <option value="delta">Delta (Circular / 3-Tower)</option>
                             </select>
                         </div>
-                        
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div class="input-group">
-                                <label for="maxX">X Axis Limit (mm)</label>
-                                <input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()">
-                            </div>
-                            <div class="input-group">
-                                <label for="maxY">Y Axis Limit (mm)</label>
-                                <input type="number" id="maxY" class="input-field" value="235" oninput="updateUI()">
-                            </div>
+                            <div class="input-group"><label for="maxX">X Axis Limit (mm)</label><input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()"></div>
+                            <div class="input-group"><label for="maxY">Y Axis Limit (mm)</label><input type="number" id="maxY" class="input-field" value="235" oninput="updateUI()"></div>
                         </div>
-                        
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div class="input-group">
-                                <label for="maxZ">Z Axis Limit (mm)</label>
-                                <input type="number" id="maxZ" class="input-field" value="250">
-                            </div>
+                            <div class="input-group"><label for="maxZ">Z Axis Limit (mm)</label><input type="number" id="maxZ" class="input-field" value="250"></div>
                             <div class="input-group">
                                 <label for="margin">Safe Travel Margin (mm)</label>
                                 <input type="number" id="margin" class="input-field" value="20" oninput="updateUI()">
+                                <div id="err-margin" class="error-inline hidden"><i class="fas fa-exclamation-circle"></i> <span>Margin Error</span></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="sub-card">
                         <h3><i class="fas fa-atom"></i> 2. Material Profile</h3>
-                        
                         <div class="input-group">
                             <label for="material">Primary Filament System</label>
                             <select id="material" class="input-field" onchange="updateMaterialPresets(); updateUI();">
@@ -289,22 +245,22 @@
                                 <option value="Custom">Custom / Other</option>
                             </select>
                         </div>
-
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div class="input-group">
                                 <label for="printTemp">Nozzle Target (°C)</label>
                                 <input type="number" id="printTemp" class="input-field" value="210" oninput="setCustomMaterial(); updateUI();">
+                                <div id="err-printTemp" class="error-inline hidden"><i class="fas fa-exclamation-circle"></i> <span>Temp Error</span></div>
                             </div>
                             <div class="input-group">
                                 <label for="bedTemp">Bed Target (°C)</label>
                                 <input type="number" id="bedTemp" class="input-field" value="60" oninput="setCustomMaterial(); updateUI();">
+                                <div id="err-bedTemp" class="error-inline hidden"><i class="fas fa-exclamation-circle"></i> <span>Temp Error</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="visual-column">
-                    
                     <div class="preview-box">
                         <canvas id="previewCanvas" width="300" height="200"></canvas>
                         <div class="legend">
@@ -316,12 +272,7 @@
 
                     <div class="sub-card">
                         <h3><i class="fas fa-cogs"></i> 3. Machine Logistics</h3>
-                        
-                        <div class="input-group">
-                            <label for="bowden">Bowden Tube Length (mm)</label>
-                            <input type="number" id="bowden" class="input-field" value="450">
-                        </div>
-
+                        <div class="input-group"><label for="bowden">Bowden Tube Length (mm)</label><input type="number" id="bowden" class="input-field" value="450"></div>
                         <div class="input-group">
                             <label for="probeType">Z-Probe Model</label>
                             <select id="probeType" class="input-field">
@@ -331,63 +282,23 @@
                                 <option value="tap">Voron Tap / Klicky / Euclid</option>
                             </select>
                         </div>
-
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div class="input-group">
-                                <label for="useChamber">Active Chamber?</label>
-                                <select id="useChamber" class="input-field">
-                                    <option value="false">Open Air</option>
-                                    <option value="true">Enclosed</option>
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label for="usePurge">Prime Line?</label>
-                                <select id="usePurge" class="input-field" onchange="updateUI()">
-                                    <option value="true">Enabled</option>
-                                    <option value="false">Disabled</option>
-                                </select>
-                            </div>
+                            <div class="input-group"><label for="useChamber">Active Chamber?</label><select id="useChamber" class="input-field"><option value="false">Open Air</option><option value="true">Enclosed</option></select></div>
+                            <div class="input-group"><label for="usePurge">Prime Line?</label><select id="usePurge" class="input-field" onchange="updateUI()"><option value="true">Enabled</option><option value="false">Disabled</option></select></div>
                         </div>
-
-                        <div class="input-group">
-                            <label for="heatStyle">Heating Strategy</label>
-                            <select id="heatStyle" class="input-field">
-                                <option value="staged">Staged (PSU Protection Mode)</option>
-                                <option value="parallel">Parallel (Maximum Velocity)</option>
-                            </select>
-                        </div>
+                        <div class="input-group"><label for="heatStyle">Heating Strategy</label><select id="heatStyle" class="input-field"><option value="staged">Staged (PSU Protection Mode)</option><option value="parallel">Parallel (Maximum Velocity)</option></select></div>
                     </div>
 
                     <div class="sub-card">
                         <h3><i class="fas fa-lightbulb"></i> 4. Visual Feedback</h3>
-                        
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div class="input-group">
-                                <label for="useLED">NeoPixel Status?</label>
-                                <select id="useLED" class="input-field">
-                                    <option value="true">Active</option>
-                                    <option value="false">Inactive</option>
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label for="ledName">Config Name</label>
-                                <input type="text" id="ledName" class="input-field" value="status_leds">
-                            </div>
+                            <div class="input-group"><label for="useLED">NeoPixel Status?</label><select id="useLED" class="input-field"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+                            <div class="input-group"><label for="ledName">Config Name</label><input type="text" id="ledName" class="input-field" value="status_leds"></div>
                         </div>
 
                         <div class="input-group">
                             <label for="colorIdle">Standby Color</label>
-                            <select id="colorIdle" class="input-field">
-                                <option value="BLUE" selected>Blue</option>
-                                <option value="GREEN">Green</option>
-                                <option value="RED">Red</option>
-                                <option value="ORANGE">Orange</option>
-                                <option value="YELLOW">Yellow</option>
-                                <option value="TEAL">Teal</option>
-                                <option value="PURPLE">Purple</option>
-                                <option value="WHITE">White</option>
-                            </select>
-                            
+                            <select id="colorIdle" class="input-field"><option value="BLUE" selected>Blue</option><option value="GREEN">Green</option><option value="RED">Red</option><option value="ORANGE">Orange</option><option value="YELLOW">Yellow</option><option value="TEAL">Teal</option><option value="PURPLE">Purple</option><option value="WHITE">White</option></select>
                             <div class="range-container">
                                 <label for="brightIdleRange" class="range-label">Brightness:</label>
                                 <input type="range" id="brightIdleRange" min="0" max="1" step="0.05" value="0.2" oninput="document.getElementById('valIdle').innerText = Math.round(this.value * 100) + '%'">
@@ -397,17 +308,7 @@
 
                         <div class="input-group">
                             <label for="colorPrint">Printing Color</label>
-                            <select id="colorPrint" class="input-field">
-                                <option value="WHITE" selected>White</option>
-                                <option value="BLUE">Blue</option>
-                                <option value="GREEN">Green</option>
-                                <option value="RED">Red</option>
-                                <option value="ORANGE">Orange</option>
-                                <option value="TEAL">Teal</option>
-                                <option value="PURPLE">Purple</option>
-                                <option value="YELLOW">Yellow</option>
-                            </select>
-
+                            <select id="colorPrint" class="input-field"><option value="WHITE" selected>White</option><option value="BLUE">Blue</option><option value="GREEN">Green</option><option value="RED">Red</option><option value="ORANGE">Orange</option><option value="TEAL">Teal</option><option value="PURPLE">Purple</option><option value="YELLOW">Yellow</option></select>
                             <div class="range-container">
                                 <label for="brightPrintRange" class="range-label">Brightness:</label>
                                 <input type="range" id="brightPrintRange" min="0" max="1" step="0.05" value="1.0" oninput="document.getElementById('valPrint').innerText = Math.round(this.value * 100) + '%'">
@@ -415,23 +316,12 @@
                             </div>
                         </div>
                         
-                        <div class="input-group">
-                            <label for="tortureLevel">Stress Test Intensity</label>
-                            <select id="tortureLevel" class="input-field">
-                                <option value="standard">Standard (500mm/s)</option>
-                                <option value="aggressive">Aggressive (800mm/s)</option>
-                            </select>
-                        </div>
+                        <div class="input-group"><label for="tortureLevel">Stress Test Intensity</label><select id="tortureLevel" class="input-field"><option value="standard">Standard (500mm/s)</option><option value="aggressive">Aggressive (800mm/s)</option></select></div>
                     </div>
                 </div>
             </div>
 
-            <div id="warningBox" class="warning-banner hidden animate__animated animate__shakeX">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span id="warningMsg">Configuration Error</span>
-            </div>
-
-            <button id="generateBtn" class="btn btn-primary animate__animated animate__pulse animate__infinite" style="width: 100%; padding: 25px; font-size: 1.4rem; margin-top: 30px;" onclick="generateMacros()">
+            <button id="generateBtn" class="btn btn-primary" style="width: 100%; padding: 25px; font-size: 1.4rem; margin-top: 30px;" onclick="generateMacros()">
                 <i class="fas fa-code"></i> GENERATE CONFIGURATION
             </button>
         </section>
@@ -440,12 +330,8 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2><i class="fas fa-file-alt"></i> macros.cfg</h2>
                 <div style="display: flex; gap: 15px;">
-                    <button class="btn btn-secondary" onclick="copyToClipboard()">
-                        <i class="fas fa-copy"></i> Copy to Clipboard
-                    </button>
-                    <button class="btn btn-success" onclick="downloadConfig()">
-                        <i class="fas fa-download"></i> Download File
-                    </button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard()"><i class="fas fa-copy"></i> Copy to Clipboard</button>
+                    <button class="btn btn-success" onclick="downloadConfig()"><i class="fas fa-download"></i> Download File</button>
                 </div>
             </div>
             <pre id="gcodeOutput" class="code-block"></pre>
