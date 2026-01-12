@@ -43,6 +43,7 @@
             border-radius: 8px; 
             margin-top: 8px;
             box-sizing: border-box;
+            font-family: inherit;
         }
 
         .preview-box { 
@@ -66,6 +67,7 @@
             cursor: pointer;
             text-transform: uppercase;
             font-size: 1.2rem;
+            transition: 0.3s;
         }
 
         .btn-main:hover { background: var(--dark-purple); transform: translateY(-2px); }
@@ -73,26 +75,17 @@
         .error-text { color: #e74c3c; font-size: 0.85rem; font-weight: bold; margin-top: 8px; display: block; }
         .warning-text { color: #f39c12; font-size: 0.85rem; font-weight: bold; margin-top: 8px; display: block; }
 
-        .range-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 12px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 8px;
-        }
-
         pre.code-block { 
             background: var(--dark-gray); 
             color: #00ff88; 
             padding: 30px; 
             border-radius: 12px; 
             overflow: auto; 
-            font-family: 'Consolas', monospace; 
+            font-family: 'Consolas', 'Monaco', monospace; 
             border: 2px solid var(--border-color);
             white-space: pre-wrap;
             height: 600px;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -108,14 +101,15 @@
         <main>
             <section class="generator-section animate__animated animate__fadeIn">
                 <div class="generator-grid">
+                    
                     <div class="inputs-column">
                         <div class="sub-card">
                             <h3><i class="fas fa-robot"></i> 1. Kinematics</h3>
                             <label>Archetype</label>
                             <select id="kin" class="input-field" onchange="updateUI()">
-                                <option value="bedslinger">Bedslinger</option>
-                                <option value="corexy">CoreXY</option>
-                                <option value="delta">Delta</option>
+                                <option value="bedslinger">Bedslinger (Moving Y)</option>
+                                <option value="corexy">CoreXY (Fixed Bed)</option>
+                                <option value="delta">Delta (Circular)</option>
                             </select>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                                 <div><label>X (mm)</label><input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()"></div>
@@ -124,30 +118,30 @@
                             <div style="margin-top: 15px;">
                                 <label>Safe Margin (mm)</label>
                                 <input type="number" id="margin" class="input-field" value="20" oninput="updateUI()">
-                                <span id="err-margin" class="error-text hidden">Margin leaves no space!</span>
+                                <span id="err-margin" class="error-text hidden">Margin leaves no room!</span>
                             </div>
                         </div>
 
                         <div class="sub-card">
-                            <h3><i class="fas fa-atom"></i> 2. Material</h3>
-                            <label>Presets</label>
+                            <h3><i class="fas fa-atom"></i> 2. Material Presets</h3>
+                            <label>Filament Type</label>
                             <select id="material" class="input-field" onchange="updateMaterialPresets(); updateUI();">
-                                <option value="PLA">PLA (Standard)</option>
-                                <option value="PETG">PETG (Mid)</option>
-                                <option value="ABS">ABS (High)</option>
-                                <option value="TPU">TPU (Flex)</option>
+                                <option value="PLA">PLA</option>
+                                <option value="PETG">PETG</option>
+                                <option value="ABS">ABS/ASA</option>
+                                <option value="TPU">TPU (Flexible)</option>
                                 <option value="Custom">Custom</option>
                             </select>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                                 <div>
                                     <label>Nozzle (°C)</label>
                                     <input type="number" id="printTemp" class="input-field" value="210" oninput="setCustomMaterial(); updateUI();">
-                                    <span id="err-printTemp" class="error-text hidden">Invalid!</span>
+                                    <span id="err-printTemp" class="error-text hidden">Error!</span>
                                 </div>
                                 <div>
                                     <label>Bed (°C)</label>
                                     <input type="number" id="bedTemp" class="input-field" value="60" oninput="setCustomMaterial(); updateUI();">
-                                    <span id="err-bedTemp" class="error-text hidden">Invalid!</span>
+                                    <span id="err-bedTemp" class="error-text hidden">Error!</span>
                                 </div>
                             </div>
                         </div>
@@ -159,47 +153,47 @@
                             <div style="margin-top: 10px; font-size: 0.8rem; color: var(--light-purple);">
                                 <i class="fas fa-circle" style="color: #ff4d4d;"></i> Home 
                                 <i class="fas fa-square" style="color: var(--primary-purple); margin-left: 10px;"></i> Bed
-                                <i class="fas fa-minus" style="color: #ff00ff; margin-left: 10px;"></i> Purge
                             </div>
                         </div>
 
                         <div class="sub-card" style="margin-top: 20px;">
-                            <h3><i class="fas fa-lightbulb"></i> 3. Lighting</h3>
+                            <h3><i class="fas fa-lightbulb"></i> 3. Visuals & Stress</h3>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                                 <div><label>LED Name</label><input type="text" id="ledName" class="input-field" value="status_leds"></div>
-                                <div><label>Active?</label><select id="useLED" class="input-field"><option value="true">Yes</option><option value="false">No</option></select></div>
+                                <div><label>Use LEDs?</label><select id="useLED" class="input-field"><option value="true">Yes</option><option value="false">No</option></select></div>
                             </div>
                             <div style="margin-top:10px;">
-                                <label>Idle Color</label>
-                                <select id="colorIdle" class="input-field"><option value="BLUE">Blue</option><option value="GREEN">Green</option><option value="PURPLE">Purple</option></select>
+                                <label>Stress Intensity</label>
+                                <select id="tortureLevel" class="input-field">
+                                    <option value="standard">Standard (500mm/s)</option>
+                                    <option value="aggressive">Aggressive (800mm/s)</option>
+                                </select>
                             </div>
                         </div>
 
                         <div class="sub-card">
-                            <h3><i class="fas fa-tools"></i> 4. Hardware</h3>
+                            <h3><i class="fas fa-tools"></i> 4. Diagnostics</h3>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div><label>Probe</label><select id="probeType" class="input-field"><option value="none">Manual</option><option value="bltouch">BLTouch</option><option value="tap">Voron Tap</option></select></div>
                                 <div><label>Z-Tilt?</label><select id="useZTilt" class="input-field"><option value="false">No</option><option value="true">Yes</option></select></div>
-                                <div><label>Probe</label><select id="probeType" class="input-field"><option value="none">Manual</option><option value="bltouch">BLTouch</option></select></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <button class="btn-main" id="generateBtn" onclick="generateMacros()">Generate Configuration</button>
+                <button class="btn-main" id="generateBtn" onclick="generateMacros()">GENERATE MACROS.CFG</button>
             </section>
 
             <section id="outputCard" class="generator-section hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="color: var(--primary-purple); margin:0;">macros.cfg</h2>
+                    <h2 style="color: var(--primary-purple); margin:0;">Output</h2>
                     <button class="submit-btn" style="width: auto; padding: 10px 20px;" onclick="copyToClipboard()">Copy to Clipboard</button>
                 </div>
                 <pre id="gcodeOutput" class="code-block"></pre>
             </section>
         </main>
 
-        <footer>
-            <p>&copy; 2026 Kanrog Creations. All rights reserved.</p>
-        </footer>
+        <footer><p>&copy; 2026 Kanrog Creations. All rights reserved.</p></footer>
     </div>
 
     <script src="macro-templates.js"></script>
