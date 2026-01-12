@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        /* Generator Layout - No Consolidation */
+        /* Generator-Specific Layout Overrides - No Consolidation */
         .generator-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
             gap: 30px; 
             margin-top: 30px;
         }
@@ -52,7 +52,7 @@
             margin-bottom: 8px;
             font-size: 0.9rem;
             color: #bdc3c7;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -66,6 +66,21 @@
             border-radius: 8px; 
             font-family: 'Segoe UI', sans-serif;
             font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #a29bfe;
+            background: #2c3e50;
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            width: 100%;
+            margin-top: 8px;
+            accent-color: #a29bfe;
+            cursor: pointer;
         }
 
         pre.code-block { 
@@ -75,12 +90,13 @@
             border-radius: 12px; 
             overflow-x: auto; 
             font-family: 'JetBrains Mono', 'Fira Code', monospace; 
-            height: 600px; 
+            height: 700px; 
             border: 1px solid #333; 
             white-space: pre-wrap; 
             font-size: 0.9rem;
             line-height: 1.6;
             margin-top: 25px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
         .hidden { display: none; }
@@ -228,9 +244,9 @@
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div class="input-group">
-                                <label for="colorIdle">Standby Color</label>
+                        <div class="input-group">
+                            <label>Standby Color & Brightness</label>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
                                 <select id="colorIdle" class="input-field">
                                     <option value="BLUE" selected>Blue</option>
                                     <option value="GREEN">Green</option>
@@ -241,9 +257,14 @@
                                     <option value="PURPLE">Purple</option>
                                     <option value="WHITE">White</option>
                                 </select>
+                                <input type="number" id="brightIdle" class="input-field" value="0.2" step="0.1" min="0" max="1" readonly>
                             </div>
-                            <div class="input-group">
-                                <label for="colorPrint">Printing Color</label>
+                            <input type="range" id="brightIdleRange" min="0" max="1" step="0.05" value="0.2" oninput="document.getElementById('brightIdle').value = this.value">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Printing Color & Brightness</label>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
                                 <select id="colorPrint" class="input-field">
                                     <option value="WHITE" selected>White</option>
                                     <option value="BLUE">Blue</option>
@@ -252,8 +273,11 @@
                                     <option value="ORANGE">Orange</option>
                                     <option value="TEAL">Teal</option>
                                     <option value="PURPLE">Purple</option>
+                                    <option value="YELLOW">Yellow</option>
                                 </select>
+                                <input type="number" id="brightPrint" class="input-field" value="1.0" step="0.1" min="0" max="1" readonly>
                             </div>
+                            <input type="range" id="brightPrintRange" min="0" max="1" step="0.05" value="1.0" oninput="document.getElementById('brightPrint').value = this.value">
                         </div>
                         
                         <div class="input-group">

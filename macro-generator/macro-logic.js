@@ -1,18 +1,32 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: FINAL 2026.01.12
+ * VERSION: FINAL UNABRIDGED 2026.01.12
  */
 
 const canvas = document.getElementById('previewCanvas');
 const ctx = canvas.getContext('2d');
 
+// Color Database (Base Values)
+const COLOR_MAP = {
+    'RED':    {r: 1.0, g: 0.0, b: 0.0},
+    'ORANGE': {r: 1.0, g: 0.5, b: 0.0},
+    'YELLOW': {r: 1.0, g: 1.0, b: 0.0},
+    'GREEN':  {r: 0.0, g: 1.0, b: 0.0},
+    'TEAL':   {r: 0.0, g: 0.5, b: 1.0},
+    'BLUE':   {r: 0.0, g: 0.0, b: 1.0},
+    'PURPLE': {r: 1.0, g: 0.0, b: 1.0},
+    'WHITE':  {r: 0.8, g: 0.8, b: 0.8}
+};
+
 function updateUI() {
+    // Collect Inputs for Visualization
     const kin = document.getElementById('kin').value;
     const x = parseFloat(document.getElementById('maxX').value) || 235;
     const y = parseFloat(document.getElementById('maxY').value) || 235;
     const m = parseFloat(document.getElementById('margin').value) || 20;
     const usePurge = document.getElementById('usePurge').value === 'true';
 
+    // Reset Canvas
     ctx.clearRect(0, 0, 300, 200);
     const scale = 120 / Math.max(x, y);
     const cx = 150; 
@@ -69,6 +83,18 @@ function updateUI() {
     }
 }
 
+/**
+ * Calculates a Klipper-ready LED string (RED=x GREEN=y BLUE=z)
+ * applying the brightness multiplier.
+ */
+function getRGBString(colorName, brightness) {
+    const base = COLOR_MAP[colorName] || COLOR_MAP['WHITE'];
+    const r = (base.r * brightness).toFixed(2);
+    const g = (base.g * brightness).toFixed(2);
+    const b = (base.b * brightness).toFixed(2);
+    return `RED=${r} GREEN=${g} BLUE=${b}`;
+}
+
 function generateMacros() {
     // 1. MECHANICS
     const kin = document.getElementById('kin').value;
@@ -83,7 +109,7 @@ function generateMacros() {
     const usePurge = document.getElementById('usePurge').value === 'true';
     const heatStyle = document.getElementById('heatStyle').value;
 
-    // 3. MATERIAL PROFILES (WITH RETRACTION & FAN LOGIC)
+    // 3. MATERIAL PROFILES
     const material = document.getElementById('material').value;
     const pTemp = document.getElementById('printTemp').value;
     const bTemp = document.getElementById('bedTemp').value;
@@ -98,11 +124,19 @@ function generateMacros() {
         fanSpeed = 64;      // Low fan for ABS
     }
 
-    // 4. LIGHTING
+    // 4. LIGHTING with BRIGHTNESS
     const useLED = document.getElementById('useLED').value === 'true';
     const ledName = document.getElementById('ledName').value || 'status_leds';
-    const idleCol = document.getElementById('colorIdle').value;
-    const printCol = document.getElementById('colorPrint').value;
+    
+    // Calculate Idle Color string
+    const idleColorName = document.getElementById('colorIdle').value;
+    const idleBright = parseFloat(document.getElementById('brightIdle').value);
+    const idleRGB = getRGBString(idleColorName, idleBright);
+
+    // Calculate Print Color string
+    const printColorName = document.getElementById('colorPrint').value;
+    const printBright = parseFloat(document.getElementById('brightPrint').value);
+    const printRGB = getRGBString(printColorName, printBright);
     
     // 5. STRESS
     const tortureLevel = document.getElementById('tortureLevel').value;
@@ -122,7 +156,8 @@ function generateMacros() {
     output += GCODE_TEMPLATES.user_vars(pkX, pkY, maxZ - 10, bowden, margin, pTemp, bTemp, material, retractSpeed, fanSpeed);
     
     if (useLED) {
-        output += GCODE_TEMPLATES.lighting(ledName, idleCol, printCol);
+        // Passing calculated RGB strings instead of just color names
+        output += GCODE_TEMPLATES.lighting(ledName, idleRGB, printRGB);
     }
     
     output += GCODE_TEMPLATES.diagnostics(kin);
