@@ -1,7 +1,7 @@
 /**
  * THE KANROG UNIVERSAL MACRO LIBRARY
  * VERSION: FINAL EXPANSION 2026.01.12
- * * Contains uncompressed, fully annotated Jinja2 templates for Klipper.
+ * NO SHORTCUTS. NO CONSOLIDATION.
  */
 
 const GCODE_TEMPLATES = {
@@ -17,9 +17,9 @@ const GCODE_TEMPLATES = {
 #====================================================================\n\n`,
 
     // =================================================================
-    // 2. USER VARIABLE STORE
+    // 2. USER VARIABLE STORE (Extended)
     // =================================================================
-    user_vars: (pkX, pkY, zPark, bowden, m, pTemp, bTemp, mat) => 
+    user_vars: (pkX, pkY, zPark, bowden, m, pTemp, bTemp, mat, rSpeed, fSpeed) => 
 `[gcode_macro _USER_VARS]
 description: Central database for printer variables
 variable_park_x: ${pkX}
@@ -30,6 +30,8 @@ variable_margin: ${m}
 # --- Material Settings for ${mat} ---
 variable_print_temp: ${pTemp}
 variable_bed_temp: ${bTemp}
+variable_retract_speed: ${rSpeed}
+variable_fan_speed: ${fSpeed}
 variable_material: '${mat}'
 gcode:
     # This section contains no executable code
@@ -40,7 +42,7 @@ gcode:
     // =================================================================
     lighting: (name, idle, print) => 
 `#--------------------------------------------------------------------
-# LED STATUS INDICATORS
+# LED INDIVIDUAL DEFINITIONS
 #--------------------------------------------------------------------
 [gcode_macro LED_RED]
 gcode:
@@ -78,8 +80,11 @@ gcode:
 gcode:
     SET_LED LED=${name} RED=0.0 GREEN=0.0 BLUE=0.0 TRANSMIT=1
 
+#--------------------------------------------------------------------
+# DYNAMIC STATE MACROS
+#--------------------------------------------------------------------
 [gcode_macro LED_IDLE]
-description: Set LEDs to the user-defined Idle color
+description: Set LEDs to the user-selected Idle color
 gcode:
     LED_${idle}
 
@@ -198,7 +203,7 @@ gcode:
     G90\n\n`,
 
     // =================================================================
-    // 6. PRINT OPERATIONS
+    // 6. PRINT OPERATIONS (With Bed Mesh Logic)
     // =================================================================
     core_ops: (kin, usePurge, pStart, pEnd, heatStyle, material) => 
 `#--------------------------------------------------------------------
@@ -312,25 +317,21 @@ gcode:
     M109 S{T}
     G91
     G1 E10 F100
-    G1 E-{printer["gcode_macro _USER_VARS"].variable_bowden_len + 50} F2000
+    G1 E-{printer["gcode_macro _USER_VARS"].variable_bowden_len + 50} F{printer["gcode_macro _USER_VARS"].variable_retract_speed}
     G90
 
 [gcode_macro PAUSE]
 rename_existing: PAUSE_BASE
 gcode:
     PAUSE_BASE
-    G91
-    G1 E-2 F1000
-    G90
+    G91; G1 E-2 F1000; G90
     G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} Z{printer.toolhead.position.z + 10} F3000
     LED_RED
 
 [gcode_macro RESUME]
 rename_existing: RESUME_BASE
 gcode:
-    G91
-    G1 E20 F300
-    G90
+    G91; G1 E20 F300; G90
     RESUME_BASE
     LED_PRINT
     
