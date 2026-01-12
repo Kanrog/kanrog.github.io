@@ -1,6 +1,8 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * Handles UI interactions, canvas visualization, and G-Code assembly.
+ * VERSION: 2026.01.12 - FULL EXPANSION
+ * * Handles UI interactions, canvas visualization, and G-Code assembly.
+ * Strictly avoids consolidation of logic or variable handling.
  */
 
 const canvas = document.getElementById('previewCanvas');
@@ -8,7 +10,7 @@ const ctx = canvas.getContext('2d');
 
 /**
  * Updates the 2D Canvas Visualizer
- * This function handles the drawing of the bed, safe zones, and purge locations.
+ * Provides real-time feedback for the selected archetype and safety margins.
  */
 function updateUI() {
     const kin = document.getElementById('kin').value;
@@ -17,29 +19,29 @@ function updateUI() {
     const m = parseFloat(document.getElementById('margin').value) || 20;
     const usePurge = document.getElementById('usePurge').value === 'true';
 
-    // Clear previous drawing
+    // Reset Canvas State
     ctx.clearRect(0, 0, 300, 200);
 
-    // Calculate scale and center
+    // Calculate scaling factor to fit the bed inside the 300x200 canvas
     const scale = 120 / Math.max(x, y);
-    const cx = 150;
-    const cy = 100;
+    const cx = 150; // Center X of Canvas
+    const cy = 100; // Center Y of Canvas
 
-    // 1. Draw Printer Bed
+    // --- 1. Draw Printer Bed ---
     ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
     ctx.beginPath();
     if (kin === 'delta') {
-        // Delta printers use a circular bed
+        // Delta printers are circular; center is (0,0)
         ctx.arc(cx, cy, (x / 2) * scale, 0, Math.PI * 2);
     } else {
-        // Cartesian/CoreXY use rectangular beds
+        // Cartesian/CoreXY are rectangular; center is (X/2, Y/2)
         ctx.rect(cx - (x / 2) * scale, cy - (y / 2) * scale, x * scale, y * scale);
     }
     ctx.fill();
 
-    // 2. Draw Safe Zone (Printable Area)
-    ctx.strokeStyle = "#a29bfe";
-    ctx.setLineDash([5, 5]); // Dashed line for safety boundary
+    // --- 2. Draw Safe Zone Boundary ---
+    ctx.strokeStyle = "#a29bfe"; // Purple accent
+    ctx.setLineDash([5, 5]);
     ctx.beginPath();
     if (kin === 'delta') {
         ctx.arc(cx, cy, (x / 2 - m) * scale, 0, Math.PI * 2);
@@ -48,86 +50,87 @@ function updateUI() {
     }
     ctx.stroke();
 
-    // 3. Draw Homing Origin (Red Dot)
+    // --- 3. Draw Homing Origin (Red Dot) ---
     ctx.fillStyle = "#ff4d4d";
-    ctx.setLineDash([]); // Solid line for point
+    ctx.setLineDash([]);
     ctx.beginPath();
     if (kin === 'delta') {
-        // Deltas home to center/top
+        // Deltas home to the center
         ctx.arc(cx, cy, 5, 0, Math.PI * 2);
     } else {
-        // Cartesian usually home to Front-Left (0,0)
+        // Cartesian/Bedslinger home to Front-Left (0,0)
         ctx.arc(cx - (x / 2) * scale, cy + (y / 2) * scale, 5, 0, Math.PI * 2);
     }
     ctx.fill();
 
-    // 4. Draw Purge Line Indicator
+    // --- 4. Draw Purge Line Indicator (Pink) ---
     if (usePurge) {
         ctx.strokeStyle = "#ff00ff";
         ctx.lineWidth = 3;
         ctx.beginPath();
         if (kin === 'delta') {
-            // Purge at the front-most arc
+            // Delta purge line at the front arc boundary
             const py = cy + (y / 2 - m) * scale;
             ctx.moveTo(cx - 15 * scale, py);
             ctx.lineTo(cx + 15 * scale, py);
         } else {
-            // Purge along the front-left edge
+            // Cartesian purge line along the front X-axis
             const px = cx - (x / 2 - m) * scale;
             const py = cy + (y / 2 - m) * scale;
             ctx.moveTo(px, py);
             ctx.lineTo(px + (40 * scale), py);
         }
         ctx.stroke();
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1; // Reset line width
     }
 }
 
 /**
  * Main Generation Logic
- * Orchestrates the collection of data and building the final string.
+ * Gathers every UI variable and assembles the config string.
  */
 function generateMacros() {
-    // Collect Mechanical Inputs
+    // Collect Geometry Inputs
     const kin = document.getElementById('kin').value;
     const x = parseFloat(document.getElementById('maxX').value);
     const y = parseFloat(document.getElementById('maxY').value);
     const z = parseFloat(document.getElementById('maxZ').value);
     const m = parseFloat(document.getElementById('margin').value) || 20;
 
-    // Collect Logistics Inputs
+    // Collect Logistic Inputs
     const bowden = document.getElementById('bowden').value || 450;
     const useChamber = document.getElementById('useChamber').value === 'true';
     const usePurge = document.getElementById('usePurge').value === 'true';
     const heatStyle = document.getElementById('heatStyle').value;
 
-    // Collect UI/Stress Inputs
+    // Collect Lighting & Stress Inputs
     const useLED = document.getElementById('useLED').value === 'true';
     const ledName = document.getElementById('ledName').value || 'status_leds';
     const tLevel = document.getElementById('tortureLevel').value;
     
-    // Calculate Derived Movement Values
-    const tSpeed = (tLevel === 'aggressive') ? 800000 : 500000;
+    // Logic for Torture Speed
+    let tSpeed = 500000; // Standard 500mm/s
+    if (tLevel === 'aggressive') {
+        tSpeed = 800000; // Aggressive 800mm/s
+    }
     
-    // Calculate Parking Coordinates
+    // Logic for Parking Coordinates
     let pkX = 0;
     let pkY = 0;
-
     if (kin === 'delta') {
         pkX = 0;
         pkY = 0;
     } else if (kin === 'bedslinger') {
         pkX = x / 2;
-        pkY = y - 5; // Park bed forward
+        pkY = y - 5; // Pull bed forward for easy access
     } else {
         pkX = x / 2;
         pkY = y / 2;
     }
 
-    // Determine Purge Coordinates for Template
+    // Logic for Purge Start/End strings
     let pStart = "";
     let pEnd = "";
-
     if (kin === 'delta') {
         pStart = "X-7.5 Y-" + (y / 2 - m).toFixed(1);
         pEnd = "X7.5 Y-" + (y / 2 - m).toFixed(1);
@@ -136,80 +139,80 @@ function generateMacros() {
         pEnd = "X" + (m + 40) + " Y" + m;
     }
 
-    // --- ASSEMBLE OUTPUT ---
-    let finalOutput = "";
+    // --- ASSEMBLE G-CODE BLOCKS ---
+    let finalGcode = "";
 
-    // 1. Header Block
-    finalOutput += GCODE_TEMPLATES.header(kin, x, y, z, m);
+    // 1. Add Header
+    finalGcode += GCODE_TEMPLATES.header(kin, x, y, z, m);
     
-    // 2. Variable Storage
-    finalOutput += GCODE_TEMPLATES.user_vars(pkX, pkY, z - 10, bowden, m);
+    // 2. Add Variables Block
+    finalGcode += GCODE_TEMPLATES.user_vars(pkX, pkY, z - 10, bowden, m);
     
-    // 3. Lighting Suite
+    // 3. Add Lighting Suite (If enabled)
     if (useLED) {
-        finalOutput += GCODE_TEMPLATES.lighting(ledName);
+        finalGcode += GCODE_TEMPLATES.lighting(ledName);
     }
     
-    // 4. Diagnostics Block
-    finalOutput += GCODE_TEMPLATES.diagnostics(kin);
+    // 4. Add Diagnostics & Calibration
+    finalGcode += GCODE_TEMPLATES.diagnostics(kin);
     
-    // 5. Stress Testing Suite
-    finalOutput += GCODE_TEMPLATES.torture(x, y, z, m, tSpeed);
+    // 5. Add Torture Testing Suite
+    finalGcode += GCODE_TEMPLATES.torture(x, y, z, m, tSpeed);
     
-    // 6. Core Print Operations
-    finalOutput += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle);
+    // 6. Add Core Operations (Start, End, Purge, M600)
+    finalGcode += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle);
     
-    // 7. Utility & Safety
-    finalOutput += GCODE_TEMPLATES.utility(useChamber);
+    // 7. Add Utility & Safety
+    finalGcode += GCODE_TEMPLATES.utility(useChamber);
 
-    // Render to Output Box
-    const outputElement = document.getElementById('gcodeOutput');
-    outputElement.innerText = finalOutput;
+    // --- DISPLAY OUTPUT ---
+    const outputField = document.getElementById('gcodeOutput');
+    outputField.innerText = finalGcode;
     
-    // Reveal the output card
-    const outCard = document.getElementById('outputCard');
-    outCard.classList.remove('hidden');
+    const outputCard = document.getElementById('outputCard');
+    outputCard.classList.remove('hidden');
+    outputCard.style.display = 'block';
     
-    // Focus the view on the generated code
-    outCard.scrollIntoView({ behavior: 'smooth' });
+    // Provide smooth scrolling to the result
+    outputCard.scrollIntoView({ behavior: 'smooth' });
 }
 
 /**
- * Clipboard Integration
+ * Utility: Copy to Clipboard
  */
 function copyToClipboard() {
-    const code = document.getElementById('gcodeOutput').innerText;
-    if (!code) return;
+    const textToCopy = document.getElementById('gcodeOutput').innerText;
+    if (!textToCopy) return;
 
-    navigator.clipboard.writeText(code).then(() => {
-        alert("Macro configuration copied to clipboard!");
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        alert("Configuration copied to clipboard!");
     }).catch(err => {
-        console.error('Could not copy text: ', err);
+        console.error('Failed to copy text: ', err);
     });
 }
 
 /**
- * File Export Integration
+ * Utility: File Download
  */
 function downloadConfig() {
-    const code = document.getElementById('gcodeOutput').innerText;
-    if (!code) return;
+    const gcodeText = document.getElementById('gcodeOutput').innerText;
+    if (!gcodeText) return;
 
-    const blob = new Blob([code], { type: 'text/plain' });
+    const blob = new Blob([gcodeText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const downloadAnchor = document.createElement('a');
     
-    link.href = url;
-    link.download = 'macros.cfg';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadAnchor.href = url;
+    downloadAnchor.download = 'macros.cfg';
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    
+    // Cleanup
+    document.body.removeChild(downloadAnchor);
     URL.revokeObjectURL(url);
 }
 
-/**
- * Initialization
- */
+// Ensure the UI visualizer runs immediately on page load
 window.onload = function() {
     updateUI();
 };

@@ -1,9 +1,11 @@
 /**
- * THE ULTIMATE KLIPPER MACRO LIBRARY - FULL EXPANSION
- * Includes all logic for Flyer, CoreXY, and Bedslingers.
+ * THE ULTIMATE KLIPPER MACRO LIBRARY - FINAL AUDIT VERSION
+ * VERSION: 2026.01.12
+ * NO CONSOLIDATION - FULL LOGIC RESTORED
  */
 
 const GCODE_TEMPLATES = {
+    // 1. HEADER & GLOBAL VARIABLE BLOCK
     header: (kin, x, y, z, m) => 
 `#=====================================================#
 # KANROG UNIVERSAL MACRO SET | ARCHETYPE: ${kin.toUpperCase()}
@@ -21,8 +23,9 @@ variable_margin: ${m}
 variable_load_temp: 220
 variable_min_temp: 180
 gcode:
-    # This section is for internal variable storage\n\n`,
+    # This section stores internal variables for other macros\n\n`,
 
+    // 2. LIGHTING SUITE (THE FLYER SIGNATURE)
     lighting: (name) => 
 `#=====================================================
 # LED CONTROL & COLOR PRESETS
@@ -97,9 +100,10 @@ initial_duration: 1
 gcode:
     LED_CYCLE\n\n`,
 
+    // 3. DIAGNOSTICS & MAINTENANCE
     diagnostics: (kin) => 
 `#=====================================================
-# DIAGNOSTICS & BUZZ
+# DIAGNOSTICS & MAINTENANCE
 #=====================================================
 [gcode_macro BUZZ_A]
 gcode:
@@ -129,6 +133,23 @@ gcode:
     G4 P5000
     G90
     LED_IDLE
+
+[gcode_macro PROBE_TEST]
+description: Runs a 10-sample probe accuracy test
+gcode:
+    {% if "xyz" not in printer.toolhead.homed_axes %}
+        G28
+    {% endif %}
+    G90
+    G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} Z10 F3000
+    PROBE_ACCURACY SAMPLES=10
+
+[gcode_macro CALIBRATE_BED]
+gcode:
+    {% if "xyz" not in printer.toolhead.homed_axes %}
+        G28
+    {% endif %}
+    ${kin === 'delta' ? 'DELTA_CALIBRATE METHOD=manual' : 'BED_MESH_CALIBRATE'}
 
 [gcode_macro PID_HOTEND]
 gcode:
@@ -160,6 +181,7 @@ gcode:
     ENDSTOP_PHASE_CALIBRATE stepper=stepper_c
     G28` : ''}\n\n`,
 
+    // 4. TORTURE & MOVEMENT TESTS
     torture: (x, y, z, m, speed) => 
 `#=====================================================
 # TORTURE & MOVEMENT TESTS
@@ -210,6 +232,7 @@ gcode:
     {% endfor %}
     G90\n\n`,
 
+    // 5. CORE PRINT OPERATIONS
     core_ops: (kin, usePurge, pStart, pEnd, heatStyle) => 
 `#=====================================================
 # START / END / FILAMENT
@@ -265,8 +288,28 @@ gcode:
     G1 Z10
     G90
     G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} F3000
-    RESTORE_GCODE_STATE NAME=M600_state\n\n`,
+    RESTORE_GCODE_STATE NAME=M600_state
 
+[gcode_macro PAUSE]
+rename_existing: PAUSE_BASE
+gcode:
+    PAUSE_BASE
+    G91
+    G1 E-2 F1000
+    G90
+    G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} Z{printer.toolhead.position.z + 10} F3000
+    LED_RED
+
+[gcode_macro RESUME]
+rename_existing: RESUME_BASE
+gcode:
+    G91
+    G1 E20 F300
+    G90
+    RESUME_BASE
+    LED_PRINT\n\n`,
+
+    // 6. UTILITY & SAFETY
     utility: (useChamber) => 
 `#=====================================================
 # UTILITY & SAFETY
@@ -305,6 +348,22 @@ gcode:
     G1 E-{printer["gcode_macro _USER_VARS"].variable_bowden_len + 50} F2000
     G90
     RESTORE_GCODE_STATE NAME=unloading_filament
+
+[gcode_macro _LOW_TEMP_CHECK]
+gcode:
+    {% set T = params.T|default(210)|int %}
+    {% if printer.extruder.target < T %}
+        M109 S{T}
+    {% endif %}
+
+[gcode_macro COUNTDOWN]
+gcode:
+    {% set MSG = params.MSG|default("Time: ") %}
+    {% set TIME = params.TIME|default(10) %}
+    {% for s in range(TIME|int, 0, -1) %}
+        G4 P1000
+        M117 {MSG} {s}s
+    {% endfor %}
 
 [exclude_object]
 [pause_resume]
