@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: BUG-FIXED SAFETY LOGIC 2026.01.12
+ * VERSION: STICKY-FIXED SAFETY 2026.01.12
  */
 
 let canvas, ctx;
@@ -35,96 +35,80 @@ function updateUI() {
     const bT = parseFloat(document.getElementById('bedTemp').value) || 0;
 
     let block = false;
-    const mErr = document.getElementById('err-margin'), pErr = document.getElementById('err-printTemp'), bErr = document.getElementById('err-bedTemp');
+    const mErr = document.getElementById('err-margin');
+    const pInput = document.getElementById('printTemp'), pErr = document.getElementById('err-printTemp');
+    const bInput = document.getElementById('bedTemp'), bErr = document.getElementById('err-bedTemp');
 
-    // --- 1. MARGIN LOGIC ---
+    // --- RESET ALL STATES FIRST ---
+    pInput.classList.remove('input-error', 'input-warning');
+    bInput.classList.remove('input-error', 'input-warning');
+    pErr.classList.add('hidden');
+    bErr.classList.add('hidden');
+    pErr.className = "error-text";
+    bErr.className = "error-text";
+
+    // Margin Check
     let mBad = (kin === 'delta') ? (m >= (x/2 - 10)) : ((x - m*2) <= 10 || (y - m*2) <= 10);
-    if (mBad) {
-        mErr.classList.remove('hidden');
-        block = true;
-    } else {
-        mErr.classList.add('hidden');
-    }
+    mErr.classList.toggle('hidden', !mBad);
+    if(mBad) block = true;
 
-    // --- 2. NOZZLE TIERED LOGIC ---
-    pErr.classList.add('hidden'); // Default to hidden
-    pErr.className = "error-text"; // Reset to error style
-    
+    // Nozzle Logic
     if (pT < 170 || pT > 305) { 
         pErr.innerHTML = "Invalid Printing Temp!"; 
         pErr.classList.remove('hidden'); 
+        pInput.classList.add('input-error');
         block = true; 
     } else if (pT > 290) { 
         pErr.innerHTML = "All-Metal Hotend Required"; 
         pErr.className = "warning-text"; 
         pErr.classList.remove('hidden'); 
+        pInput.classList.add('input-warning');
     } else if (pT > 260) { 
         pErr.innerHTML = "PTFE Liner Danger Zone"; 
         pErr.className = "warning-text"; 
         pErr.classList.remove('hidden'); 
+        pInput.classList.add('input-warning');
     }
 
-    // --- 3. BED MAGNET LOGIC ---
-    bErr.classList.add('hidden'); // Default to hidden
-    bErr.className = "error-text"; // Reset to error style
-
+    // Bed Logic
     if (bT < 0 || bT > 125) { 
         bErr.innerHTML = "Unsafe Bed Temp!"; 
         bErr.classList.remove('hidden'); 
+        bInput.classList.add('input-error');
         block = true; 
     } else if (bT > 85) { 
         bErr.innerHTML = "Magnet Demagnetization Risk"; 
         bErr.className = "warning-text"; 
         bErr.classList.remove('hidden'); 
+        bInput.classList.add('input-warning');
     }
 
     document.getElementById('generateBtn').disabled = block;
 
-    // --- 4. CANVAS VISUALIZER ---
+    // --- DRAWING ---
     ctx.fillStyle = "#111111"; ctx.fillRect(0, 0, 300, 200);
     const scale = 120 / Math.max(x, y), cx = 150, cy = 100;
-
     ctx.strokeStyle = "#9b59b6"; ctx.fillStyle = "rgba(155, 89, 182, 0.15)"; ctx.lineWidth = 2;
-    if (kin === 'delta') { 
-        ctx.beginPath(); ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); ctx.fill(); ctx.stroke(); 
-    } else { 
-        ctx.fillRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); 
-        ctx.strokeRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); 
-    }
-
-    ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.setLineDash([5, 5]); ctx.beginPath();
-    if (kin === 'delta') { ctx.arc(cx, cy, (x/2 - m)*scale, 0, Math.PI*2); }
-    else { ctx.rect(cx - (x/2 - m)*scale, cy - (y/2 - m)*scale, (x - m*2)*scale, (y - m*2)*scale); }
-    ctx.stroke(); ctx.setLineDash([]);
-
+    if (kin === 'delta') { ctx.beginPath(); ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
+    else { ctx.fillRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); ctx.strokeRect(cx - (x/2)*scale, cy - (y / 2) * scale, x * scale, y * scale); }
     ctx.fillStyle = "#ff4d4d"; ctx.beginPath();
     if (kin === 'delta') { ctx.arc(cx, cy, 6, 0, Math.PI*2); }
     else { ctx.arc(cx - (x/2)*scale, cy + (y/2)*scale, 6, 0, Math.PI*2); }
     ctx.fill();
 }
 
-// ... (keep the rest of generateMacros and copyToClipboard as is) ...
-
 function generateMacros() {
     const kin = document.getElementById('kin').value, x = document.getElementById('maxX').value, y = document.getElementById('maxY').value;
     const pT = document.getElementById('printTemp').value, bT = document.getElementById('bedTemp').value, m = document.getElementById('margin').value;
     const zT = document.getElementById('useZTilt').value === 'true', probe = document.getElementById('probeType').value;
-    const useLED = document.getElementById('useLED').value === 'true', led = document.getElementById('ledName').value;
-    const torture = document.getElementById('tortureLevel').value;
-
     let out = GCODE_TEMPLATES.header(kin, x, y, 250, m);
     out += GCODE_TEMPLATES.user_vars(x/2, y/2, 240, 450, m, pT, bT, "Custom", 2000, 255);
-    if(useLED) out += GCODE_TEMPLATES.lighting(led, "RED=0.0 GREEN=0.0 BLUE=1.0", "RED=1.0 GREEN=1.0 BLUE=1.0");
     out += GCODE_TEMPLATES.diagnostics(kin, probe, zT);
-    out += GCODE_TEMPLATES.torture(x, y, 250, m, (torture === 'aggressive' ? 800000 : 500000));
-    out += GCODE_TEMPLATES.core_ops(kin, true, "X20 Y20", "X60 Y20", "staged", "Custom", probe, zT);
-    out += GCODE_TEMPLATES.utility(false, probe, bT);
-
+    out += GCODE_TEMPLATES.core_ops(kin, true, "X20 Y20", "X60 Y20", "parallel", "Custom", probe, zT);
     document.getElementById('gcodeOutput').innerText = out;
     document.getElementById('outputCard').classList.remove('hidden');
-    document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
 }
 
-function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText); alert("Copied to clipboard!"); }
+function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText); alert("Copied!"); }
 
 window.onload = function() { initCanvas(); updateMaterialPresets(); updateUI(); };
