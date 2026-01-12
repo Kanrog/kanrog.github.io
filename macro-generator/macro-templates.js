@@ -1,60 +1,74 @@
 /**
- * THE ULTIMATE KLIPPER MACRO LIBRARY - FULL EXPANSION BUILD
- * VERSION: 2026.01.12
- * NO CONSOLIDATION. NO SHORTCUTS.
+ * THE KANROG UNIVERSAL MACRO LIBRARY
+ * VERSION: FINAL EXPANSION 2026.01.12
+ * * Contains uncompressed, fully annotated Jinja2 templates for Klipper.
  */
 
 const GCODE_TEMPLATES = {
+    // =================================================================
+    // 1. FILE HEADER
+    // =================================================================
     header: (kin, x, y, z, m) => 
-`#=====================================================#
-# KANROG UNIVERSAL MACRO SET | ARCHETYPE: ${kin.toUpperCase()}
-# Generated Bed Volume: ${x}x${y}x${z}
+`#====================================================================
+# KANROG UNIVERSAL MACRO CONFIGURATION
+# Generated for Archetype: ${kin.toUpperCase()}
+# Build Volume: ${x}mm x ${y}mm x ${z}mm
 # Safety Margin: ${m}mm
-#=====================================================#\n\n`,
+#====================================================================\n\n`,
 
-    user_vars: (pkX, pkY, zPark, bowden, m) => 
+    // =================================================================
+    // 2. USER VARIABLE STORE
+    // =================================================================
+    user_vars: (pkX, pkY, zPark, bowden, m, pTemp, bTemp, mat) => 
 `[gcode_macro _USER_VARS]
+description: Central database for printer variables
 variable_park_x: ${pkX}
 variable_park_y: ${pkY}
 variable_z_park: ${zPark}
 variable_bowden_len: ${bowden}
 variable_margin: ${m}
-variable_load_temp: 220
-variable_min_temp: 180
+# --- Material Settings for ${mat} ---
+variable_print_temp: ${pTemp}
+variable_bed_temp: ${bTemp}
+variable_material: '${mat}'
 gcode:
-    # This section stores internal variables for other macros\n\n`,
+    # This section contains no executable code
+    # It is used for variable storage only\n\n`,
 
+    // =================================================================
+    // 3. FULL RGB LIGHTING SUITE
+    // =================================================================
     lighting: (name, idle, print) => 
-`#=====================================================
-# LED CONTROL & COLOR PRESETS (FLYER SIGNATURE)
-#=====================================================
+`#--------------------------------------------------------------------
+# LED STATUS INDICATORS
+#--------------------------------------------------------------------
 [gcode_macro LED_RED]
 gcode:
-    SET_LED LED=${name} RED=1 GREEN=0 BLUE=0 TRANSMIT=1
+    SET_LED LED=${name} RED=1.0 GREEN=0.0 BLUE=0.0 TRANSMIT=1
 
 [gcode_macro LED_ORANGE]
 gcode:
-    SET_LED LED=${name} RED=1 GREEN=0.5 BLUE=0 TRANSMIT=1
+    SET_LED LED=${name} RED=1.0 GREEN=0.5 BLUE=0.0 TRANSMIT=1
 
 [gcode_macro LED_YELLOW]
 gcode:
-    SET_LED LED=${name} RED=1 GREEN=1 BLUE=0 TRANSMIT=1
+    SET_LED LED=${name} RED=1.0 GREEN=1.0 BLUE=0.0 TRANSMIT=1
 
 [gcode_macro LED_GREEN]
 gcode:
-    SET_LED LED=${name} RED=0 GREEN=1 BLUE=0 TRANSMIT=1
+    SET_LED LED=${name} RED=0.0 GREEN=1.0 BLUE=0.0 TRANSMIT=1
 
 [gcode_macro LED_TEAL]
 gcode:
-    SET_LED LED=${name} RED=0 GREEN=0.5 BLUE=1 TRANSMIT=1
+    SET_LED LED=${name} RED=0.0 GREEN=0.5 BLUE=1.0 TRANSMIT=1
 
 [gcode_macro LED_BLUE]
 gcode:
-    SET_LED LED=${name} RED=0 GREEN=0 BLUE=1 TRANSMIT=1
+    SET_LED LED=${name} RED=0.0 GREEN=0.0 BLUE=1.0 TRANSMIT=1
 
 [gcode_macro LED_PURPLE]
 gcode:
-    SET_LED LED=${name} RED=1 GREEN=0 BLUE=1 TRANSMIT=1
+    SET_LED LED=${name} RED=1.0 GREEN=0.0 BLUE=1.0 TRANSMIT=1
 
 [gcode_macro LED_WHITE]
 gcode:
@@ -62,20 +76,16 @@ gcode:
 
 [gcode_macro LED_OFF]
 gcode:
-    SET_LED LED=${name} RED=0 GREEN=0 BLUE=0 TRANSMIT=1
-
-[gcode_macro LED_HEATING]
-gcode:
-    SET_LED LED=${name} RED=0.8 GREEN=0.2 BLUE=0 TRANSMIT=1
+    SET_LED LED=${name} RED=0.0 GREEN=0.0 BLUE=0.0 TRANSMIT=1
 
 [gcode_macro LED_IDLE]
+description: Set LEDs to the user-defined Idle color
 gcode:
-    # Set to user-selected idle color
     LED_${idle}
 
 [gcode_macro LED_PRINT]
+description: Set LEDs to the user-defined Print color
 gcode:
-    # Set to user-selected print color
     LED_${print}
 
 [gcode_macro LED_CYCLE]
@@ -89,70 +99,55 @@ gcode:
         LED_YELLOW
         G4 P150
         LED_GREEN
-        G4 P100
+        G4 P150
         LED_TEAL
-        G4 P100
+        G4 P150
         LED_BLUE
-        G4 P100
+        G4 P150
         LED_PURPLE
         G4 P150
     {% endfor %}
     LED_IDLE
 
-[delayed_gcode Welcome]
+[delayed_gcode Welcome_Lightshow]
 initial_duration: 1
 gcode:
     LED_CYCLE\n\n`,
 
+    // =================================================================
+    // 4. DIAGNOSTICS & CALIBRATION
+    // =================================================================
     diagnostics: (kin) => 
-`#=====================================================
-# DIAGNOSTICS & BUZZ
-#=====================================================
-[gcode_macro BUZZ_A]
-gcode:
+`#--------------------------------------------------------------------
+# DIAGNOSTICS
+#--------------------------------------------------------------------
+[gcode_macro BUZZ_MOTORS]
+description: Test all steppers for connectivity
+gcode: 
     STEPPER_BUZZ STEPPER=stepper_a
-
-[gcode_macro BUZZ_B]
-gcode:
     STEPPER_BUZZ STEPPER=stepper_b
-
-[gcode_macro BUZZ_C]
-gcode:
     STEPPER_BUZZ STEPPER=stepper_c
-
-[gcode_macro BUZZ_E]
-gcode:
     STEPPER_BUZZ STEPPER=extruder
 
-[gcode_macro E_CALIBRATE]
-description: Rotation distance calibration (50mm extrude)
-gcode:
-    {% if "xyz" not in printer.toolhead.homed_axes %}
-        G28
-    {% endif %}
-    LED_WHITE
-    G91
-    G1 E50 F60
-    G4 P5000
-    G90
-    LED_IDLE
-
 [gcode_macro PID_HOTEND]
+description: PID Tune Hotend to Preset Temp
 gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %}
         G28
     {% endif %}
+    G90
     G1 Z10 F600
     M106 S255
-    PID_CALIBRATE HEATER=extruder TARGET=210
+    PID_CALIBRATE HEATER=extruder TARGET={printer["gcode_macro _USER_VARS"].print_temp}
     SAVE_CONFIG
 
 [gcode_macro PID_HOTBED]
+description: PID Tune Bed to Preset Temp
 gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %}
         G28
     {% endif %}
-    PID_CALIBRATE HEATER=heater_bed TARGET=60
+    PID_CALIBRATE HEATER=heater_bed TARGET={printer["gcode_macro _USER_VARS"].bed_temp}
     SAVE_CONFIG
 
 ${kin === 'delta' ? `[gcode_macro ENDSTOPS_CALIBRATION]
@@ -167,11 +162,15 @@ gcode:
     ENDSTOP_PHASE_CALIBRATE stepper=stepper_c
     G28` : ''}\n\n`,
 
+    // =================================================================
+    // 5. STRESS TESTING
+    // =================================================================
     torture: (x, y, z, m, speed) => 
-`#=====================================================
-# TORTURE & MOVEMENT TESTS
-#=====================================================
+`#--------------------------------------------------------------------
+# STRESS TESTS
+#--------------------------------------------------------------------
 [gcode_macro TORTURE_XY]
+description: Full bed raster movement test
 gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %}
         G28
@@ -186,7 +185,7 @@ gcode:
     G90
 
 [gcode_macro TORTURE_SHAKE]
-description: High-frequency vibration stress test
+description: High-frequency short-move vibration test
 gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %}
         G28
@@ -196,66 +195,66 @@ gcode:
         G1 X+15 F${speed}
         G1 X-15 F${speed}
     {% endfor %}
-    G90
-
-[gcode_macro CYCLE_MOVEMENT]
-description: Determining axis limits through repeated cycling
-gcode:
-    {% if "xyz" not in printer.toolhead.homed_axes %}
-        G28
-    {% endif %}
-    G90
-    G1 Z20 F1500
-    G91
-    {% for i in range(16) %}
-        G1 X-15 F5000
-        G1 X+30 F5000
-        G1 X-15 F5000
-        G1 Y-15 F5000
-        G1 Y+30 F5000
-        G1 Y-15 F5000
-    {% endfor %}
     G90\n\n`,
 
-    core_ops: (kin, usePurge, pStart, pEnd, heatStyle) => 
-`#=====================================================
-# START / END / FILAMENT
-#=====================================================
+    // =================================================================
+    // 6. PRINT OPERATIONS
+    // =================================================================
+    core_ops: (kin, usePurge, pStart, pEnd, heatStyle, material) => 
+`#--------------------------------------------------------------------
+# CORE PRINT OPERATIONS
+#--------------------------------------------------------------------
 [gcode_macro PRINT_START]
+description: Full Start Sequence (Heat, Home, Mesh, Purge)
 gcode:
+    # 1. Visual Indicator
     LED_CYCLE
-    {% set T_BED = params.T_BED|default(60)|float %}
-    {% set T_EXTRUDER = params.T_EXTRUDER|default(200)|float %}
     
-    LED_HEATING
+    # 2. Get Temperatures
+    {% set T_BED = params.T_BED|default(printer["gcode_macro _USER_VARS"].bed_temp)|float %}
+    {% set T_EXT = params.T_EXTRUDER|default(printer["gcode_macro _USER_VARS"].print_temp)|float %}
+    
+    # 3. Start Bed Heating
     M140 S{T_BED}
+    
+    # 4. Heating Logic: ${heatStyle.toUpperCase()}
     ${heatStyle === 'staged' ? 
     `# Staged Heating: Waiting for bed to reach 85% to save PSU load
     TEMPERATURE_WAIT SENSOR=heater_bed MINIMUM={T_BED * 0.85}
-    M109 S{T_EXTRUDER}
+    M109 S{T_EXT}
     M190 S{T_BED}` : 
-    `M109 S{T_EXTRUDER}
+    `# Parallel Heating: All heaters full power
+    M109 S{T_EXT}
     M190 S{T_BED}`}
     
+    # 5. Homing
     G28
+    
+    # 6. Load Bed Mesh for ${material}
+    BED_MESH_PROFILE LOAD=${material}
+    
+    # 7. Print Status
     LED_PRINT
     G90
-    ${usePurge ? 'PURGE' : '# PURGE DISABLED'}
+    ${usePurge ? 'PURGE' : '# Purge Disabled'}
 
 [gcode_macro END_PRINT]
+description: Safely finish print and retract
 gcode:
     G91
     # Retract filament to prevent oozing
     G1 E-15 F1000
     G90
-    # Move to home or park
+    # Move to safe home
     G28
+    # Cooldown
     TURN_OFF_HEATERS
     LED_CYCLE
     M106 S0
     M84
 
 [gcode_macro PURGE]
+description: Prime the nozzle
 gcode:
     G90
     G1 Z0.3 F3000
@@ -264,7 +263,7 @@ gcode:
     G92 E0
 
 [gcode_macro M600]
-description: Filament change procedure
+description: Filament Change Trigger
 gcode:
     SAVE_GCODE_STATE NAME=M600_state
     PAUSE
@@ -273,7 +272,48 @@ gcode:
     G1 Z10
     G90
     G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} F3000
-    RESTORE_GCODE_STATE NAME=M600_state
+    RESTORE_GCODE_STATE NAME=M600_state\n\n`,
+
+    // =================================================================
+    // 7. UTILITY & MAINTENANCE
+    // =================================================================
+    utility: (useChamber) => 
+`#--------------------------------------------------------------------
+# UTILITY
+#--------------------------------------------------------------------
+${useChamber ? `[gcode_macro HEAT_CHAMBER]
+description: Pre-heat enclosure using bed and fans
+gcode:
+    {% if "xyz" not in printer.toolhead.homed_axes %}
+        G28
+    {% endif %}
+    LED_ORANGE
+    G90
+    G1 Z10 F5000
+    G1 X0 Y0 F3000
+    M140 S100
+    M106 S255
+    # Wait 30 minutes
+    G4 S1800\n\n` : ''}
+
+[gcode_macro LOAD_FILAMENT]
+description: Load filament using preset temperatures
+gcode:
+    {% set T = printer["gcode_macro _USER_VARS"].print_temp %}
+    M109 S{T}
+    M83
+    G1 E{printer["gcode_macro _USER_VARS"].variable_bowden_len} F2000
+    G1 E50 F200
+
+[gcode_macro UNLOAD_FILAMENT]
+description: Unload filament using preset temperatures
+gcode:
+    {% set T = printer["gcode_macro _USER_VARS"].print_temp %}
+    M109 S{T}
+    G91
+    G1 E10 F100
+    G1 E-{printer["gcode_macro _USER_VARS"].variable_bowden_len + 50} F2000
+    G90
 
 [gcode_macro PAUSE]
 rename_existing: PAUSE_BASE
@@ -292,64 +332,8 @@ gcode:
     G1 E20 F300
     G90
     RESUME_BASE
-    LED_PRINT\n\n`,
-
-    utility: (useChamber) => 
-`#=====================================================
-# UTILITY & SAFETY
-#=====================================================
-${useChamber ? `[gcode_macro HEAT_CHAMBER]
-description: Pre-heat enclosure using bed and fans
-gcode:
-    {% if "xyz" not in printer.toolhead.homed_axes %}
-        G28
-    {% endif %}
-    LED_ORANGE
-    G90
-    G1 Z10 F5000
-    G1 X0 Y0 F3000
-    M140 S100
-    M106 S255
-    # Wait 30 minutes
-    G4 S1800\n\n` : ''}
-[gcode_macro LOAD_FILAMENT]
-gcode:
-    SAVE_GCODE_STATE NAME=loading_filament
-    M83
-    G92 E0.0
-    # Fast load through Bowden
-    G1 E{printer["gcode_macro _USER_VARS"].variable_bowden_len} F2000
-    # Slow purge
-    G1 E50 F200
-    RESTORE_GCODE_STATE NAME=loading_filament
-
-[gcode_macro UNLOAD_FILAMENT]
-gcode:
-    SAVE_GCODE_STATE NAME=unloading_filament
-    G91
-    # Quick prime to prevent tip stringing
-    G1 E10 F100
-    # Long retract
-    G1 E-{printer["gcode_macro _USER_VARS"].variable_bowden_len + 50} F2000
-    G90
-    RESTORE_GCODE_STATE NAME=unloading_filament
-
-[gcode_macro _LOW_TEMP_CHECK]
-gcode:
-    {% set T = params.T|default(210)|int %}
-    {% if printer.extruder.target < T %}
-        M109 S{T}
-    {% endif %}
-
-[gcode_macro COUNTDOWN]
-gcode:
-    {% set MSG = params.MSG|default("Time: ") %}
-    {% set TIME = params.TIME|default(10) %}
-    {% for s in range(TIME|int, 0, -1) %}
-        G4 P1000
-        M117 {MSG} {s}s
-    {% endfor %}
-
+    LED_PRINT
+    
 [exclude_object]
 [pause_resume]
 [display_status]`

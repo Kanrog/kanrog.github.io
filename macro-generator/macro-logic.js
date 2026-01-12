@@ -1,123 +1,129 @@
 /**
- * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: 2026.01.12 - FULL EXPANSION BUILD
+ * KLIPPER MACRO GENERATOR - LOGIC CORE
+ * Handles input capture, canvas visualization, and template assembly.
  */
 
 const canvas = document.getElementById('previewCanvas');
 const ctx = canvas.getContext('2d');
 
 function updateUI() {
+    // Collect Visualization Inputs
     const kin = document.getElementById('kin').value;
     const x = parseFloat(document.getElementById('maxX').value) || 235;
     const y = parseFloat(document.getElementById('maxY').value) || 235;
     const m = parseFloat(document.getElementById('margin').value) || 20;
     const usePurge = document.getElementById('usePurge').value === 'true';
 
+    // Reset Canvas
     ctx.clearRect(0, 0, 300, 200);
     const scale = 120 / Math.max(x, y);
-    const centerX = 150;
-    const centerY = 100;
+    const cx = 150; 
+    const cy = 100;
 
-    // Bed Visualization
+    // Draw Bed
     ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
     ctx.beginPath();
     if (kin === 'delta') {
-        ctx.arc(centerX, centerY, (x / 2) * scale, 0, Math.PI * 2);
+        ctx.arc(cx, cy, (x / 2) * scale, 0, Math.PI * 2);
     } else {
-        ctx.rect(centerX - (x / 2) * scale, centerY - (y / 2) * scale, x * scale, y * scale);
+        ctx.rect(cx - (x / 2) * scale, cy - (y / 2) * scale, x * scale, y * scale);
     }
     ctx.fill();
 
-    // Safe Zone Visualization
+    // Draw Safe Zone
     ctx.strokeStyle = "#a29bfe";
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
     if (kin === 'delta') {
-        ctx.arc(centerX, centerY, (x / 2 - m) * scale, 0, Math.PI * 2);
+        ctx.arc(cx, cy, (x / 2 - m) * scale, 0, Math.PI * 2);
     } else {
-        ctx.rect(centerX - (x / 2 - m) * scale, centerY - (y / 2 - m) * scale, (x - m * 2) * scale, (y - m * 2) * scale);
+        ctx.rect(cx - (x / 2 - m) * scale, cy - (y / 2 - m) * scale, (x - m * 2) * scale, (y - m * 2) * scale);
     }
     ctx.stroke();
 
-    // Homing Origin Indicator
+    // Draw Homing Point
     ctx.fillStyle = "#ff4d4d";
     ctx.setLineDash([]);
     ctx.beginPath();
     if (kin === 'delta') {
-        ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
     } else {
-        ctx.arc(centerX - (x / 2) * scale, centerY + (y / 2) * scale, 5, 0, Math.PI * 2);
+        ctx.arc(cx - (x / 2) * scale, cy + (y / 2) * scale, 5, 0, Math.PI * 2);
     }
     ctx.fill();
-
-    // Purge Line Visualization
+    
+    // Draw Purge Line
     if (usePurge) {
         ctx.strokeStyle = "#ff00ff";
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         if (kin === 'delta') {
-            const py = centerY + (y / 2 - m) * scale;
-            ctx.moveTo(centerX - 15 * scale, py);
-            ctx.lineTo(centerX + 15 * scale, py);
+            const py = cy + (y / 2 - m) * scale;
+            ctx.moveTo(cx - 10 * scale, py);
+            ctx.lineTo(cx + 10 * scale, py);
         } else {
-            const px = centerX - (x / 2 - m) * scale;
-            const py = centerY + (y / 2 - m) * scale;
+            const px = cx - (x / 2 - m) * scale;
+            const py = cy + (y / 2 - m) * scale;
             ctx.moveTo(px, py);
-            ctx.lineTo(px + (40 * scale), py);
+            ctx.lineTo(px + (30 * scale), py);
         }
         ctx.stroke();
-        ctx.lineWidth = 1;
     }
 }
 
 function generateMacros() {
-    // Collect All Inputs Individually
+    // 1. Capture Mechanics
     const kin = document.getElementById('kin').value;
-    const maxX = parseFloat(document.getElementById('maxX').value) || 235;
-    const maxY = parseFloat(document.getElementById('maxY').value) || 235;
-    const maxZ = parseFloat(document.getElementById('maxZ').value) || 250;
+    const maxX = parseFloat(document.getElementById('maxX').value);
+    const maxY = parseFloat(document.getElementById('maxY').value);
+    const maxZ = parseFloat(document.getElementById('maxZ').value);
     const margin = parseFloat(document.getElementById('margin').value) || 20;
 
+    // 2. Capture Material & Temps
+    const material = document.getElementById('material').value;
+    const pTemp = document.getElementById('printTemp').value;
+    const bTemp = document.getElementById('bedTemp').value;
+
+    // 3. Capture Logistics
     const bowden = document.getElementById('bowden').value || 450;
     const useChamber = document.getElementById('useChamber').value === 'true';
     const usePurge = document.getElementById('usePurge').value === 'true';
     const heatStyle = document.getElementById('heatStyle').value;
 
+    // 4. Capture Lighting
     const useLED = document.getElementById('useLED').value === 'true';
     const ledName = document.getElementById('ledName').value || 'status_leds';
-    const idleColor = document.getElementById('colorIdle').value || 'BLUE';
-    const printColor = document.getElementById('colorPrint').value || 'WHITE';
-    const tortureLevel = document.getElementById('tortureLevel').value;
-    
-    let movementSpeed = 500000; 
-    if (tortureLevel === 'aggressive') {
-        movementSpeed = 800000;
-    }
-    
-    // Parking Logic
+    const idleCol = document.getElementById('colorIdle').value;
+    const printCol = document.getElementById('colorPrint').value;
+
+    // 5. Derived Logic
     let pkX = (kin === 'delta') ? 0 : maxX / 2;
     let pkY = (kin === 'delta') ? 0 : (kin === 'bedslinger' ? maxY - 5 : maxY / 2);
 
-    // Purge Coordinate Math
     let pStart = (kin === 'delta') ? `X-7.5 Y-${(maxY / 2 - margin).toFixed(1)}` : `X${margin} Y${margin}`;
     let pEnd = (kin === 'delta') ? `X7.5 Y-${(maxY / 2 - margin).toFixed(1)}` : `X${margin + 40} Y${margin}`;
 
-    // BUILD STRING
-    let out = GCODE_TEMPLATES.header(kin, maxX, maxY, maxZ, margin);
-    out += GCODE_TEMPLATES.user_vars(pkX, pkY, maxZ - 10, bowden, margin);
+    // 6. Template Assembly
+    let output = GCODE_TEMPLATES.header(kin, maxX, maxY, maxZ, margin);
+    
+    // Pass Filament and Geometry to Variables
+    output += GCODE_TEMPLATES.user_vars(pkX, pkY, maxZ - 10, bowden, margin, pTemp, bTemp, material);
     
     if (useLED) {
-        out += GCODE_TEMPLATES.lighting(ledName, idleColor, printColor);
+        output += GCODE_TEMPLATES.lighting(ledName, idleCol, printCol);
     }
     
-    out += GCODE_TEMPLATES.diagnostics(kin);
-    out += GCODE_TEMPLATES.torture(maxX, maxY, maxZ, margin, movementSpeed);
-    out += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle);
-    out += GCODE_TEMPLATES.utility(useChamber);
+    output += GCODE_TEMPLATES.diagnostics(kin);
+    output += GCODE_TEMPLATES.torture(maxX, maxY, maxZ, margin, 500000);
+    
+    // Pass Material to Core Ops for Bed Mesh Loading
+    output += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle, material);
+    
+    output += GCODE_TEMPLATES.utility(useChamber);
 
-    document.getElementById('gcodeOutput').innerText = out;
+    // 7. Render
+    document.getElementById('gcodeOutput').innerText = output;
     document.getElementById('outputCard').classList.remove('hidden');
-    document.getElementById('outputCard').style.display = 'block';
     document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -134,4 +140,5 @@ function downloadConfig() {
     a.click();
 }
 
+// Init
 window.onload = updateUI;
