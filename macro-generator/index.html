@@ -119,7 +119,6 @@
            VALIDATION STATES
            ============================ */
         
-        /* Critical Error (Red) */
         .input-error {
             border-color: #e74c3c !important;
             background: rgba(231, 76, 60, 0.1) !important;
@@ -136,7 +135,6 @@
             font-weight: bold;
         }
 
-        /* Warning (Orange) */
         .input-warning {
             border-color: #f39c12 !important;
             background: rgba(243, 156, 18, 0.1) !important;
@@ -310,6 +308,14 @@
                              <select id="useZTilt" class="input-field">
                                  <option value="false">Disabled (Single Z / Parallel)</option>
                                  <option value="true">Enabled (Independent Z Motors)</option>
+                             </select>
+                        </div>
+
+                        <div class="input-group">
+                             <label for="buzzLogic">Buzz Routine</label>
+                             <select id="buzzLogic" class="input-field">
+                                 <option value="sequential">Sequential (Cycle All Motors)</option>
+                                 <option value="smart">Smart (Selectable via Param)</option>
                              </select>
                         </div>
 

@@ -1,11 +1,11 @@
 /**
  * THE KANROG UNIVERSAL MACRO LIBRARY
- * VERSION: FINAL COMPLETE + TILT & OFFSET 2026.01.12
+ * VERSION: FINAL COMPLETE SMART BUZZ + NAMING FIX 2026.01.12
  */
 
 const GCODE_TEMPLATES = {
     // =================================================================
-    // 1. FILE HEADER
+    // 1. HEADER
     // =================================================================
     header: (kin, x, y, z, m) => {
         return `#====================================================================
@@ -17,7 +17,7 @@ const GCODE_TEMPLATES = {
     },
 
     // =================================================================
-    // 2. USER VARIABLE STORE
+    // 2. USER VARS
     // =================================================================
     user_vars: (pkX, pkY, zPark, bowden, m, pTemp, bTemp, mat, rSpeed, fSpeed) => {
         return `[gcode_macro _USER_VARS]
@@ -34,16 +34,15 @@ variable_retract_speed: ${rSpeed}
 variable_fan_speed: ${fSpeed}
 variable_material: '${mat}'
 gcode:
-    # This section contains no executable code
-    # It is used for variable storage only\n\n`;
+    # This section contains no executable code\n\n`;
     },
 
     // =================================================================
-    // 3. FULL RGB LIGHTING SUITE
+    // 3. LIGHTING
     // =================================================================
     lighting: (name, idle_params, print_params) => {
         return `#--------------------------------------------------------------------
-# INDIVIDUAL COLOR MACROS
+# LIGHTING CONTROL
 #--------------------------------------------------------------------
 [gcode_macro LED_RED]
 gcode:
@@ -81,9 +80,6 @@ gcode:
 gcode:
     SET_LED LED=${name} RED=0.0 GREEN=0.0 BLUE=0.0 TRANSMIT=1
 
-#--------------------------------------------------------------------
-# STATUS MACROS
-#--------------------------------------------------------------------
 [gcode_macro LED_IDLE]
 description: Set LEDs to user-defined Idle color/brightness
 gcode:
@@ -125,10 +121,51 @@ gcode:
     },
 
     // =================================================================
-    // 4. DIAGNOSTICS & PROBE & TILT
+    // 4. DIAGNOSTICS (Smart Buzz + Naming Fix)
     // =================================================================
-    diagnostics: (kin, probeType, useZTilt) => {
-        // 1. Probe Logic (Test Accuracy, Adjust Offset, Screws Tilt)
+    diagnostics: (kin, probeType, useZTilt, buzzLogic) => {
+        // Determine Stepper Names
+        const isDelta = (kin === 'delta');
+        const m1 = isDelta ? 'stepper_a' : 'stepper_x';
+        const m2 = isDelta ? 'stepper_b' : 'stepper_y';
+        const m3 = isDelta ? 'stepper_c' : 'stepper_z';
+
+        // 1. Build Buzz Motors Logic
+        let buzz_block = "";
+        if (buzzLogic === 'smart') {
+            // Smart Logic: Check AXIS param
+            buzz_block = `[gcode_macro BUZZ_MOTORS]
+description: Test steppers. Usage: BUZZ_MOTORS [AXIS=X/Y/Z/E]
+gcode:
+    {% set axis = params.AXIS|default('ALL')|lower %}
+    
+    {% if axis == 'all' %}
+        M118 Buzzing All Motors...
+        STEPPER_BUZZ STEPPER=${m1}
+        STEPPER_BUZZ STEPPER=${m2}
+        STEPPER_BUZZ STEPPER=${m3}
+        STEPPER_BUZZ STEPPER=extruder
+    {% elif axis == 'x' or axis == 'a' %}
+        STEPPER_BUZZ STEPPER=${m1}
+    {% elif axis == 'y' or axis == 'b' %}
+        STEPPER_BUZZ STEPPER=${m2}
+    {% elif axis == 'z' or axis == 'c' %}
+        STEPPER_BUZZ STEPPER=${m3}
+    {% elif axis == 'e' or axis == 'extruder' %}
+        STEPPER_BUZZ STEPPER=extruder
+    {% endif %}`;
+        } else {
+            // Sequential Logic
+            buzz_block = `[gcode_macro BUZZ_MOTORS]
+description: Test all steppers sequentially
+gcode: 
+    STEPPER_BUZZ STEPPER=${m1}
+    STEPPER_BUZZ STEPPER=${m2}
+    STEPPER_BUZZ STEPPER=${m3}
+    STEPPER_BUZZ STEPPER=extruder`;
+        }
+
+        // 2. Probe Logic
         let probe_macro_block = "";
         if (probeType !== 'none') {
             probe_macro_block = `[gcode_macro CHECK_PROBE]
@@ -150,7 +187,7 @@ gcode:
     SCREWS_TILT_CALCULATE`;
         }
 
-        // 2. Manual Logic (No Probe)
+        // 3. Manual Leveling Logic
         let manual_level_block = "";
         if (probeType === 'none') {
             manual_level_block = `#=====================================================
@@ -174,7 +211,7 @@ gcode:
     Z_ENDSTOP_CALIBRATE`;
         }
 
-        // 3. Z-Tilt Adjustment Logic (Independent Motors)
+        // 4. Z-Tilt Logic
         let z_tilt_block = "";
         if (useZTilt) {
             z_tilt_block = `[gcode_macro ALIGN_Z_GANTRY]
@@ -184,7 +221,7 @@ gcode:
     Z_TILT_ADJUST`;
         }
 
-        // 4. Delta Calibration Logic
+        // 5. Delta Logic
         let delta_cal_block = "";
         if (kin === 'delta') {
             delta_cal_block = `[gcode_macro ENDSTOPS_CALIBRATION]
@@ -203,13 +240,7 @@ gcode:
         return `#--------------------------------------------------------------------
 # DIAGNOSTICS
 #--------------------------------------------------------------------
-[gcode_macro BUZZ_MOTORS]
-description: Test all steppers for connectivity
-gcode: 
-    STEPPER_BUZZ STEPPER=stepper_a
-    STEPPER_BUZZ STEPPER=stepper_b
-    STEPPER_BUZZ STEPPER=stepper_c
-    STEPPER_BUZZ STEPPER=extruder
+${buzz_block}
 
 [gcode_macro PID_HOTEND]
 description: PID Tune Hotend to Preset Temp
@@ -302,14 +333,12 @@ gcode:
     M190 S{T_BED}`;
         }
 
-        // Logic for Z-Tilt
         let z_tilt_op = "";
         if (useZTilt) {
             z_tilt_op = `Z_TILT_ADJUST
     G28 Z`;
         }
 
-        // Logic for Mesh
         let mesh_logic_block = "";
         if (probeType !== 'none') {
             mesh_logic_block = `BED_MESH_PROFILE LOAD=${material}`;
@@ -395,7 +424,7 @@ gcode:
     },
 
     // =================================================================
-    // 7. UTILITY & LEVELING
+    // 7. UTILITY
     // =================================================================
     utility: (useChamber, probeType, bTemp) => {
         

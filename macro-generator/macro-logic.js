@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: FINAL COMPLETE 2026.01.12
+ * VERSION: FINAL COMPLETE SMART BUZZ 2026.01.12
  */
 
 const canvas = document.getElementById('previewCanvas');
@@ -33,7 +33,6 @@ function setCustomMaterial() {
 }
 
 function updateUI() {
-    // Gather Inputs
     const kin = document.getElementById('kin').value;
     const x = parseFloat(document.getElementById('maxX').value) || 235;
     const y = parseFloat(document.getElementById('maxY').value) || 235;
@@ -43,36 +42,25 @@ function updateUI() {
     const pTemp = parseFloat(document.getElementById('printTemp').value) || 0;
     const bTemp = parseFloat(document.getElementById('bedTemp').value) || 0;
 
-    // --- INLINE SAFETY CHECKS ---
+    // --- SAFETY CHECKS ---
     let blockGeneration = false;
     
-    // Elements
     const marginInput = document.getElementById('margin');
     const marginErr = document.getElementById('err-margin');
-    
     const printTempInput = document.getElementById('printTemp');
     const printTempErr = document.getElementById('err-printTemp');
-    
     const bedTempInput = document.getElementById('bedTemp');
     const bedTempErr = document.getElementById('err-bedTemp');
 
-    // 1. Check Margin
+    // 1. Margin
     let marginErrorText = "";
     let marginIsBad = false;
-    
     if (kin === 'delta') {
         const radius = x / 2;
-        if (m >= radius - 10) {
-            marginIsBad = true;
-            marginErrorText = `Too close to Radius (${radius}mm)`;
-        }
+        if (m >= radius - 10) { marginIsBad = true; marginErrorText = `Too close to Radius (${radius}mm)`; }
     } else {
-        if ((x - (m * 2) <= 10) || (y - (m * 2) <= 10)) {
-            marginIsBad = true;
-            marginErrorText = `Leaves no printable space`;
-        }
+        if ((x - (m * 2) <= 10) || (y - (m * 2) <= 10)) { marginIsBad = true; marginErrorText = `Leaves no printable space`; }
     }
-
     if (marginIsBad) {
         blockGeneration = true;
         marginInput.classList.add('input-error');
@@ -83,21 +71,14 @@ function updateUI() {
         marginErr.classList.add('hidden');
     }
 
-    // 2. Check Print Temp
+    // 2. Print Temp
     let printMsg = "";
-    let printStatus = "ok"; // ok, warning, error
-    
-    if (pTemp < 170) {
-        printStatus = "error"; printMsg = "Too low for extrusion (<170°C)";
-    } else if (pTemp > 300) {
-        printStatus = "error"; printMsg = "UNSAFE: Exceeds Limit (>300°C)";
-    } else if (pTemp > 290) {
-        printStatus = "warning"; printMsg = "Specialized Components Required (>290°C)";
-    } else if (pTemp > 260) {
-        printStatus = "warning"; printMsg = "PTFE Liner Risk (>260°C)";
-    }
+    let printStatus = "ok"; 
+    if (pTemp < 170) { printStatus = "error"; printMsg = "Too low (<170°C)"; }
+    else if (pTemp > 300) { printStatus = "error"; printMsg = "UNSAFE (>300°C)"; }
+    else if (pTemp > 290) { printStatus = "warning"; printMsg = "Specialized Components (>290°C)"; }
+    else if (pTemp > 260) { printStatus = "warning"; printMsg = "PTFE Risk (>260°C)"; }
 
-    // Apply Print Visuals
     printTempInput.classList.remove('input-error', 'input-warning');
     printTempErr.classList.add('hidden');
     printTempErr.classList.remove('error-inline', 'warning-text');
@@ -115,17 +96,12 @@ function updateUI() {
         printTempErr.classList.remove('hidden');
     }
 
-    // 3. Check Bed Temp
+    // 3. Bed Temp
     let bedMsg = "";
-    let bedStatus = "ok"; // ok, warning, error
-    
-    if (bTemp > 120) {
-        bedStatus = "error"; bedMsg = "UNSAFE: Exceeds Safety Limit (>120°C)";
-    } else if (bTemp > 85) {
-        bedStatus = "warning"; bedMsg = "Magnet Demagnetization Risk (>85°C)";
-    }
+    let bedStatus = "ok";
+    if (bTemp > 120) { bedStatus = "error"; bedMsg = "UNSAFE (>120°C)"; }
+    else if (bTemp > 85) { bedStatus = "warning"; bedMsg = "Magnet Risk (>85°C)"; }
 
-    // Apply Bed Visuals
     bedTempInput.classList.remove('input-error', 'input-warning');
     bedTempErr.classList.add('hidden');
     bedTempErr.classList.remove('error-inline', 'warning-text');
@@ -143,7 +119,7 @@ function updateUI() {
         bedTempErr.classList.remove('hidden');
     }
 
-    // Toggle Generate Button
+    // Toggle Button
     const genBtn = document.getElementById('generateBtn');
     if (blockGeneration) {
         genBtn.disabled = true;
@@ -152,8 +128,8 @@ function updateUI() {
         genBtn.disabled = false;
         genBtn.classList.remove('btn-disabled');
     }
-    // ----------------------------
 
+    // Visualizer
     ctx.clearRect(0, 0, 300, 200);
     const scale = 120 / Math.max(x, y);
     const cx = 150; const cy = 100;
@@ -210,7 +186,8 @@ function generateMacros() {
 
     const bowden = document.getElementById('bowden').value || 450;
     const probeType = document.getElementById('probeType').value;
-    const useZTilt = document.getElementById('useZTilt').value === 'true'; // CAPTURED
+    const useZTilt = document.getElementById('useZTilt').value === 'true';
+    const buzzLogic = document.getElementById('buzzLogic').value; // CAPTURED BUZZ LOGIC
     const useChamber = document.getElementById('useChamber').value === 'true';
     const usePurge = document.getElementById('usePurge').value === 'true';
     const heatStyle = document.getElementById('heatStyle').value;
@@ -242,9 +219,12 @@ function generateMacros() {
     let output = GCODE_TEMPLATES.header(kin, maxX, maxY, maxZ, margin);
     output += GCODE_TEMPLATES.user_vars(pkX, pkY, maxZ - 10, bowden, margin, pTemp, bTemp, material, retractSpeed, fanSpeed);
     if (useLED) output += GCODE_TEMPLATES.lighting(ledName, idleRGB, printRGB);
-    output += GCODE_TEMPLATES.diagnostics(kin, probeType, useZTilt); // PASSED useZTilt
+    
+    // Pass `buzzLogic` to diagnostics
+    output += GCODE_TEMPLATES.diagnostics(kin, probeType, useZTilt, buzzLogic);
+    
     output += GCODE_TEMPLATES.torture(maxX, maxY, maxZ, margin, stressSpeed);
-    output += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle, material, probeType, useZTilt); // PASSED useZTilt
+    output += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle, material, probeType, useZTilt);
     output += GCODE_TEMPLATES.utility(useChamber, probeType, bTemp);
 
     document.getElementById('gcodeOutput').innerText = output;
