@@ -1,7 +1,6 @@
 /**
- * THE ULTIMATE KLIPPER MACRO LIBRARY - FINAL AUDIT VERSION
- * VERSION: 2026.01.12
- * NO CONSOLIDATION - FULL LOGIC RESTORED
+ * THE ULTIMATE KLIPPER MACRO LIBRARY - FULL EXPANSION BUILD
+ * Strictly formatted for maximum readability. No consolidation.
  */
 
 const GCODE_TEMPLATES = {
@@ -26,7 +25,7 @@ gcode:
     # This section stores internal variables for other macros\n\n`,
 
     // 2. LIGHTING SUITE (THE FLYER SIGNATURE)
-    lighting: (name) => 
+    lighting: (name, idle, print) => 
 `#=====================================================
 # LED CONTROL & COLOR PRESETS
 #=====================================================
@@ -68,11 +67,13 @@ gcode:
 
 [gcode_macro LED_IDLE]
 gcode:
-    SET_LED LED=${name} RED=0.2 GREEN=0.2 BLUE=0.2 TRANSMIT=1
+    # Set to user-selected idle color
+    LED_${idle}
 
 [gcode_macro LED_PRINT]
 gcode:
-    SET_LED LED=${name} RED=0.8 GREEN=0.8 BLUE=0.8 TRANSMIT=1
+    # Set to user-selected print color
+    LED_${print}
 
 [gcode_macro LED_CYCLE]
 description: The Flyer Signature Light Show
@@ -103,7 +104,7 @@ gcode:
     // 3. DIAGNOSTICS & MAINTENANCE
     diagnostics: (kin) => 
 `#=====================================================
-# DIAGNOSTICS & MAINTENANCE
+# DIAGNOSTICS & BUZZ
 #=====================================================
 [gcode_macro BUZZ_A]
 gcode:
