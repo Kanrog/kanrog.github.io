@@ -4,120 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klipper Macro Generator | Kanrog</title>
-    
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
     <style>
-        /* Disclaimer Styling */
-        .disclaimer-box {
-            background: rgba(231, 76, 60, 0.1);
-            border: 2px solid #e74c3c;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            text-align: center;
-            color: #ecf0f1;
-        }
+        .disclaimer-box { background: rgba(231, 76, 60, 0.1); border: 2px solid #e74c3c; border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: center; color: #ecf0f1; }
         .disclaimer-box i { color: #e74c3c; margin-right: 10px; }
-
-        .generator-section {
-            background: var(--medium-gray);
-            border: 2px solid var(--primary-purple);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 0 30px rgba(155, 89, 182, 0.3);
-        }
-
-        .generator-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
-            gap: 30px; 
-            margin-bottom: 30px;
-        }
-
-        .sub-card { 
-            background: var(--dark-gray);
-            border: 1px solid var(--border-color);
-            padding: 25px; 
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        .input-field { 
-            width: 100%; 
-            background: var(--medium-gray); 
-            color: var(--white); 
-            border: 1px solid var(--border-color); 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-top: 8px;
-            box-sizing: border-box;
-        }
-
-        .preview-box { 
-            background: #000; 
-            border-radius: 12px; 
-            border: 2px solid var(--primary-purple);
-            padding: 20px;
-            text-align: center;
-        }
-
-        #previewCanvas { background: #111; border-radius: 4px; }
-
-        /* Tiered Warning Colors */
+        .generator-section { background: var(--medium-gray); border: 2px solid var(--primary-purple); border-radius: 15px; padding: 30px; box-shadow: 0 0 30px rgba(155, 89, 182, 0.3); }
+        .generator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; margin-bottom: 30px; }
+        .sub-card { background: var(--dark-gray); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; margin-bottom: 20px; transition: 0.3s; }
+        .sub-card:hover { border-color: var(--primary-purple); transform: translateY(-5px); }
+        .input-field { width: 100%; background: var(--medium-gray); color: var(--white); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-top: 8px; box-sizing: border-box; }
+        .preview-box { background: #000; border-radius: 12px; border: 2px solid var(--primary-purple); padding: 20px; text-align: center; }
+        #previewCanvas { background: #111; border-radius: 4px; display: block; margin: 0 auto; }
+        .legend { margin-top: 15px; font-size: 0.85rem; color: var(--light-purple); display: flex; justify-content: center; gap: 15px; }
         .error-text { color: #e74c3c; font-size: 0.85rem; font-weight: bold; margin-top: 8px; display: block; }
         .warning-text { color: #f39c12; font-size: 0.85rem; font-weight: bold; margin-top: 8px; display: block; }
         .input-error { border-color: #e74c3c !important; }
-        .input-warning { border-color: #f39c12 !important; }
-
-        .btn-main {
-            width: 100%;
-            padding: 20px;
-            background: var(--primary-purple);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        pre.code-block { 
-            background: var(--dark-gray); 
-            color: #00ff88; 
-            padding: 30px; 
-            border-radius: 12px; 
-            overflow: auto; 
-            font-family: 'Consolas', monospace; 
-            border: 2px solid var(--border-color);
-            white-space: pre-wrap;
-            height: 600px;
-        }
-
+        .btn-main { width: 100%; padding: 20px; background: var(--primary-purple); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-main:hover { background: var(--dark-purple); transform: translateY(-2px); }
+        pre.code-block { background: var(--dark-gray); color: #00ff88; padding: 30px; border-radius: 12px; overflow: auto; font-family: 'Consolas', monospace; border: 2px solid var(--border-color); white-space: pre-wrap; height: 600px; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="logo-container">
-                <img src="../Kanrog LOGO wtext.png" alt="Kanrog Creations Logo" class="logo">
-            </div>
+            <div class="logo-container"><img src="../Kanrog LOGO wtext.png" alt="Kanrog Creations Logo" class="logo"></div>
             <p class="tagline">Klipper Macro Architect</p>
         </header>
-
         <main>
             <div class="disclaimer-box animate__animated animate__pulse animate__infinite">
-                <p><i class="fas fa-exclamation-triangle"></i> <strong>BETA RELEASE:</strong> Use at your own risk. These macros generate hardware-level commands. Verify all movements at low speeds and keep your hand on the emergency stop during initial testing.</p>
+                <p><i class="fas fa-exclamation-triangle"></i> <strong>BETA RELEASE:</strong> Use at your own risk. Verify all movements at low speeds before full operation.</p>
             </div>
-
             <section class="generator-section animate__animated animate__fadeIn">
                 <div class="generator-grid">
                     <div class="inputs-column">
                         <div class="sub-card">
                             <h3><i class="fas fa-robot"></i> 1. Kinematics</h3>
+                            <label>Archetype</label>
                             <select id="kin" class="input-field" onchange="updateUI()">
                                 <option value="bedslinger">Bedslinger</option>
                                 <option value="corexy">CoreXY</option>
@@ -133,66 +58,56 @@
                                 <span id="err-margin" class="error-text hidden">Invalid Margin</span>
                             </div>
                         </div>
-
                         <div class="sub-card">
                             <h3><i class="fas fa-atom"></i> 2. Material</h3>
                             <select id="material" class="input-field" onchange="updateMaterialPresets(); updateUI();">
-                                <option value="PLA">PLA</option>
-                                <option value="PETG">PETG</option>
-                                <option value="ABS">ABS</option>
-                                <option value="TPU">TPU</option>
-                                <option value="Custom">Custom</option>
+                                <option value="PLA">PLA</option><option value="PETG">PETG</option><option value="ABS">ABS</option><option value="TPU">TPU</option><option value="Custom">Custom</option>
                             </select>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                                <div>
-                                    <label>Nozzle (°C)</label>
-                                    <input type="number" id="printTemp" class="input-field" value="210" oninput="setCustomMaterial(); updateUI();">
-                                    <span id="err-printTemp" class="hidden"></span>
-                                </div>
-                                <div>
-                                    <label>Bed (°C)</label>
-                                    <input type="number" id="bedTemp" class="input-field" value="60" oninput="setCustomMaterial(); updateUI();">
-                                    <span id="err-bedTemp" class="hidden"></span>
-                                </div>
+                                <div><label>Nozzle (°C)</label><input type="number" id="printTemp" class="input-field" value="210" oninput="setCustomMaterial(); updateUI();"><span id="err-printTemp" class="hidden"></span></div>
+                                <div><label>Bed (°C)</label><input type="number" id="bedTemp" class="input-field" value="60" oninput="setCustomMaterial(); updateUI();"><span id="err-bedTemp" class="hidden"></span></div>
                             </div>
                         </div>
                     </div>
-
                     <div class="visual-column">
                         <div class="preview-box">
                             <canvas id="previewCanvas" width="300" height="200"></canvas>
+                            <div class="legend">
+                                <span><i class="fas fa-circle" style="color: #ff4d4d;"></i> Home</span>
+                                <span><i class="fas fa-minus" style="color: #ff00ff;"></i> Purge</span>
+                            </div>
                         </div>
                         <div class="sub-card" style="margin-top: 20px;">
-                            <h3><i class="fas fa-microchip"></i> 3. Hardware</h3>
-                            <label>Probe</label>
-                            <select id="probeType" class="input-field">
-                                <option value="none">Manual</option>
-                                <option value="bltouch">BLTouch</option>
-                                <option value="tap">Voron Tap</option>
+                            <h3><i class="fas fa-lightbulb"></i> 3. Lights & Stress</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <input type="text" id="ledName" class="input-field" value="status_leds">
+                                <select id="useLED" class="input-field"><option value="true">Active</option><option value="false">Off</option></select>
+                            </div>
+                            <select id="tortureLevel" class="input-field" style="margin-top:10px;">
+                                <option value="standard">Standard</option><option value="aggressive">Aggressive</option>
                             </select>
-                            <div style="margin-top:10px;">
-                                <label>Z-Tilt Support?</label>
-                                <select id="useZTilt" class="input-field"><option value="false">No</option><option value="true">Yes</option></select>
+                        </div>
+                        <div class="sub-card">
+                            <h3><i class="fas fa-tools"></i> 4. Hardware</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <select id="probeType" class="input-field"><option value="none">Manual</option><option value="bltouch">BLTouch</option><option value="tap">Voron Tap</option></select>
+                                <select id="useZTilt" class="input-field"><option value="false">No Z-Tilt</option><option value="true">Z-Tilt</option></select>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <button class="btn-main" id="generateBtn" onclick="generateMacros()">GENERATE MACROS.CFG</button>
+                <button class="btn-main" id="generateBtn" onclick="generateMacros()">Generate Configuration</button>
             </section>
-
             <section id="outputCard" class="generator-section hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="color: var(--primary-purple); margin:0;">Output</h2>
+                    <h2 style="color: var(--primary-purple); margin:0;">Generated macros.cfg</h2>
                     <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="copyToClipboard()">Copy</button>
                 </div>
                 <pre id="gcodeOutput" class="code-block"></pre>
             </section>
         </main>
-
         <footer><p>&copy; 2026 Kanrog Creations. All rights reserved.</p></footer>
     </div>
-
     <script src="macro-templates.js"></script>
     <script src="macro-logic.js"></script>
 </body>
