@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klipper Macro Generator | Kanrog</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Specific overrides for the generator tool */
+        .generator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .preview-box { background: rgba(0, 0, 0, 0.4); border-radius: 15px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
+        canvas { max-width: 100%; height: auto; filter: drop-shadow(0 0 10px rgba(162, 155, 254, 0.3)); }
+        .sub-card { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .hidden { display: none; }
+        .warn-text { color: #ff9800; font-size: 0.8rem; margin-top: 5px; display: none; }
+        pre.code-block { background: #000; color: #adff2f; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', monospace; height: 400px; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Kanrog<span>.</span></div>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="https://github.com/Kanrog" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="card animate__animated animate__fadeIn">
+            <h1><i class="fas fa-microchip"></i> Klipper Macro Generator</h1>
+            <p>Configure your printer archetype, dimensions, and features to generate a safety-tested macro set.</p>
+            
+            <div class="generator-grid">
+                <div class="inputs-column">
+                    <div class="sub-card">
+                        <h3><i class="fas fa-drafting-compass"></i> Geometry</h3>
+                        <div class="input-group">
+                            <label>Archetype</label>
+                            <select id="kin" class="input-field" onchange="updateUI()">
+                                <option value="bedslinger">Bedslinger (Corner-0)</option>
+                                <option value="corexy">CoreXY / Fixed-Bed (Corner-0)</option>
+                                <option value="delta">Delta (Center-0)</option>
+                            </select>
+                        </div>
+                        <div class="grid">
+                            <div class="input-group"><label>X / Dia</label><input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()"></div>
+                            <div class="input-group"><label>Y Depth</label><input type="number" id="maxY" class="input-field" value="235" oninput="updateUI()"></div>
+                            <div class="input-group"><label>Z Height</label><input type="number" id="maxZ" class="input-field" value="250"></div>
+                        </div>
+                    </div>
+
+                    <div class="sub-card">
+                        <h3><i class="fas fa-thermometer-half"></i> Temperatures</h3>
+                        <div class="input-group">
+                            <label>Filament Type</label>
+                            <select id="filament" class="input-field" onchange="toggleCustomTemps()">
+                                <option value="pla">PLA</option>
+                                <option value="petg">PETG</option>
+                                <option value="abs">ABS</option>
+                                <option value="custom">-- Custom --</option>
+                            </select>
+                        </div>
+                        <div id="customTempPanel" class="hidden">
+                            <div class="grid">
+                                <div class="input-group"><label>Hotend</label><input type="number" id="cTarget" class="input-field" value="230" oninput="checkTemps()"></div>
+                                <div class="input-group"><label>Bed</label><input type="number" id="cBed" class="input-field" value="60" oninput="checkTemps()"></div>
+                            </div>
+                        </div>
+                        <p id="tempWarning" class="warn-text">⚠️ High temps require all-metal hotends!</p>
+                    </div>
+                </div>
+
+                <div class="visual-column">
+                    <div class="preview-box">
+                        <canvas id="previewCanvas" width="300" height="200"></canvas>
+                        <p style="font-size: 0.75rem; opacity: 0.5;">Green = Safe Zone | Red = Home | Pink = Purge</p>
+                    </div>
+
+                    <div class="sub-card">
+                        <h3><i class="fas fa-lightbulb"></i> Lighting (Neopixel)</h3>
+                        <div class="grid">
+                            <div class="input-group">
+                                <label>Enable LEDs</label>
+                                <select id="useLED" class="input-field"><option value="true">Yes</option><option value="false">No</option></select>
+                            </div>
+                            <div class="input-group"><label>Chain Name</label><input type="text" id="ledName" class="input-field" value="RGB_LED"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="generateMacros()">
+                <i class="fas fa-cog"></i> Generate macros.cfg
+            </button>
+        </section>
+
+        <section id="outputCard" class="card hidden animate__animated animate__fadeInUp">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3><i class="fas fa-file-code"></i> Generated Config</h3>
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-sm" onclick="copyToClipboard()"><i class="fas fa-copy"></i> Copy</button>
+                    <button class="btn btn-success btn-sm" onclick="downloadConfig()"><i class="fas fa-download"></i> Download</button>
+                </div>
+            </div>
+            <pre id="gcodeOutput" class="code-block"></pre>
+        </section>
+    </main>
+
+    <script src="macro-templates.js"></script>
+    <script src="macro-logic.js"></script>
+</body>
+</html>
