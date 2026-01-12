@@ -1,10 +1,10 @@
 /**
  * THE ULTIMATE KLIPPER MACRO LIBRARY - FULL EXPANSION BUILD
- * Strictly formatted for maximum readability. No consolidation.
+ * VERSION: 2026.01.12
+ * NO CONSOLIDATION. NO SHORTCUTS.
  */
 
 const GCODE_TEMPLATES = {
-    // 1. HEADER & GLOBAL VARIABLE BLOCK
     header: (kin, x, y, z, m) => 
 `#=====================================================#
 # KANROG UNIVERSAL MACRO SET | ARCHETYPE: ${kin.toUpperCase()}
@@ -24,10 +24,9 @@ variable_min_temp: 180
 gcode:
     # This section stores internal variables for other macros\n\n`,
 
-    // 2. LIGHTING SUITE (THE FLYER SIGNATURE)
     lighting: (name, idle, print) => 
 `#=====================================================
-# LED CONTROL & COLOR PRESETS
+# LED CONTROL & COLOR PRESETS (FLYER SIGNATURE)
 #=====================================================
 [gcode_macro LED_RED]
 gcode:
@@ -65,6 +64,10 @@ gcode:
 gcode:
     SET_LED LED=${name} RED=0 GREEN=0 BLUE=0 TRANSMIT=1
 
+[gcode_macro LED_HEATING]
+gcode:
+    SET_LED LED=${name} RED=0.8 GREEN=0.2 BLUE=0 TRANSMIT=1
+
 [gcode_macro LED_IDLE]
 gcode:
     # Set to user-selected idle color
@@ -80,11 +83,11 @@ description: The Flyer Signature Light Show
 gcode:
     {% for repeat in range(4) %}
         LED_RED
-        G4 P100
+        G4 P150
         LED_ORANGE
-        G4 P100
+        G4 P150
         LED_YELLOW
-        G4 P100
+        G4 P150
         LED_GREEN
         G4 P100
         LED_TEAL
@@ -92,7 +95,7 @@ gcode:
         LED_BLUE
         G4 P100
         LED_PURPLE
-        G4 P100
+        G4 P150
     {% endfor %}
     LED_IDLE
 
@@ -101,7 +104,6 @@ initial_duration: 1
 gcode:
     LED_CYCLE\n\n`,
 
-    // 3. DIAGNOSTICS & MAINTENANCE
     diagnostics: (kin) => 
 `#=====================================================
 # DIAGNOSTICS & BUZZ
@@ -135,23 +137,6 @@ gcode:
     G90
     LED_IDLE
 
-[gcode_macro PROBE_TEST]
-description: Runs a 10-sample probe accuracy test
-gcode:
-    {% if "xyz" not in printer.toolhead.homed_axes %}
-        G28
-    {% endif %}
-    G90
-    G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} Z10 F3000
-    PROBE_ACCURACY SAMPLES=10
-
-[gcode_macro CALIBRATE_BED]
-gcode:
-    {% if "xyz" not in printer.toolhead.homed_axes %}
-        G28
-    {% endif %}
-    ${kin === 'delta' ? 'DELTA_CALIBRATE METHOD=manual' : 'BED_MESH_CALIBRATE'}
-
 [gcode_macro PID_HOTEND]
 gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %}
@@ -182,7 +167,6 @@ gcode:
     ENDSTOP_PHASE_CALIBRATE stepper=stepper_c
     G28` : ''}\n\n`,
 
-    // 4. TORTURE & MOVEMENT TESTS
     torture: (x, y, z, m, speed) => 
 `#=====================================================
 # TORTURE & MOVEMENT TESTS
@@ -233,7 +217,6 @@ gcode:
     {% endfor %}
     G90\n\n`,
 
-    // 5. CORE PRINT OPERATIONS
     core_ops: (kin, usePurge, pStart, pEnd, heatStyle) => 
 `#=====================================================
 # START / END / FILAMENT
@@ -244,6 +227,7 @@ gcode:
     {% set T_BED = params.T_BED|default(60)|float %}
     {% set T_EXTRUDER = params.T_EXTRUDER|default(200)|float %}
     
+    LED_HEATING
     M140 S{T_BED}
     ${heatStyle === 'staged' ? 
     `# Staged Heating: Waiting for bed to reach 85% to save PSU load
@@ -310,7 +294,6 @@ gcode:
     RESUME_BASE
     LED_PRINT\n\n`,
 
-    // 6. UTILITY & SAFETY
     utility: (useChamber) => 
 `#=====================================================
 # UTILITY & SAFETY
@@ -321,6 +304,7 @@ gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %}
         G28
     {% endif %}
+    LED_ORANGE
     G90
     G1 Z10 F5000
     G1 X0 Y0 F3000
