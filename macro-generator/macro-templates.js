@@ -1,7 +1,7 @@
 const GCODE_TEMPLATES = {
     header: (kin, x, y, z, m) => `#=====================================================#
-# KANROG UNIVERSAL MACRO SET | Archetype: ${kin.toUpperCase()}
-# Volume: ${x}x${y}x${z} | Safety Margin: ${m}mm
+# KANROG UNIVERSAL MACRO SET | ARCHETYPE: ${kin.toUpperCase()}
+# Bed: ${x}x${y}x${z} | Margin: ${m}mm
 #=====================================================#\n\n`,
 
     user_vars: (pkX, pkY, zPark, bowden, m, endRetract, m600Purge) => `[gcode_macro _USER_VARS]
@@ -15,7 +15,7 @@ variable_m600_purge: ${m600Purge}
 gcode:\n\n`,
 
     lighting: (name, br, idle, print) => `[neopixel ${name}]
-pin: gpio6 # Edit this to your actual control pin
+pin: gpio6 # Edit to your actual control pin
 chain_count: 12
 color_order: GRB
 
@@ -29,13 +29,13 @@ gcode: SET_LED LED=${name} RED=0 GREEN=1 BLUE=0 TRANSMIT=1
 gcode: SET_LED LED=${name} RED=0 GREEN=0 BLUE=1 TRANSMIT=1
 [gcode_macro LED_WHITE]
 gcode: SET_LED LED=${name} RED=1 GREEN=1 BLUE=1 TRANSMIT=1
+[gcode_macro LED_OFF]
+gcode: SET_LED LED=${name} RED=0 GREEN=0 BLUE=0 TRANSMIT=1
 
 [gcode_macro LED_IDLE]
 gcode: SET_LED LED=${name} RED=${idle[0]} GREEN=${idle[1]} BLUE=${idle[2]} TRANSMIT=1
 [gcode_macro LED_PRINT]
 gcode: SET_LED LED=${name} RED=${print[0]} GREEN=${print[1]} BLUE=${print[2]} TRANSMIT=1
-[gcode_macro LED_OFF]
-gcode: SET_LED LED=${name} RED=0 GREEN=0 BLUE=0 TRANSMIT=1
 
 [gcode_macro LED_CYCLE]
 gcode:
@@ -120,10 +120,10 @@ gcode:
     G90
     ${usePurge ? 'PURGE' : '# PURGE DISABLED'}
 
-[gcode_macro PRINT_END]
+[gcode_macro END_PRINT]
 gcode:
     G91
-    G1 E-{printer["gcode_macro _USER_VARS"].end_retract} F1000
+    G1 E-15 F1000
     G90
     G28
     TURN_OFF_HEATERS
@@ -150,16 +150,6 @@ gcode:
     G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} F3000
     RESTORE_GCODE_STATE NAME=M600_state
 
-[gcode_macro PAUSE]
-rename_existing: PAUSE_BASE
-gcode:
-    PAUSE_BASE
-    G91
-    G1 E-2 F1000
-    G90
-    G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} Z{printer.toolhead.position.z + 10} F3000
-    LED_RED
-
 [gcode_macro RESUME]
 rename_existing: RESUME_BASE
 gcode:
@@ -175,7 +165,7 @@ gcode:
     LED_ORANGE
     G90
     G1 Z10 F5000
-    G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} F3000
+    G1 X0 Y0 F3000
     M140 S100
     M106 S255
     G4 S1800
