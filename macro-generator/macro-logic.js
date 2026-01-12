@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: FINAL 2026.01.12
+ * VERSION: ROADMAP + RESET READY 2026.01.12
  */
 
 let canvas, ctx;
@@ -14,6 +14,9 @@ function initCanvas() {
     }
 }
 
+/**
+ * Reverts all UI inputs to their default startup values
+ */
 function resetDefaults() {
     document.getElementById('kin').value = "bedslinger";
     document.getElementById('maxX').value = 235;
@@ -25,9 +28,11 @@ function resetDefaults() {
     document.getElementById('tortureLevel').value = "standard";
     document.getElementById('probeType').value = "none";
     document.getElementById('useZTilt').value = "false";
+    
     updateMaterialPresets();
     updateUI();
     document.getElementById('outputCard').classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateMaterialPresets() {
@@ -55,28 +60,30 @@ function updateUI() {
     const pInput = document.getElementById('printTemp'), pErr = document.getElementById('err-printTemp');
     const bInput = document.getElementById('bedTemp'), bErr = document.getElementById('err-bedTemp');
 
-    // Reset Safety States
+    // Reset Safety Styles
     pInput.classList.remove('input-error', 'input-warning');
     bInput.classList.remove('input-error', 'input-warning');
     pErr.classList.add('hidden'); bErr.classList.add('hidden');
     pErr.className = "error-text"; bErr.className = "error-text";
     pErr.innerHTML = ""; bErr.innerHTML = "";
 
-    // Validation logic
+    // Kinematic Margin Check
     let mBad = (kin === 'delta') ? (m >= (x/2 - 10)) : ((x - m*2) <= 10 || (y - m*2) <= 10);
     mErr.classList.toggle('hidden', !mBad);
     if(mBad) block = true;
 
+    // Nozzle Safety
     if (pT < 170 || pT > 305) { pErr.innerHTML = "Invalid Printing Temp!"; pErr.classList.remove('hidden'); pInput.classList.add('input-error'); block = true; }
     else if (pT > 290) { pErr.innerHTML = "All-Metal Hotend Required"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); pInput.classList.add('input-warning'); }
     else if (pT > 260) { pErr.innerHTML = "PTFE Liner Danger Zone"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); pInput.classList.add('input-warning'); }
 
+    // Bed Safety
     if (bT < 0 || bT > 125) { bErr.innerHTML = "Unsafe Bed Temp!"; bErr.classList.remove('hidden'); bInput.classList.add('input-error'); block = true; }
     else if (bT > 85) { bErr.innerHTML = "Magnet Demagnetization Risk"; bErr.className = "warning-text"; bErr.classList.remove('hidden'); bInput.classList.add('input-warning'); }
 
     document.getElementById('generateBtn').disabled = block;
 
-    // Drawing
+    // Drawing Visualizer
     ctx.fillStyle = "#111111"; ctx.fillRect(0, 0, 300, 200);
     const scale = 120 / Math.max(x, y), cx = 150, cy = 100;
 
@@ -89,7 +96,7 @@ function updateUI() {
     else { ctx.rect(cx - (x/2 - m)*scale, cy - (y/2 - m)*scale, (x - m*2)*scale, (y - m*2)*scale); }
     ctx.stroke(); ctx.setLineDash([]);
 
-    // Purge Line
+    // Purge Line Visualization
     ctx.strokeStyle = "#ff00ff"; ctx.lineWidth = 3; ctx.beginPath();
     if (kin === 'delta') { ctx.moveTo(cx - 20 * scale, cy + (y/2 - m) * scale); ctx.lineTo(cx + 20 * scale, cy + (y/2 - m) * scale); }
     else { ctx.moveTo(cx - (x/2 - m) * scale, cy + (y/2 - m) * scale); ctx.lineTo(cx - (x/2 - m - 50) * scale, cy + (y/2 - m) * scale); }
@@ -101,6 +108,9 @@ function updateUI() {
     ctx.fill();
 }
 
+/**
+ * Triggers a download of the generated macros as a .cfg file
+ */
 function downloadMacros() {
     const code = document.getElementById('gcodeOutput').innerText;
     if (!code) return;
@@ -132,6 +142,6 @@ function generateMacros() {
     document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
 }
 
-function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText); alert("Copied!"); }
+function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText); alert("Copied to clipboard!"); }
 
 window.onload = function() { initCanvas(); updateMaterialPresets(); updateUI(); };
