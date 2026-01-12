@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: STICKY-FIXED SAFETY 2026.01.12
+ * VERSION: MARGIN RESTORED + STICKY FIX 2026.01.12
  */
 
 let canvas, ctx;
@@ -39,13 +39,15 @@ function updateUI() {
     const pInput = document.getElementById('printTemp'), pErr = document.getElementById('err-printTemp');
     const bInput = document.getElementById('bedTemp'), bErr = document.getElementById('err-bedTemp');
 
-    // --- RESET ALL STATES FIRST ---
+    // --- RESET SAFETY STATES ---
     pInput.classList.remove('input-error', 'input-warning');
     bInput.classList.remove('input-error', 'input-warning');
     pErr.classList.add('hidden');
     bErr.classList.add('hidden');
     pErr.className = "error-text";
     bErr.className = "error-text";
+    pErr.innerHTML = "";
+    bErr.innerHTML = "";
 
     // Margin Check
     let mBad = (kin === 'delta') ? (m >= (x/2 - 10)) : ((x - m*2) <= 10 || (y - m*2) <= 10);
@@ -85,15 +87,48 @@ function updateUI() {
 
     document.getElementById('generateBtn').disabled = block;
 
-    // --- DRAWING ---
-    ctx.fillStyle = "#111111"; ctx.fillRect(0, 0, 300, 200);
-    const scale = 120 / Math.max(x, y), cx = 150, cy = 100;
-    ctx.strokeStyle = "#9b59b6"; ctx.fillStyle = "rgba(155, 89, 182, 0.15)"; ctx.lineWidth = 2;
-    if (kin === 'delta') { ctx.beginPath(); ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
-    else { ctx.fillRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); ctx.strokeRect(cx - (x/2)*scale, cy - (y / 2) * scale, x * scale, y * scale); }
-    ctx.fillStyle = "#ff4d4d"; ctx.beginPath();
-    if (kin === 'delta') { ctx.arc(cx, cy, 6, 0, Math.PI*2); }
-    else { ctx.arc(cx - (x/2)*scale, cy + (y/2)*scale, 6, 0, Math.PI*2); }
+    // --- DRAWING ROUTINE ---
+    // Background
+    ctx.fillStyle = "#111111"; 
+    ctx.fillRect(0, 0, 300, 200);
+
+    const scale = 120 / Math.max(x, y);
+    const cx = 150, cy = 100;
+
+    // 1. Draw Physical Bed Surface
+    ctx.strokeStyle = "#9b59b6"; 
+    ctx.fillStyle = "rgba(155, 89, 182, 0.15)"; 
+    ctx.lineWidth = 2;
+    if (kin === 'delta') { 
+        ctx.beginPath(); 
+        ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); 
+        ctx.fill(); 
+        ctx.stroke(); 
+    } else { 
+        ctx.fillRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); 
+        ctx.strokeRect(cx - (x/2)*scale, cy - (y / 2) * scale, x * scale, y * scale); 
+    }
+
+    // 2. Draw Safe Margin Boundary (RESTORED)
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; 
+    ctx.setLineDash([5, 5]); 
+    ctx.beginPath();
+    if (kin === 'delta') { 
+        ctx.arc(cx, cy, (x/2 - m)*scale, 0, Math.PI*2); 
+    } else { 
+        ctx.rect(cx - (x/2 - m)*scale, cy - (y/2 - m)*scale, (x - m*2)*scale, (y - m*2)*scale); 
+    }
+    ctx.stroke(); 
+    ctx.setLineDash([]); // Reset to solid for home point
+
+    // 3. Draw Home Point
+    ctx.fillStyle = "#ff4d4d"; 
+    ctx.beginPath();
+    if (kin === 'delta') { 
+        ctx.arc(cx, cy, 6, 0, Math.PI*2); 
+    } else { 
+        ctx.arc(cx - (x/2)*scale, cy + (y/2)*scale, 6, 0, Math.PI*2); 
+    }
     ctx.fill();
 }
 
@@ -101,12 +136,15 @@ function generateMacros() {
     const kin = document.getElementById('kin').value, x = document.getElementById('maxX').value, y = document.getElementById('maxY').value;
     const pT = document.getElementById('printTemp').value, bT = document.getElementById('bedTemp').value, m = document.getElementById('margin').value;
     const zT = document.getElementById('useZTilt').value === 'true', probe = document.getElementById('probeType').value;
+    
     let out = GCODE_TEMPLATES.header(kin, x, y, 250, m);
     out += GCODE_TEMPLATES.user_vars(x/2, y/2, 240, 450, m, pT, bT, "Custom", 2000, 255);
     out += GCODE_TEMPLATES.diagnostics(kin, probe, zT);
     out += GCODE_TEMPLATES.core_ops(kin, true, "X20 Y20", "X60 Y20", "parallel", "Custom", probe, zT);
+    
     document.getElementById('gcodeOutput').innerText = out;
     document.getElementById('outputCard').classList.remove('hidden');
+    document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
 }
 
 function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText); alert("Copied!"); }
