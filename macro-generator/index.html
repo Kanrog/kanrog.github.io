@@ -95,7 +95,7 @@
             transition: 0.3s; 
         }
 
-        .btn-main:hover { background: var(--dark-purple); transform: translateY(-2px); }
+        .btn-main:hover { background: var(--dark-purple); transform: translateY(-2px); box-shadow: 0 5px 20px rgba(155, 89, 182, 0.5); }
         .btn-success { background: #27ae60 !important; }
         .btn-reset { 
             background: transparent; 
@@ -104,8 +104,24 @@
             padding: 10px 20px; 
             font-size: 0.8rem; 
             margin-bottom: 20px;
+            width: auto;
+            cursor: pointer;
         }
         .btn-reset:hover { border-color: #e74c3c; color: #e74c3c; }
+
+        .roadmap-list {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        .roadmap-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .roadmap-list i { color: var(--primary-purple); }
 
         pre.code-block { 
             background: var(--dark-gray); 
@@ -134,7 +150,7 @@
             </div>
 
             <div style="display: flex; justify-content: flex-end;">
-                <button class="btn-main btn-reset" onclick="resetDefaults()"><i class="fas fa-undo"></i> Reset to Defaults</button>
+                <button class="btn-reset" onclick="resetDefaults()"><i class="fas fa-undo"></i> Reset to Defaults</button>
             </div>
 
             <section class="generator-section animate__animated animate__fadeIn">
@@ -213,6 +229,16 @@
                     </div>
                 </div>
                 <pre id="gcodeOutput" class="code-block"></pre>
+            </section>
+
+            <section class="generator-section" style="margin-top: 40px;">
+                <h2 style="color: var(--primary-purple); text-align: center;"><i class="fas fa-map-signs"></i> Future Roadmap</h2>
+                <ul class="roadmap-list">
+                    <li><i class="fas fa-info-circle"></i> <strong>New User Onboarding:</strong> Detailed, human-readable descriptions for every generated G-Code line.</li>
+                    <li><i class="fas fa-caret-square-down"></i> <strong>Interactive Guide:</strong> Information drop-downs for every toggle and selector to explain hardware implications.</li>
+                    <li><i class="fas fa-sliders-h"></i> <strong>Deep Customization:</strong> Advanced settings for custom purge locations, heat-soak timers, and mesh density.</li>
+                    <li><i class="fas fa-save"></i> <strong>Local Presets:</strong> Save your machine profiles directly to your browser for quick access.</li>
+                </ul>
             </section>
         </main>
         <footer><p>&copy; 2026 Kanrog Creations. All rights reserved.</p></footer>
