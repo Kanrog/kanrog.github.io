@@ -1,89 +1,106 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: REPAIRED VISUALIZER 2026.01.12
+ * VERSION: COMPLETE FEATURE SET 2026.01.12
  */
 
 let canvas, ctx;
 
 function initCanvas() {
     canvas = document.getElementById('previewCanvas');
-    if (canvas) {
-        ctx = canvas.getContext('2d');
+    if (canvas) { 
+        ctx = canvas.getContext('2d'); 
+        canvas.width = 300; 
+        canvas.height = 200; 
     }
 }
 
+function updateMaterialPresets() {
+    const mat = document.getElementById('material').value;
+    const pInput = document.getElementById('printTemp'), bInput = document.getElementById('bedTemp');
+    if (mat === "PLA") { pInput.value = 210; bInput.value = 60; }
+    else if (mat === "PETG") { pInput.value = 240; bInput.value = 80; }
+    else if (mat === "ABS") { pInput.value = 250; bInput.value = 100; }
+    else if (mat === "TPU") { pInput.value = 230; bInput.value = 50; }
+}
+
+function setCustomMaterial() { document.getElementById('material').value = "Custom"; }
+
 function updateUI() {
     if (!ctx) initCanvas();
-    if (!ctx) return;
-
     const kin = document.getElementById('kin').value;
     const x = parseFloat(document.getElementById('maxX').value) || 235;
     const y = parseFloat(document.getElementById('maxY').value) || 235;
-    const pTemp = parseFloat(document.getElementById('printTemp').value) || 0;
+    const m = parseFloat(document.getElementById('margin').value) || 20;
+    const pT = parseFloat(document.getElementById('printTemp').value) || 0;
+    const bT = parseFloat(document.getElementById('bedTemp').value) || 0;
 
-    // Safety validation
-    const pInput = document.getElementById('printTemp');
-    const pErr = document.getElementById('err-printTemp');
-    if (pTemp < 170 || pTemp > 300) {
-        pInput.style.borderColor = "#e74c3c";
-        pErr.classList.remove('hidden');
-    } else {
-        pInput.style.borderColor = "";
-        pErr.classList.add('hidden');
+    let block = false;
+    const mErr = document.getElementById('err-margin'), pErr = document.getElementById('err-printTemp'), bErr = document.getElementById('err-bedTemp');
+
+    // Margin Safety
+    let mBad = (kin === 'delta') ? (m >= (x/2 - 10)) : ((x - m*2) <= 10 || (y - m*2) <= 10);
+    mErr.classList.toggle('hidden', !mBad);
+    if(mBad) block = true;
+
+    // Nozzle Tiered Safety
+    pErr.classList.add('hidden'); pErr.className = "error-text";
+    if(pT < 170 || pT > 305) { pErr.innerHTML = "Invalid Printing Temp!"; pErr.classList.remove('hidden'); block = true; }
+    else if(pT > 290) { pErr.innerHTML = "All-Metal Hotend Required"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); }
+    else if(pT > 260) { pErr.innerHTML = "PTFE Liner Danger Zone"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); }
+
+    // Bed Magnet Safety
+    bErr.classList.add('hidden'); bErr.className = "error-text";
+    if(bT > 125) { bErr.innerHTML = "Unsafe Bed Temp!"; bErr.classList.remove('hidden'); block = true; }
+    else if(bT > 85) { bErr.innerHTML = "Magnet Demagnetization Risk"; bErr.className = "warning-text"; bErr.classList.remove('hidden'); }
+
+    document.getElementById('generateBtn').disabled = block;
+
+    // --- CANVAS VISUALIZER ---
+    ctx.fillStyle = "#111111"; ctx.fillRect(0, 0, 300, 200);
+    const scale = 120 / Math.max(x, y), cx = 150, cy = 100;
+
+    // Draw Printable Bed
+    ctx.strokeStyle = "#9b59b6"; ctx.fillStyle = "rgba(155, 89, 182, 0.15)"; ctx.lineWidth = 2;
+    if (kin === 'delta') { 
+        ctx.beginPath(); ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); ctx.fill(); ctx.stroke(); 
+    } else { 
+        ctx.fillRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); 
+        ctx.strokeRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); 
     }
 
-    // --- DRAWING ---
-    // 1. Reset
-    ctx.fillStyle = "#111111"; // Internal canvas bg
-    ctx.fillRect(0, 0, 300, 200);
+    // Draw Margin Boundary
+    ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.setLineDash([5, 5]); ctx.beginPath();
+    if (kin === 'delta') { ctx.arc(cx, cy, (x/2 - m)*scale, 0, Math.PI*2); }
+    else { ctx.rect(cx - (x/2 - m)*scale, cy - (y/2 - m)*scale, (x - m*2)*scale, (y - m*2)*scale); }
+    ctx.stroke(); ctx.setLineDash([]);
 
-    const scale = 120 / Math.max(x, y);
-    const cx = 150, cy = 100;
-
-    // 2. Draw Bed (Kanrog Purple)
-    ctx.strokeStyle = "#9b59b6"; 
-    ctx.fillStyle = "rgba(155, 89, 182, 0.2)";
-    ctx.lineWidth = 2;
-
-    if (kin === 'delta') {
-        ctx.beginPath();
-        ctx.arc(cx, cy, (x / 2) * scale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-    } else {
-        ctx.fillRect(cx - (x / 2) * scale, cy - (y / 2) * scale, x * scale, y * scale);
-        ctx.strokeRect(cx - (x / 2) * scale, cy - (y / 2) * scale, x * scale, y * scale);
-    }
-
-    // 3. Draw Home (Bright Red)
-    ctx.fillStyle = "#ff4d4d";
-    ctx.beginPath();
-    if (kin === 'delta') {
-        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-    } else {
-        ctx.arc(cx - (x / 2) * scale, cy + (y / 2) * scale, 6, 0, Math.PI * 2);
-    }
+    // Draw Origin
+    ctx.fillStyle = "#ff4d4d"; ctx.beginPath();
+    if (kin === 'delta') { ctx.arc(cx, cy, 6, 0, Math.PI*2); }
+    else { ctx.arc(cx - (x/2)*scale, cy + (y/2)*scale, 6, 0, Math.PI*2); }
     ctx.fill();
 }
 
 function generateMacros() {
-    const kin = document.getElementById('kin').value;
-    const x = document.getElementById('maxX').value;
-    const y = document.getElementById('maxY').value;
-    const pTemp = document.getElementById('printTemp').value;
-    const zTilt = document.getElementById('useZTilt').value === 'true';
+    const kin = document.getElementById('kin').value, x = document.getElementById('maxX').value, y = document.getElementById('maxY').value;
+    const pT = document.getElementById('printTemp').value, bT = document.getElementById('bedTemp').value, m = document.getElementById('margin').value;
+    const zT = document.getElementById('useZTilt').value === 'true', probe = document.getElementById('probeType').value;
+    const useLED = document.getElementById('useLED').value === 'true', led = document.getElementById('ledName').value;
+    const torture = document.getElementById('tortureLevel').value;
 
-    // Mock Template Call
-    let output = GCODE_TEMPLATES.header(kin, x, y, 250, 20);
-    output += GCODE_TEMPLATES.user_vars(x/2, y/2, 240, 450, 20, pTemp, 60, "Custom", 2000, 255);
-    output += GCODE_TEMPLATES.diagnostics(kin, "none", zTilt);
-    output += GCODE_TEMPLATES.core_ops(kin, true, "X20 Y20", "X60 Y20", "parallel", "Custom", "none", zTilt);
+    let out = GCODE_TEMPLATES.header(kin, x, y, 250, m);
+    out += GCODE_TEMPLATES.user_vars(x/2, y/2, 240, 450, m, pT, bT, "Custom", 2000, 255);
+    if(useLED) out += GCODE_TEMPLATES.lighting(led, "RED=0.0 GREEN=0.0 BLUE=1.0", "RED=1.0 GREEN=1.0 BLUE=1.0");
+    out += GCODE_TEMPLATES.diagnostics(kin, probe, zT);
+    out += GCODE_TEMPLATES.torture(x, y, 250, m, (torture === 'aggressive' ? 800000 : 500000));
+    out += GCODE_TEMPLATES.core_ops(kin, true, "X20 Y20", "X60 Y20", "staged", "Custom", probe, zT);
+    out += GCODE_TEMPLATES.utility(false, probe, bT);
 
-    document.getElementById('gcodeOutput').innerText = output;
+    document.getElementById('gcodeOutput').innerText = out;
     document.getElementById('outputCard').classList.remove('hidden');
+    document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
 }
 
-window.onload = function() {
-    initCanvas();
-    updateUI();
-};
+function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText); alert("Copied to clipboard!"); }
+
+window.onload = function() { initCanvas(); updateMaterialPresets(); updateUI(); };
