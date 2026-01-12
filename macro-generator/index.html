@@ -13,7 +13,6 @@
         .sub-card { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.05); }
         .hidden { display: none; }
         pre.code-block { background: #000; color: #adff2f; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', monospace; height: 450px; border: 1px solid #333; white-space: pre-wrap; }
-        .input-field { margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -30,18 +29,18 @@
     <main class="container">
         <section class="card animate__animated animate__fadeIn">
             <h1><i class="fas fa-microchip"></i> Klipper Macro Generator</h1>
-            <p>Generate your complete, safety-tested macro set for Klipper.</p>
+            <p>Master-grade Klipper configuration for Bedslingers, CoreXY, and Delta printers.</p>
             <hr style="opacity: 0.1; margin: 20px 0;">
             
             <div class="generator-grid">
                 <div class="inputs-column">
                     <div class="sub-card">
                         <h3><i class="fas fa-drafting-compass"></i> Geometry</h3>
-                        <label>Printer Archetype</label>
+                        <label>Archetype</label>
                         <select id="kin" class="input-field" onchange="updateUI()">
-                            <option value="bedslinger" selected>Bedslinger (Corner-0)</option>
-                            <option value="corexy">CoreXY (Corner-0)</option>
-                            <option value="delta">Delta (Center-0)</option>
+                            <option value="bedslinger" selected>Bedslinger</option>
+                            <option value="corexy">CoreXY</option>
+                            <option value="delta">Delta</option>
                         </select>
                         <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div><label>X / Dia</label><input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()"></div>
@@ -51,55 +50,35 @@
                     </div>
 
                     <div class="sub-card">
-                        <h3><i class="fas fa-tools"></i> Maintenance & Features</h3>
+                        <h3><i class="fas fa-tools"></i> Maintenance</h3>
                         <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div><label>Chamber Heat?</label><select id="useChamber" class="input-field"><option value="false">No</option><option value="true">Yes</option></select></div>
                             <div><label>Purge Line?</label><select id="usePurge" class="input-field" onchange="updateUI()"><option value="true">Yes</option><option value="false">No</option></select></div>
                         </div>
-                        <label>Stress Test Intensity</label>
-                        <select id="tortureLevel" class="input-field">
-                            <option value="standard">Standard</option>
-                            <option value="aggressive">Aggressive (Fast)</option>
-                        </select>
                     </div>
                 </div>
 
                 <div class="visual-column">
                     <div class="preview-box">
                         <canvas id="previewCanvas" width="300" height="200"></canvas>
-                        <p style="font-size: 0.75rem; opacity: 0.5; margin-top: 10px;">Green: Safe Zone | Red: Home | Pink: Purge</p>
+                        <p style="font-size: 0.75rem; opacity: 0.5;">Previewing Home & Safe Zone</p>
                     </div>
                     <div class="sub-card">
-                        <h3><i class="fas fa-lightbulb"></i> Lighting (Neopixel)</h3>
-                        <div class="input-group">
-                            <label>Enable LEDs</label>
-                            <select id="useLED" class="input-field" onchange="generateMacros()">
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
-                            </select>
-                        </div>
-                        <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div><label>Idle Color</label><select id="colorIdle" class="input-field"><option value="0,1,0">Green</option><option value="0,0,1">Blue</option><option value="1,1,1">White</option></select></div>
-                            <div><label>Print Color</label><select id="colorPrint" class="input-field"><option value="1,1,1">White</option><option value="0,1,0">Green</option></select></div>
-                        </div>
+                        <h3><i class="fas fa-lightbulb"></i> LEDs</h3>
+                        <label>Enable LEDs</label>
+                        <select id="useLED" class="input-field"><option value="true">Yes</option><option value="false">No</option></select>
                     </div>
                 </div>
             </div>
 
             <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="generateMacros()">
-                <i class="fas fa-cog"></i> Generate macros.cfg
+                <i class="fas fa-cog"></i> Generate Full Configuration
             </button>
         </section>
 
-        <section id="outputCard" class="card hidden animate__animated animate__fadeInUp">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3><i class="fas fa-file-code"></i> Generated Config</h3>
-                <div>
-                    <button class="btn btn-secondary btn-sm" onclick="copyToClipboard()">Copy</button>
-                    <button class="btn btn-success btn-sm" onclick="downloadConfig()">Download</button>
-                </div>
-            </div>
+        <section id="outputCard" class="card hidden">
             <pre id="gcodeOutput" class="code-block"></pre>
+            <button class="btn btn-success" onclick="downloadConfig()">Download macros.cfg</button>
         </section>
     </main>
 
