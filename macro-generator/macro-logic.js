@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: FINAL SAFETY TIERED 2026.01.12
+ * VERSION: FINAL SAFETY TIERED + MAGNET 2026.01.12
  */
 
 const canvas = document.getElementById('previewCanvas');
@@ -83,63 +83,67 @@ function updateUI() {
         marginErr.classList.add('hidden');
     }
 
-    // 2. Check Print Temp (Tiered: Error vs Warning)
+    // 2. Check Print Temp (Tiered)
     let printMsg = "";
     let printStatus = "ok"; // ok, warning, error
     
     if (pTemp < 170) {
-        printStatus = "error";
-        printMsg = "Too low for extrusion (<170°C)";
+        printStatus = "error"; printMsg = "Too low for extrusion (<170°C)";
     } else if (pTemp > 300) {
-        printStatus = "error";
-        printMsg = "UNSAFE: Exceeds Safety Limit (>300°C)";
+        printStatus = "error"; printMsg = "UNSAFE: Exceeds Limit (>300°C)";
     } else if (pTemp > 290) {
-        printStatus = "warning";
-        printMsg = "Warning: Specialized Components Required (>290°C)";
+        printStatus = "warning"; printMsg = "Specialized Components Required (>290°C)";
     } else if (pTemp > 260) {
-        printStatus = "warning";
-        printMsg = "Warning: PTFE Liner may melt (>260°C)";
+        printStatus = "warning"; printMsg = "PTFE Liner Risk (>260°C)";
     }
 
-    // Apply Print Temp Visuals
+    // Apply Print Visuals
     printTempInput.classList.remove('input-error', 'input-warning');
     printTempErr.classList.add('hidden');
-    printTempErr.classList.remove('error-inline', 'warning-text'); // Clean slate
+    printTempErr.classList.remove('error-inline', 'warning-text');
 
     if (printStatus === "error") {
         blockGeneration = true;
         printTempInput.classList.add('input-error');
-        printTempErr.className = "error-inline"; // Red Text
+        printTempErr.className = "error-inline";
         printTempErr.innerHTML = `<i class="fas fa-times-circle"></i> <span>${printMsg}</span>`;
         printTempErr.classList.remove('hidden');
     } else if (printStatus === "warning") {
-        // Warnings do NOT block generation
         printTempInput.classList.add('input-warning');
-        printTempErr.className = "warning-text"; // Orange Text
+        printTempErr.className = "warning-text";
         printTempErr.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>${printMsg}</span>`;
         printTempErr.classList.remove('hidden');
     }
 
-    // 3. Check Bed Temp (Critical Error Only)
-    let bedErrorText = "";
-    let bedIsBad = false;
+    // 3. Check Bed Temp (Tiered: Magnet Warning)
+    let bedMsg = "";
+    let bedStatus = "ok"; // ok, warning, error
     
     if (bTemp > 120) {
-        bedIsBad = true;
-        bedErrorText = "Unsafe (>120°C)";
+        bedStatus = "error"; bedMsg = "UNSAFE: Exceeds Safety Limit (>120°C)";
+    } else if (bTemp > 85) {
+        bedStatus = "warning"; bedMsg = "Magnet Demagnetization Risk (>85°C)";
     }
 
-    if (bedIsBad) {
+    // Apply Bed Visuals
+    bedTempInput.classList.remove('input-error', 'input-warning');
+    bedTempErr.classList.add('hidden');
+    bedTempErr.classList.remove('error-inline', 'warning-text');
+
+    if (bedStatus === "error") {
         blockGeneration = true;
         bedTempInput.classList.add('input-error');
-        bedTempErr.querySelector('span').innerText = bedErrorText;
+        bedTempErr.className = "error-inline";
+        bedTempErr.innerHTML = `<i class="fas fa-times-circle"></i> <span>${bedMsg}</span>`;
         bedTempErr.classList.remove('hidden');
-    } else {
-        bedTempInput.classList.remove('input-error');
-        bedTempErr.classList.add('hidden');
+    } else if (bedStatus === "warning") {
+        bedTempInput.classList.add('input-warning');
+        bedTempErr.className = "warning-text";
+        bedTempErr.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>${bedMsg}</span>`;
+        bedTempErr.classList.remove('hidden');
     }
 
-    // Toggle Generate Button based on Critical Errors
+    // Toggle Generate Button
     const genBtn = document.getElementById('generateBtn');
     if (blockGeneration) {
         genBtn.disabled = true;
