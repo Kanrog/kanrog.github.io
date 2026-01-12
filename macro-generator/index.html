@@ -304,6 +304,15 @@
                                 <option value="tap">Voron Tap / Klicky / Euclid</option>
                             </select>
                         </div>
+
+                        <div class="input-group">
+                             <label for="useZTilt">Z-Tilt Support?</label>
+                             <select id="useZTilt" class="input-field">
+                                 <option value="false">Disabled (Single Z / Parallel)</option>
+                                 <option value="true">Enabled (Independent Z Motors)</option>
+                             </select>
+                        </div>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div class="input-group"><label for="useChamber">Active Chamber?</label><select id="useChamber" class="input-field"><option value="false">Open Air</option><option value="true">Enclosed</option></select></div>
                             <div class="input-group"><label for="usePurge">Prime Line?</label><select id="usePurge" class="input-field" onchange="updateUI()"><option value="true">Enabled</option><option value="false">Disabled</option></select></div>

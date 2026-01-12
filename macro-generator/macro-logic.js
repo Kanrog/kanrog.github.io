@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: FINAL SAFETY TIERED + MAGNET 2026.01.12
+ * VERSION: FINAL COMPLETE 2026.01.12
  */
 
 const canvas = document.getElementById('previewCanvas');
@@ -56,7 +56,7 @@ function updateUI() {
     const bedTempInput = document.getElementById('bedTemp');
     const bedTempErr = document.getElementById('err-bedTemp');
 
-    // 1. Check Margin (Critical Error Only)
+    // 1. Check Margin
     let marginErrorText = "";
     let marginIsBad = false;
     
@@ -83,7 +83,7 @@ function updateUI() {
         marginErr.classList.add('hidden');
     }
 
-    // 2. Check Print Temp (Tiered)
+    // 2. Check Print Temp
     let printMsg = "";
     let printStatus = "ok"; // ok, warning, error
     
@@ -115,7 +115,7 @@ function updateUI() {
         printTempErr.classList.remove('hidden');
     }
 
-    // 3. Check Bed Temp (Tiered: Magnet Warning)
+    // 3. Check Bed Temp
     let bedMsg = "";
     let bedStatus = "ok"; // ok, warning, error
     
@@ -210,6 +210,7 @@ function generateMacros() {
 
     const bowden = document.getElementById('bowden').value || 450;
     const probeType = document.getElementById('probeType').value;
+    const useZTilt = document.getElementById('useZTilt').value === 'true'; // CAPTURED
     const useChamber = document.getElementById('useChamber').value === 'true';
     const usePurge = document.getElementById('usePurge').value === 'true';
     const heatStyle = document.getElementById('heatStyle').value;
@@ -241,9 +242,9 @@ function generateMacros() {
     let output = GCODE_TEMPLATES.header(kin, maxX, maxY, maxZ, margin);
     output += GCODE_TEMPLATES.user_vars(pkX, pkY, maxZ - 10, bowden, margin, pTemp, bTemp, material, retractSpeed, fanSpeed);
     if (useLED) output += GCODE_TEMPLATES.lighting(ledName, idleRGB, printRGB);
-    output += GCODE_TEMPLATES.diagnostics(kin, probeType);
+    output += GCODE_TEMPLATES.diagnostics(kin, probeType, useZTilt); // PASSED useZTilt
     output += GCODE_TEMPLATES.torture(maxX, maxY, maxZ, margin, stressSpeed);
-    output += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle, material, probeType);
+    output += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle, material, probeType, useZTilt); // PASSED useZTilt
     output += GCODE_TEMPLATES.utility(useChamber, probeType, bTemp);
 
     document.getElementById('gcodeOutput').innerText = output;

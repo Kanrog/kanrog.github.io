@@ -1,6 +1,6 @@
 /**
  * THE KANROG UNIVERSAL MACRO LIBRARY
- * VERSION: FINAL MANUAL LEVELING & E_CAL UPDATE 2026.01.12
+ * VERSION: FINAL COMPLETE + TILT & OFFSET 2026.01.12
  */
 
 const GCODE_TEMPLATES = {
@@ -125,20 +125,32 @@ gcode:
     },
 
     // =================================================================
-    // 4. DIAGNOSTICS & PROBE CHECK & MANUAL LEVELING
+    // 4. DIAGNOSTICS & PROBE & TILT
     // =================================================================
-    diagnostics: (kin, probeType) => {
-        // Build Probe Logic Explicitly
+    diagnostics: (kin, probeType, useZTilt) => {
+        // 1. Probe Logic (Test Accuracy, Adjust Offset, Screws Tilt)
         let probe_macro_block = "";
         if (probeType !== 'none') {
             probe_macro_block = `[gcode_macro CHECK_PROBE]
 description: Test probe accuracy
 gcode:
     G28
-    PROBE_ACCURACY samples=10`;
+    PROBE_ACCURACY samples=10
+
+[gcode_macro ADJUST_Z_OFFSET]
+description: Calibrate Probe Z-Offset
+gcode:
+    G28
+    PROBE_CALIBRATE
+
+[gcode_macro SCREWS_TILT]
+description: Helper for manual leveling using the probe
+gcode:
+    G28
+    SCREWS_TILT_CALCULATE`;
         }
 
-        // Build Manual Leveling Logic Explicitly (Requested addition)
+        // 2. Manual Logic (No Probe)
         let manual_level_block = "";
         if (probeType === 'none') {
             manual_level_block = `#=====================================================
@@ -162,7 +174,17 @@ gcode:
     Z_ENDSTOP_CALIBRATE`;
         }
 
-        // Build Delta Calibration Logic Explicitly
+        // 3. Z-Tilt Adjustment Logic (Independent Motors)
+        let z_tilt_block = "";
+        if (useZTilt) {
+            z_tilt_block = `[gcode_macro ALIGN_Z_GANTRY]
+description: Auto-align Z gantries
+gcode:
+    G28
+    Z_TILT_ADJUST`;
+        }
+
+        // 4. Delta Calibration Logic
         let delta_cal_block = "";
         if (kin === 'delta') {
             delta_cal_block = `[gcode_macro ENDSTOPS_CALIBRATION]
@@ -210,14 +232,10 @@ gcode:
     PID_CALIBRATE HEATER=heater_bed TARGET={printer["gcode_macro _USER_VARS"].bed_temp}
     SAVE_CONFIG
 
-#=====================================================
-# Calibrate Extruder ## https://www.rolohaun3d.ca/klipper
-#=====================================================
 [gcode_macro E_CALIBRATE]
 description: Calibrate rotation_distance
 gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %} G28 {% endif %}
-    # Safety: Heating Required
     M109 S{printer["gcode_macro _USER_VARS"].print_temp}
     G91
     G1 E50 F60
@@ -225,6 +243,8 @@ gcode:
 ${probe_macro_block}
 
 ${manual_level_block}
+
+${z_tilt_block}
 
 ${delta_cal_block}\n\n`;
     },
@@ -268,9 +288,8 @@ gcode:
     // =================================================================
     // 6. CORE OPERATIONS
     // =================================================================
-    core_ops: (kin, usePurge, pStart, pEnd, heatStyle, material, probeType) => {
+    core_ops: (kin, usePurge, pStart, pEnd, heatStyle, material, probeType, useZTilt) => {
         
-        // Explicitly build Heating Logic Block
         let heating_logic_block = "";
         if (heatStyle === 'staged') {
             heating_logic_block = `    # Staged Heating: Waiting for bed to reach 85% to save PSU load
@@ -283,7 +302,14 @@ gcode:
     M190 S{T_BED}`;
         }
 
-        // Explicitly build Mesh Logic Block
+        // Logic for Z-Tilt
+        let z_tilt_op = "";
+        if (useZTilt) {
+            z_tilt_op = `Z_TILT_ADJUST
+    G28 Z`;
+        }
+
+        // Logic for Mesh
         let mesh_logic_block = "";
         if (probeType !== 'none') {
             mesh_logic_block = `BED_MESH_PROFILE LOAD=${material}`;
@@ -291,7 +317,6 @@ gcode:
             mesh_logic_block = `# Manual Leveling: No Mesh Load`;
         }
 
-        // Explicitly build Purge Logic Block
         let purge_logic_block = "";
         if (usePurge) {
             purge_logic_block = `PURGE`;
@@ -303,7 +328,7 @@ gcode:
 # CORE OPERATIONS
 #--------------------------------------------------------------------
 [gcode_macro PRINT_START]
-description: Full Start Sequence (Heat, Home, Mesh, Purge)
+description: Full Start Sequence (Heat, Home, Tilt, Mesh, Purge)
 gcode:
     # 1. Visual Indicator
     LED_CYCLE
@@ -321,10 +346,13 @@ ${heating_logic_block}
     # 4. Homing
     G28
     
-    # 5. Load Bed Mesh for ${material}
+    # 5. Z-Tilt Adjustment (If Enabled)
+    ${z_tilt_op}
+    
+    # 6. Load Bed Mesh for ${material}
     ${mesh_logic_block}
     
-    # 6. Print Status
+    # 7. Print Status
     LED_PRINT
     G90
     ${purge_logic_block}
@@ -371,7 +399,6 @@ gcode:
     // =================================================================
     utility: (useChamber, probeType, bTemp) => {
         
-        // Explicitly build Chamber Logic
         let chamber_block = "";
         if (useChamber) {
             chamber_block = `[gcode_macro HEAT_CHAMBER]
@@ -390,7 +417,6 @@ gcode:
     G4 S1800\n\n`;
         }
 
-        // Explicitly build Mesh Builder Logic
         let mesh_builder_block = "";
         if (probeType !== 'none') {
             mesh_builder_block = `[gcode_macro BUILD_MESH]
