@@ -5,80 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klipper Macro Generator | Kanrog</title>
     
-    <link rel="stylesheet" href="../style.css?v=1.1">
+    <link rel="stylesheet" href="../style.css">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        /* Only styles inside the generator scope are affected */
-        .kanrog-generator-scope {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #ecf0f1;
-        }
-
+        /* Generator-specific tweaks that don't exist in your style.css */
         .generator-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
-            gap: 40px; 
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+            gap: 30px; 
+            margin-top: 20px;
         }
 
         .sub-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            padding: 30px; 
-            border-radius: 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 25px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .preview-box { 
-            background: rgba(0, 0, 0, 0.6); 
-            border-radius: 20px; 
-            padding: 30px; 
-            border: 1px solid rgba(162, 155, 254, 0.3); 
+            background: #000; 
+            border-radius: 12px; 
+            padding: 20px; 
+            border: 1px solid #a29bfe; 
             text-align: center; 
         }
 
         .input-field { 
             width: 100%; 
-            background: #1e272e; 
-            color: #ecf0f1; 
-            border: 1px solid #353b48; 
-            padding: 14px 18px; 
-            border-radius: 10px; 
+            background: #111; 
+            color: #fff; 
+            border: 1px solid #444; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-top: 5px;
             box-sizing: border-box;
         }
 
-        /* Red/Orange Validation States */
-        .input-error { border-color: #e74c3c !important; background: rgba(231, 76, 60, 0.1) !important; }
-        .error-inline { color: #e74c3c; font-size: 0.85rem; margin-top: 8px; font-weight: bold; display: flex; align-items: center; gap: 5px;}
+        /* Validation Colors */
+        .input-error { border-color: #ff4d4d !important; background: rgba(255, 77, 77, 0.1) !important; }
+        .error-inline { color: #ff4d4d; font-size: 0.8rem; margin-top: 5px; font-weight: bold; }
         
-        .input-warning { border-color: #f39c12 !important; background: rgba(243, 156, 18, 0.1) !important; }
-        .warning-text { color: #f39c12; font-size: 0.85rem; margin-top: 8px; font-weight: bold; display: flex; align-items: center; gap: 5px;}
+        .input-warning { border-color: #ffa500 !important; background: rgba(255, 165, 0, 0.1) !important; }
+        .warning-text { color: #ffa500; font-size: 0.8rem; margin-top: 5px; font-weight: bold; }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-            color: white;
+        .btn-generate {
+            background: #a29bfe;
+            color: #000;
             border: none;
-            padding: 25px;
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: bold;
+            margin-top: 20px;
         }
 
         pre.code-block { 
-            background: #0f0f10; 
+            background: #050505; 
             color: #00ff88; 
-            padding: 40px; 
-            border-radius: 16px; 
+            padding: 25px; 
+            border-radius: 12px; 
             overflow-x: auto; 
-            font-family: 'JetBrains Mono', monospace; 
-            height: 600px; 
-            border: 1px solid #333; 
-            white-space: pre-wrap; 
+            font-family: 'Courier New', monospace;
+            border: 1px solid #222;
         }
 
         .hidden { display: none !important; }
@@ -87,91 +81,87 @@
 <body>
 
     <header>
-        <nav>
+        <div class="header-container">
             <div class="logo">Kanrog<span>.</span></div>
-            <ul>
-                <li><a href="../index.html">Home</a></li>
-                <li><a href="https://github.com/Kanrog">Source</a></li>
-            </ul>
-        </nav>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="https://github.com/Kanrog/kanrog.github.io" target="_blank">Source</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
-    <main class="kanrog-generator-scope" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
-        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Klipper Macro Architect</h1>
-        <p style="opacity: 0.7; margin-bottom: 40px;">Advanced G-Code generation with hardware safety validation.</p>
+    <main class="main-content">
+        <div class="container">
+            <section class="hero animate__animated animate__fadeIn">
+                <h1>Klipper Macro Architect</h1>
+                <p>Hardware-validated G-Code macro generation.</p>
+            </section>
 
-        <div class="generator-grid">
-            <div class="inputs-column" style="display: flex; flex-direction: column; gap: 20px;">
-                <div class="sub-card">
-                    <h3>1. Kinematics</h3>
-                    <select id="kin" class="input-field" onchange="updateUI()">
-                        <option value="bedslinger">Bedslinger</option>
-                        <option value="corexy">CoreXY</option>
-                        <option value="delta">Delta</option>
-                    </select>
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <input type="number" id="maxX" class="input-field" value="235" placeholder="X" oninput="updateUI()">
-                        <input type="number" id="maxY" class="input-field" value="235" placeholder="Y" oninput="updateUI()">
+            <div class="generator-grid">
+                <div class="inputs-column">
+                    <div class="sub-card">
+                        <h3><i class="fas fa-robot"></i> Kinematics</h3>
+                        <label>Archetype</label>
+                        <select id="kin" class="input-field" onchange="updateUI()">
+                            <option value="bedslinger">Bedslinger</option>
+                            <option value="corexy">CoreXY</option>
+                            <option value="delta">Delta</option>
+                        </select>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()">
+                            <input type="number" id="maxY" class="input-field" value="235" oninput="updateUI()">
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <label>Safety Margin (mm)</label>
+                            <input type="number" id="margin" class="input-field" value="20" oninput="updateUI()">
+                            <div id="err-margin" class="error-inline hidden">Error</div>
+                        </div>
                     </div>
-                    <div style="margin-top: 15px;">
-                        <label>Safety Margin (mm)</label>
-                        <input type="number" id="margin" class="input-field" value="20" oninput="updateUI()">
-                        <div id="err-margin" class="error-inline hidden">Error</div>
+
+                    <div class="sub-card" style="margin-top: 20px;">
+                        <h3><i class="fas fa-thermometer-half"></i> Temperatures</h3>
+                        <label>Nozzle</label>
+                        <input type="number" id="printTemp" class="input-field" value="210" oninput="updateUI()">
+                        <div id="err-printTemp" class="error-inline hidden">Error</div>
+                        
+                        <label style="margin-top: 10px; display: block;">Bed</label>
+                        <input type="number" id="bedTemp" class="input-field" value="60" oninput="updateUI()">
+                        <div id="err-bedTemp" class="error-inline hidden">Error</div>
                     </div>
                 </div>
 
-                <div class="sub-card">
-                    <h3>2. Material</h3>
-                    <select id="material" class="input-field" onchange="updateMaterialPresets(); updateUI();">
-                        <option value="PLA">PLA</option>
-                        <option value="PETG">PETG</option>
-                        <option value="ABS">ABS</option>
-                        <option value="TPU">TPU</option>
-                    </select>
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <div style="flex: 1;">
-                            <label>Nozzle</label>
-                            <input type="number" id="printTemp" class="input-field" value="210" oninput="updateUI()">
-                            <div id="err-printTemp" class="error-inline hidden">Error</div>
-                        </div>
-                        <div style="flex: 1;">
-                            <label>Bed</label>
-                            <input type="number" id="bedTemp" class="input-field" value="60" oninput="updateUI()">
-                            <div id="err-bedTemp" class="error-inline hidden">Error</div>
-                        </div>
+                <div class="visual-column">
+                    <div class="preview-box">
+                        <canvas id="previewCanvas" width="300" height="200"></canvas>
+                    </div>
+                    <div class="sub-card" style="margin-top: 20px;">
+                        <h3><i class="fas fa-sliders-h"></i> Configuration</h3>
+                        <label>Probe</label>
+                        <select id="probeType" class="input-field">
+                            <option value="none">Manual Leveling</option>
+                            <option value="bltouch">BLTouch</option>
+                            <option value="inductive">Inductive</option>
+                        </select>
+                        <label style="margin-top: 10px; display: block;">Z-Tilt Adjust?</label>
+                        <select id="useZTilt" class="input-field">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
-            <div class="visual-column" style="display: flex; flex-direction: column; gap: 20px;">
-                <div class="preview-box">
-                    <canvas id="previewCanvas" width="300" height="200"></canvas>
-                </div>
-                <div class="sub-card">
-                    <h3>3. Options</h3>
-                    <label>Probe Type</label>
-                    <select id="probeType" class="input-field">
-                        <option value="none">Manual</option>
-                        <option value="bltouch">BLTouch</option>
-                        <option value="inductive">Inductive</option>
-                    </select>
-                    <label style="margin-top: 15px; display: block;">Z-Tilt?</label>
-                    <select id="useZTilt" class="input-field">
-                        <option value="false">No</option>
-                        <option value="true">Yes</option>
-                    </select>
-                </div>
-            </div>
+            <button id="generateBtn" class="btn-generate" onclick="generateMacros()">
+                GENERATE .CFG
+            </button>
+
+            <section id="outputCard" class="hidden" style="margin-top: 40px;">
+                <h2 style="color: #a29bfe;">macros.cfg</h2>
+                <pre id="gcodeOutput" class="code-block"></pre>
+            </section>
         </div>
-
-        <button id="generateBtn" class="btn-primary" style="margin-top: 30px;" onclick="generateMacros()">
-            GENERATE CONFIGURATION
-        </button>
-
-        <section id="outputCard" class="hidden" style="margin-top: 40px;">
-            <h2>Generated macros.cfg</h2>
-            <pre id="gcodeOutput" class="code-block"></pre>
-        </section>
     </main>
 
     <script src="macro-templates.js"></script>
