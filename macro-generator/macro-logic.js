@@ -7,7 +7,8 @@ const canvas = document.getElementById('previewCanvas');
 const ctx = canvas.getContext('2d');
 
 /**
- * Updates the 2D Canvas Preview based on user input
+ * Updates the 2D Canvas Visualizer
+ * This function handles the drawing of the bed, safe zones, and purge locations.
  */
 function updateUI() {
     const kin = document.getElementById('kin').value;
@@ -16,24 +17,29 @@ function updateUI() {
     const m = parseFloat(document.getElementById('margin').value) || 20;
     const usePurge = document.getElementById('usePurge').value === 'true';
 
-    // Canvas Constants
+    // Clear previous drawing
     ctx.clearRect(0, 0, 300, 200);
-    const scale = 120 / Math.max(x, y);
-    const cx = 150, cy = 100;
 
-    // 1. Draw Bed (Dark Glass look)
+    // Calculate scale and center
+    const scale = 120 / Math.max(x, y);
+    const cx = 150;
+    const cy = 100;
+
+    // 1. Draw Printer Bed
     ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
     ctx.beginPath();
     if (kin === 'delta') {
+        // Delta printers use a circular bed
         ctx.arc(cx, cy, (x / 2) * scale, 0, Math.PI * 2);
     } else {
+        // Cartesian/CoreXY use rectangular beds
         ctx.rect(cx - (x / 2) * scale, cy - (y / 2) * scale, x * scale, y * scale);
     }
     ctx.fill();
 
-    // 2. Draw Safe Zone (Dashed Purple Line)
+    // 2. Draw Safe Zone (Printable Area)
     ctx.strokeStyle = "#a29bfe";
-    ctx.setLineDash([5, 5]);
+    ctx.setLineDash([5, 5]); // Dashed line for safety boundary
     ctx.beginPath();
     if (kin === 'delta') {
         ctx.arc(cx, cy, (x / 2 - m) * scale, 0, Math.PI * 2);
@@ -42,33 +48,35 @@ function updateUI() {
     }
     ctx.stroke();
 
-    // 3. Draw Home Point (Red Dot)
+    // 3. Draw Homing Origin (Red Dot)
     ctx.fillStyle = "#ff4d4d";
-    ctx.setLineDash([]);
+    ctx.setLineDash([]); // Solid line for point
     ctx.beginPath();
     if (kin === 'delta') {
-        ctx.arc(cx, cy, 5, 0, Math.PI * 2); // Center home
+        // Deltas home to center/top
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
     } else {
-        ctx.arc(cx - (x / 2) * scale, cy + (y / 2) * scale, 5, 0, Math.PI * 2); // Front-Left home
+        // Cartesian usually home to Front-Left (0,0)
+        ctx.arc(cx - (x / 2) * scale, cy + (y / 2) * scale, 5, 0, Math.PI * 2);
     }
     ctx.fill();
 
-    // 4. Draw Purge Line Indicator (Pink Line)
+    // 4. Draw Purge Line Indicator
     if (usePurge) {
         ctx.strokeStyle = "#ff00ff";
         ctx.lineWidth = 3;
         ctx.beginPath();
         if (kin === 'delta') {
-            // Purge at the front edge of the circular bed
-            const purgeY = cy + (y / 2 - m) * scale;
-            ctx.moveTo(cx - 15 * scale, purgeY);
-            ctx.lineTo(cx + 15 * scale, purgeY);
+            // Purge at the front-most arc
+            const py = cy + (y / 2 - m) * scale;
+            ctx.moveTo(cx - 15 * scale, py);
+            ctx.lineTo(cx + 15 * scale, py);
         } else {
-            // Purge at the front-left edge
-            const purgeX = cx - (x / 2 - m) * scale;
-            const purgeY = cy + (y / 2 - m) * scale;
-            ctx.moveTo(purgeX, purgeY);
-            ctx.lineTo(purgeX + (40 * scale), purgeY);
+            // Purge along the front-left edge
+            const px = cx - (x / 2 - m) * scale;
+            const py = cy + (y / 2 - m) * scale;
+            ctx.moveTo(px, py);
+            ctx.lineTo(px + (40 * scale), py);
         }
         ctx.stroke();
         ctx.lineWidth = 1;
@@ -76,108 +84,132 @@ function updateUI() {
 }
 
 /**
- * Main Generation Function
- * Gathers UI data and runs it through GCODE_TEMPLATES
+ * Main Generation Logic
+ * Orchestrates the collection of data and building the final string.
  */
 function generateMacros() {
-    // Collect Inputs
+    // Collect Mechanical Inputs
     const kin = document.getElementById('kin').value;
     const x = parseFloat(document.getElementById('maxX').value);
     const y = parseFloat(document.getElementById('maxY').value);
     const z = parseFloat(document.getElementById('maxZ').value);
     const m = parseFloat(document.getElementById('margin').value) || 20;
+
+    // Collect Logistics Inputs
     const bowden = document.getElementById('bowden').value || 450;
-    
+    const useChamber = document.getElementById('useChamber').value === 'true';
+    const usePurge = document.getElementById('usePurge').value === 'true';
+    const heatStyle = document.getElementById('heatStyle').value;
+
+    // Collect UI/Stress Inputs
     const useLED = document.getElementById('useLED').value === 'true';
     const ledName = document.getElementById('ledName').value || 'status_leds';
-    const usePurge = document.getElementById('usePurge').value === 'true';
-    const useChamber = document.getElementById('useChamber').value === 'true';
     const tLevel = document.getElementById('tortureLevel').value;
     
-    // Logic Calculations
+    // Calculate Derived Movement Values
     const tSpeed = (tLevel === 'aggressive') ? 800000 : 500000;
     
-    // Parking Logic
-    let pkX = (kin === 'delta') ? 0 : x / 2;
-    let pkY = (kin === 'delta') ? 0 : (kin === 'bedslinger' ? y - 5 : y / 2);
+    // Calculate Parking Coordinates
+    let pkX = 0;
+    let pkY = 0;
 
-    // Purge Location Logic (Calculated based on Archetype origin)
-    let pStart, pEnd;
     if (kin === 'delta') {
-        pStart = `X-7.5 Y-${(y / 2 - m).toFixed(1)}`;
-        pEnd = `X7.5 Y-${(y / 2 - m).toFixed(1)}`;
+        pkX = 0;
+        pkY = 0;
+    } else if (kin === 'bedslinger') {
+        pkX = x / 2;
+        pkY = y - 5; // Park bed forward
     } else {
-        pStart = `X${m} Y${m}`;
-        pEnd = `X${m + 40} Y${m}`;
+        pkX = x / 2;
+        pkY = y / 2;
     }
 
-    // --- ASSEMBLE G-CODE ---
-    let finalCode = GCODE_TEMPLATES.header(kin, x, y, z, m);
+    // Determine Purge Coordinates for Template
+    let pStart = "";
+    let pEnd = "";
+
+    if (kin === 'delta') {
+        pStart = "X-7.5 Y-" + (y / 2 - m).toFixed(1);
+        pEnd = "X7.5 Y-" + (y / 2 - m).toFixed(1);
+    } else {
+        pStart = "X" + m + " Y" + m;
+        pEnd = "X" + (m + 40) + " Y" + m;
+    }
+
+    // --- ASSEMBLE OUTPUT ---
+    let finalOutput = "";
+
+    // 1. Header Block
+    finalOutput += GCODE_TEMPLATES.header(kin, x, y, z, m);
     
-    // 1. Variables
-    finalCode += GCODE_TEMPLATES.user_vars(pkX, pkY, z - 10, bowden, m);
+    // 2. Variable Storage
+    finalOutput += GCODE_TEMPLATES.user_vars(pkX, pkY, z - 10, bowden, m);
     
-    // 2. Conditional Features
+    // 3. Lighting Suite
     if (useLED) {
-        finalCode += GCODE_TEMPLATES.lighting(ledName);
+        finalOutput += GCODE_TEMPLATES.lighting(ledName);
     }
     
-    // 3. Maintenance & Diagnostics
-    finalCode += GCODE_TEMPLATES.diagnostics(kin);
+    // 4. Diagnostics Block
+    finalOutput += GCODE_TEMPLATES.diagnostics(kin);
     
-    // 4. Torture Suite
-    finalCode += GCODE_TEMPLATES.torture(x, y, z, m, tSpeed);
+    // 5. Stress Testing Suite
+    finalOutput += GCODE_TEMPLATES.torture(x, y, z, m, tSpeed);
     
-    // 5. Core Operations
-    finalCode += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd);
+    // 6. Core Print Operations
+    finalOutput += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle);
     
-    // 6. Utility & Safety
-    finalCode += GCODE_TEMPLATES.utility(useChamber);
+    // 7. Utility & Safety
+    finalOutput += GCODE_TEMPLATES.utility(useChamber);
 
-    // Update UI Output
+    // Render to Output Box
     const outputElement = document.getElementById('gcodeOutput');
-    outputElement.innerText = finalCode;
+    outputElement.innerText = finalOutput;
     
-    const outputCard = document.getElementById('outputCard');
-    outputCard.classList.remove('hidden');
-    outputCard.style.display = 'block'; // Ensure it overrides any CSS hidden states
+    // Reveal the output card
+    const outCard = document.getElementById('outputCard');
+    outCard.classList.remove('hidden');
     
-    // Smooth scroll to results
-    outputCard.scrollIntoView({ behavior: 'smooth' });
+    // Focus the view on the generated code
+    outCard.scrollIntoView({ behavior: 'smooth' });
 }
 
 /**
- * Copy result to clipboard
+ * Clipboard Integration
  */
 function copyToClipboard() {
-    const text = document.getElementById('gcodeOutput').innerText;
-    if (!text) return;
-    
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = document.querySelector('.btn-secondary');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    const code = document.getElementById('gcodeOutput').innerText;
+    if (!code) return;
+
+    navigator.clipboard.writeText(code).then(() => {
+        alert("Macro configuration copied to clipboard!");
     }).catch(err => {
-        console.error('Failed to copy: ', err);
+        console.error('Could not copy text: ', err);
     });
 }
 
 /**
- * Trigger File Download
+ * File Export Integration
  */
 function downloadConfig() {
-    const text = document.getElementById('gcodeOutput').innerText;
-    if (!text) return;
+    const code = document.getElementById('gcodeOutput').innerText;
+    if (!code) return;
 
-    const blob = new Blob([text], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'macros.cfg';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    link.href = url;
+    link.download = 'macros.cfg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
-// Ensure UI is initialized when the script loads
-window.onload = updateUI;
+/**
+ * Initialization
+ */
+window.onload = function() {
+    updateUI();
+};
