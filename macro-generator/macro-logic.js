@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: FINAL SAFETY INLINE 2026.01.12
+ * VERSION: FINAL SAFETY TIERED 2026.01.12
  */
 
 const canvas = document.getElementById('previewCanvas');
@@ -44,7 +44,7 @@ function updateUI() {
     const bTemp = parseFloat(document.getElementById('bedTemp').value) || 0;
 
     // --- INLINE SAFETY CHECKS ---
-    let isUnsafe = false;
+    let blockGeneration = false;
     
     // Elements
     const marginInput = document.getElementById('margin');
@@ -56,7 +56,7 @@ function updateUI() {
     const bedTempInput = document.getElementById('bedTemp');
     const bedTempErr = document.getElementById('err-bedTemp');
 
-    // 1. Check Margin
+    // 1. Check Margin (Critical Error Only)
     let marginErrorText = "";
     let marginIsBad = false;
     
@@ -74,7 +74,7 @@ function updateUI() {
     }
 
     if (marginIsBad) {
-        isUnsafe = true;
+        blockGeneration = true;
         marginInput.classList.add('input-error');
         marginErr.querySelector('span').innerText = marginErrorText;
         marginErr.classList.remove('hidden');
@@ -83,29 +83,44 @@ function updateUI() {
         marginErr.classList.add('hidden');
     }
 
-    // 2. Check Print Temp
-    let printErrorText = "";
-    let printIsBad = false;
+    // 2. Check Print Temp (Tiered: Error vs Warning)
+    let printMsg = "";
+    let printStatus = "ok"; // ok, warning, error
     
     if (pTemp < 170) {
-        printIsBad = true;
-        printErrorText = "Too low (<170°C)";
+        printStatus = "error";
+        printMsg = "Too low for extrusion (<170°C)";
     } else if (pTemp > 300) {
-        printIsBad = true;
-        printErrorText = "Unsafe (>300°C)";
+        printStatus = "error";
+        printMsg = "UNSAFE: Exceeds Safety Limit (>300°C)";
+    } else if (pTemp > 290) {
+        printStatus = "warning";
+        printMsg = "Warning: Specialized Components Required (>290°C)";
+    } else if (pTemp > 260) {
+        printStatus = "warning";
+        printMsg = "Warning: PTFE Liner may melt (>260°C)";
     }
 
-    if (printIsBad) {
-        isUnsafe = true;
+    // Apply Print Temp Visuals
+    printTempInput.classList.remove('input-error', 'input-warning');
+    printTempErr.classList.add('hidden');
+    printTempErr.classList.remove('error-inline', 'warning-text'); // Clean slate
+
+    if (printStatus === "error") {
+        blockGeneration = true;
         printTempInput.classList.add('input-error');
-        printTempErr.querySelector('span').innerText = printErrorText;
+        printTempErr.className = "error-inline"; // Red Text
+        printTempErr.innerHTML = `<i class="fas fa-times-circle"></i> <span>${printMsg}</span>`;
         printTempErr.classList.remove('hidden');
-    } else {
-        printTempInput.classList.remove('input-error');
-        printTempErr.classList.add('hidden');
+    } else if (printStatus === "warning") {
+        // Warnings do NOT block generation
+        printTempInput.classList.add('input-warning');
+        printTempErr.className = "warning-text"; // Orange Text
+        printTempErr.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>${printMsg}</span>`;
+        printTempErr.classList.remove('hidden');
     }
 
-    // 3. Check Bed Temp
+    // 3. Check Bed Temp (Critical Error Only)
     let bedErrorText = "";
     let bedIsBad = false;
     
@@ -115,7 +130,7 @@ function updateUI() {
     }
 
     if (bedIsBad) {
-        isUnsafe = true;
+        blockGeneration = true;
         bedTempInput.classList.add('input-error');
         bedTempErr.querySelector('span').innerText = bedErrorText;
         bedTempErr.classList.remove('hidden');
@@ -124,9 +139,9 @@ function updateUI() {
         bedTempErr.classList.add('hidden');
     }
 
-    // Disable Button if any error exists
+    // Toggle Generate Button based on Critical Errors
     const genBtn = document.getElementById('generateBtn');
-    if (isUnsafe) {
+    if (blockGeneration) {
         genBtn.disabled = true;
         genBtn.classList.add('btn-disabled');
     } else {

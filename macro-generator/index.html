@@ -115,7 +115,11 @@
             box-shadow: 0 0 15px rgba(162, 155, 254, 0.15);
         }
 
-        /* Error States */
+        /* ============================
+           VALIDATION STATES
+           ============================ */
+        
+        /* Critical Error (Red) - Blocks Generation */
         .input-error {
             border-color: #e74c3c !important;
             background: rgba(231, 76, 60, 0.1) !important;
@@ -128,10 +132,28 @@
             margin-top: 8px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             font-weight: bold;
         }
 
+        /* Warning (Orange) - Allows Generation */
+        .input-warning {
+            border-color: #f39c12 !important;
+            background: rgba(243, 156, 18, 0.1) !important;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.2);
+        }
+
+        .warning-text {
+            color: #f39c12;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+        }
+
+        /* Sliders */
         .range-container {
             display: flex;
             align-items: center;
@@ -228,7 +250,7 @@
                             <div class="input-group">
                                 <label for="margin">Safe Travel Margin (mm)</label>
                                 <input type="number" id="margin" class="input-field" value="20" oninput="updateUI()">
-                                <div id="err-margin" class="error-inline hidden"><i class="fas fa-exclamation-circle"></i> <span>Margin Error</span></div>
+                                <div id="err-margin" class="error-inline hidden"><i class="fas fa-times-circle"></i> <span>Margin Error</span></div>
                             </div>
                         </div>
                     </div>
@@ -249,12 +271,12 @@
                             <div class="input-group">
                                 <label for="printTemp">Nozzle Target (°C)</label>
                                 <input type="number" id="printTemp" class="input-field" value="210" oninput="setCustomMaterial(); updateUI();">
-                                <div id="err-printTemp" class="error-inline hidden"><i class="fas fa-exclamation-circle"></i> <span>Temp Error</span></div>
+                                <div id="err-printTemp" class="error-inline hidden"><i class="fas fa-exclamation-triangle"></i> <span>Temp Alert</span></div>
                             </div>
                             <div class="input-group">
                                 <label for="bedTemp">Bed Target (°C)</label>
                                 <input type="number" id="bedTemp" class="input-field" value="60" oninput="setCustomMaterial(); updateUI();">
-                                <div id="err-bedTemp" class="error-inline hidden"><i class="fas fa-exclamation-circle"></i> <span>Temp Error</span></div>
+                                <div id="err-bedTemp" class="error-inline hidden"><i class="fas fa-times-circle"></i> <span>Temp Error</span></div>
                             </div>
                         </div>
                     </div>
