@@ -1,6 +1,7 @@
 /**
  * THE KANROG UNIVERSAL MACRO LIBRARY
  * VERSION: FINAL (NO BUZZ) 2026.01.12
+ * INSTRUCTIONS: NEVER REMOVE SECTIONS. ONLY INJECT VARIABLES.
  */
 
 const GCODE_TEMPLATES = {
@@ -124,18 +125,23 @@ gcode:
     // 4. DIAGNOSTICS & PROBE & TILT
     // =================================================================
     diagnostics: (kin, probeType, useZTilt) => {
-        // 1. Probe Logic
         let probe_macro_block = "";
         if (probeType !== 'none') {
+            // Added Tap specific safety if selected
+            const tap_pre = (probeType === 'tap') ? `
+    M104 S150 ; Set nozzle to safe probing temp for Tap` : "";
+
             probe_macro_block = `[gcode_macro CHECK_PROBE]
 description: Test probe accuracy
 gcode:
+    ${tap_pre}
     G28
     PROBE_ACCURACY samples=10
 
 [gcode_macro ADJUST_Z_OFFSET]
 description: Calibrate Probe Z-Offset
 gcode:
+    ${tap_pre}
     G28
     PROBE_CALIBRATE
 
@@ -146,7 +152,6 @@ gcode:
     SCREWS_TILT_CALCULATE`;
         }
 
-        // 2. Manual Leveling Logic
         let manual_level_block = "";
         if (probeType === 'none') {
             manual_level_block = `#=====================================================
@@ -170,7 +175,6 @@ gcode:
     Z_ENDSTOP_CALIBRATE`;
         }
 
-        // 3. Z-Tilt Logic
         let z_tilt_block = "";
         if (useZTilt) {
             z_tilt_block = `[gcode_macro ALIGN_Z_GANTRY]
@@ -180,7 +184,6 @@ gcode:
     Z_TILT_ADJUST`;
         }
 
-        // 4. Delta Logic
         let delta_cal_block = "";
         if (kin === 'delta') {
             delta_cal_block = `[gcode_macro ENDSTOPS_CALIBRATION]
@@ -276,8 +279,12 @@ gcode:
     // =================================================================
     // 6. CORE OPERATIONS
     // =================================================================
-    core_ops: (kin, usePurge, pStart, pEnd, heatStyle, material, probeType, useZTilt) => {
+    core_ops: (kin, usePurge, pStart, pEnd, heatStyle, material, probeType, useZTilt, useLED) => {
         
+        const led_cycle = useLED ? "LED_CYCLE" : "# LED Cycle Disabled";
+        const led_heating = useLED ? "LED_HEATING" : "# LED Heating Disabled";
+        const led_print = useLED ? "LED_PRINT" : "# LED Print Disabled";
+
         let heating_logic_block = "";
         if (heatStyle === 'staged') {
             heating_logic_block = `    # Staged Heating: Waiting for bed to reach 85% to save PSU load
@@ -310,6 +317,9 @@ gcode:
             purge_logic_block = `# Purge Disabled`;
         }
 
+        // Tap Safety Logic inside PRINT_START
+        const tap_prep = (probeType === 'tap') ? `    M104 S150 ; Tap Safety` : "";
+
         return `#--------------------------------------------------------------------
 # CORE OPERATIONS
 #--------------------------------------------------------------------
@@ -317,19 +327,20 @@ gcode:
 description: Full Start Sequence (Heat, Home, Tilt, Mesh, Purge)
 gcode:
     # 1. Visual Indicator
-    LED_CYCLE
+    ${led_cycle}
     
     # 2. Get Temperatures
     {% set T_BED = params.T_BED|default(printer["gcode_macro _USER_VARS"].bed_temp)|float %}
     {% set T_EXT = params.T_EXTRUDER|default(printer["gcode_macro _USER_VARS"].print_temp)|float %}
     
-    LED_HEATING
+    ${led_heating}
     M140 S{T_BED}
     
     # 3. Heating Logic: ${heatStyle.toUpperCase()}
 ${heating_logic_block}
     
     # 4. Homing
+    ${tap_prep}
     G28
     
     # 5. Z-Tilt Adjustment (If Enabled)
@@ -339,7 +350,7 @@ ${heating_logic_block}
     ${mesh_logic_block}
     
     # 7. Print Status
-    LED_PRINT
+    ${led_print}
     G90
     ${purge_logic_block}
 
@@ -354,7 +365,7 @@ gcode:
     G28
     # Cooldown
     TURN_OFF_HEATERS
-    LED_CYCLE
+    ${led_cycle}
     M106 S0
     M84
 
@@ -481,6 +492,15 @@ gcode:
     {% if printer.extruder.target < T %}
         M118 Target temp {T} too low. Heating...
         M109 S{T}
+    {% endif %}
+
+[delayed_gcode SAFETY_TIMEOUT]
+description: Auto-shutdown heaters after 30 mins idle
+gcode:
+    {% if printer.idle_timeout.state == "Idle" %}
+        TURN_OFF_HEATERS
+        M118 Safety Timeout: Heaters disabled.
+        LED_OFF
     {% endif %}
 
 [exclude_object]

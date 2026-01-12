@@ -123,18 +123,38 @@ function downloadMacros() {
 }
 
 function generateMacros() {
-    const kin = document.getElementById('kin').value, x = document.getElementById('maxX').value, y = document.getElementById('maxY').value;
-    const pT = document.getElementById('printTemp').value, bT = document.getElementById('bedTemp').value, m = document.getElementById('margin').value;
-    const zT = document.getElementById('useZTilt').value === 'true', probe = document.getElementById('probeType').value;
-    const led = document.getElementById('ledName').value, useLED = document.getElementById('useLED').value === 'true';
+    const kin = document.getElementById('kin').value;
+    const x = document.getElementById('maxX').value;
+    const y = document.getElementById('maxY').value;
+    const pT = document.getElementById('printTemp').value;
+    const bT = document.getElementById('bedTemp').value;
+    const m = document.getElementById('margin').value;
+    const zT = document.getElementById('useZTilt').value === 'true';
+    const probe = document.getElementById('probeType').value;
+    const led = document.getElementById('ledName').value;
+    const useLED = document.getElementById('useLED').value === 'true'; // Strict Boolean Check
     const torture = document.getElementById('tortureLevel').value;
 
     let out = GCODE_TEMPLATES.header(kin, x, y, 250, m);
+    
+    // Core Variables
     out += GCODE_TEMPLATES.user_vars(x/2, y/2, 240, 450, m, pT, bT, "Custom", 2000, 255);
-    if(useLED) out += GCODE_TEMPLATES.lighting(led, "RED=0.0 GREEN=0.0 BLUE=1.0", "RED=1.0 GREEN=1.0 BLUE=1.0");
+    
+    // Conditional Lighting: Only adds if "Yes" is selected
+    if(useLED && led) {
+        out += GCODE_TEMPLATES.lighting(led, "RED=0.0 GREEN=0.0 BLUE=1.0", "RED=1.0 GREEN=1.0 BLUE=1.0");
+    }
+    
+    // Hardware & Diagnostics
     out += GCODE_TEMPLATES.diagnostics(kin, probe, zT);
+    
+    // Stress Test
     out += GCODE_TEMPLATES.torture(x, y, 250, m, (torture === 'aggressive' ? 800000 : 500000));
-    out += GCODE_TEMPLATES.core_ops(kin, true, "X20 Y20", "X60 Y20", "staged", "Custom", probe, zT);
+    
+    // Start/End Macros (Pass useLED as a flag to the template)
+    out += GCODE_TEMPLATES.core_ops(kin, true, "X20 Y20", "X60 Y20", "staged", "Custom", probe, zT, useLED);
+    
+    // Utility
     out += GCODE_TEMPLATES.utility(false, probe, bT);
 
     document.getElementById('gcodeOutput').innerText = out;
