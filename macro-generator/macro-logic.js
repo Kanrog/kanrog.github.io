@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: COMPLETE FEATURE SET 2026.01.12
+ * VERSION: BUG-FIXED SAFETY LOGIC 2026.01.12
  */
 
 let canvas, ctx;
@@ -37,29 +37,53 @@ function updateUI() {
     let block = false;
     const mErr = document.getElementById('err-margin'), pErr = document.getElementById('err-printTemp'), bErr = document.getElementById('err-bedTemp');
 
-    // Margin Safety
+    // --- 1. MARGIN LOGIC ---
     let mBad = (kin === 'delta') ? (m >= (x/2 - 10)) : ((x - m*2) <= 10 || (y - m*2) <= 10);
-    mErr.classList.toggle('hidden', !mBad);
-    if(mBad) block = true;
+    if (mBad) {
+        mErr.classList.remove('hidden');
+        block = true;
+    } else {
+        mErr.classList.add('hidden');
+    }
 
-    // Nozzle Tiered Safety
-    pErr.classList.add('hidden'); pErr.className = "error-text";
-    if(pT < 170 || pT > 305) { pErr.innerHTML = "Invalid Printing Temp!"; pErr.classList.remove('hidden'); block = true; }
-    else if(pT > 290) { pErr.innerHTML = "All-Metal Hotend Required"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); }
-    else if(pT > 260) { pErr.innerHTML = "PTFE Liner Danger Zone"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); }
+    // --- 2. NOZZLE TIERED LOGIC ---
+    pErr.classList.add('hidden'); // Default to hidden
+    pErr.className = "error-text"; // Reset to error style
+    
+    if (pT < 170 || pT > 305) { 
+        pErr.innerHTML = "Invalid Printing Temp!"; 
+        pErr.classList.remove('hidden'); 
+        block = true; 
+    } else if (pT > 290) { 
+        pErr.innerHTML = "All-Metal Hotend Required"; 
+        pErr.className = "warning-text"; 
+        pErr.classList.remove('hidden'); 
+    } else if (pT > 260) { 
+        pErr.innerHTML = "PTFE Liner Danger Zone"; 
+        pErr.className = "warning-text"; 
+        pErr.classList.remove('hidden'); 
+    }
 
-    // Bed Magnet Safety
-    bErr.classList.add('hidden'); bErr.className = "error-text";
-    if(bT > 125) { bErr.innerHTML = "Unsafe Bed Temp!"; bErr.classList.remove('hidden'); block = true; }
-    else if(bT > 85) { bErr.innerHTML = "Magnet Demagnetization Risk"; bErr.className = "warning-text"; bErr.classList.remove('hidden'); }
+    // --- 3. BED MAGNET LOGIC ---
+    bErr.classList.add('hidden'); // Default to hidden
+    bErr.className = "error-text"; // Reset to error style
+
+    if (bT < 0 || bT > 125) { 
+        bErr.innerHTML = "Unsafe Bed Temp!"; 
+        bErr.classList.remove('hidden'); 
+        block = true; 
+    } else if (bT > 85) { 
+        bErr.innerHTML = "Magnet Demagnetization Risk"; 
+        bErr.className = "warning-text"; 
+        bErr.classList.remove('hidden'); 
+    }
 
     document.getElementById('generateBtn').disabled = block;
 
-    // --- CANVAS VISUALIZER ---
+    // --- 4. CANVAS VISUALIZER ---
     ctx.fillStyle = "#111111"; ctx.fillRect(0, 0, 300, 200);
     const scale = 120 / Math.max(x, y), cx = 150, cy = 100;
 
-    // Draw Printable Bed
     ctx.strokeStyle = "#9b59b6"; ctx.fillStyle = "rgba(155, 89, 182, 0.15)"; ctx.lineWidth = 2;
     if (kin === 'delta') { 
         ctx.beginPath(); ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); ctx.fill(); ctx.stroke(); 
@@ -68,18 +92,18 @@ function updateUI() {
         ctx.strokeRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); 
     }
 
-    // Draw Margin Boundary
     ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.setLineDash([5, 5]); ctx.beginPath();
     if (kin === 'delta') { ctx.arc(cx, cy, (x/2 - m)*scale, 0, Math.PI*2); }
     else { ctx.rect(cx - (x/2 - m)*scale, cy - (y/2 - m)*scale, (x - m*2)*scale, (y - m*2)*scale); }
     ctx.stroke(); ctx.setLineDash([]);
 
-    // Draw Origin
     ctx.fillStyle = "#ff4d4d"; ctx.beginPath();
     if (kin === 'delta') { ctx.arc(cx, cy, 6, 0, Math.PI*2); }
     else { ctx.arc(cx - (x/2)*scale, cy + (y/2)*scale, 6, 0, Math.PI*2); }
     ctx.fill();
 }
+
+// ... (keep the rest of generateMacros and copyToClipboard as is) ...
 
 function generateMacros() {
     const kin = document.getElementById('kin').value, x = document.getElementById('maxX').value, y = document.getElementById('maxY').value;
