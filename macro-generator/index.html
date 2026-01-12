@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        /* Generator-Specific Layout Overrides - No Consolidation */
+        /* Generator-Specific Layout Overrides 
+           No consolidation. Full verbose styling for layout integrity.
+        */
         .generator-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
@@ -19,13 +21,43 @@
             margin-top: 30px;
         }
 
+        .inputs-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .visual-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .sub-card { 
             background: rgba(255, 255, 255, 0.03); 
             padding: 25px; 
             border-radius: 15px; 
             border: 1px solid rgba(255, 255, 255, 0.1); 
-            margin-bottom: 25px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .sub-card:hover {
+            border-color: rgba(162, 155, 254, 0.3);
+        }
+
+        .sub-card h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .sub-card h3 i {
+            margin-right: 10px;
+            color: #a29bfe;
         }
 
         .preview-box { 
@@ -41,6 +73,15 @@
             max-width: 100%; 
             height: auto; 
             filter: drop-shadow(0 0 25px rgba(162, 155, 254, 0.5)); 
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
         }
 
         .input-group {
@@ -67,20 +108,40 @@
             font-family: 'Segoe UI', sans-serif;
             font-size: 1rem;
             transition: all 0.2s ease;
+            box-sizing: border-box;
         }
 
         .input-field:focus {
             outline: none;
             border-color: #a29bfe;
             background: #2c3e50;
+            box-shadow: 0 0 10px rgba(162, 155, 254, 0.1);
         }
 
-        /* Range Slider Styling */
+        /* Brightness Slider Specifics */
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
         input[type=range] {
-            width: 100%;
-            margin-top: 8px;
+            flex-grow: 1;
             accent-color: #a29bfe;
             cursor: pointer;
+            height: 6px;
+        }
+
+        .range-value {
+            font-family: 'Consolas', monospace;
+            color: #a29bfe;
+            font-weight: bold;
+            min-width: 45px;
+            text-align: right;
         }
 
         pre.code-block { 
@@ -117,6 +178,7 @@
         <section class="card animate__animated animate__fadeIn">
             <h1><i class="fas fa-terminal"></i> Klipper Macro Architect</h1>
             <p>Design a robust, safety-compliant configuration suite for your 3D printer.</p>
+            <hr style="opacity: 0.1; margin: 25px 0;">
             
             <div class="generator-grid">
                 <div class="inputs-column">
@@ -186,10 +248,10 @@
                     
                     <div class="preview-box">
                         <canvas id="previewCanvas" width="300" height="200"></canvas>
-                        <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.7;">
-                            <span style="color: #ff4d4d; margin-right: 10px;">● Home Origin</span>
-                            <span style="color: #a29bfe; margin-right: 10px;">-- Safe Zone</span>
-                            <span style="color: #ff00ff;">● Purge Line</span>
+                        <div class="legend">
+                            <span style="color: #ff4d4d;"><i class="fas fa-circle"></i> Home Origin</span>
+                            <span style="color: #a29bfe;"><i class="fas fa-minus"></i> Safe Zone</span>
+                            <span style="color: #ff00ff;"><i class="fas fa-minus"></i> Purge Line</span>
                         </div>
                     </div>
 
@@ -245,39 +307,43 @@
                         </div>
 
                         <div class="input-group">
-                            <label>Standby Color & Brightness</label>
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
-                                <select id="colorIdle" class="input-field">
-                                    <option value="BLUE" selected>Blue</option>
-                                    <option value="GREEN">Green</option>
-                                    <option value="RED">Red</option>
-                                    <option value="ORANGE">Orange</option>
-                                    <option value="YELLOW">Yellow</option>
-                                    <option value="TEAL">Teal</option>
-                                    <option value="PURPLE">Purple</option>
-                                    <option value="WHITE">White</option>
-                                </select>
-                                <input type="number" id="brightIdle" class="input-field" value="0.2" step="0.1" min="0" max="1" readonly>
+                            <label for="colorIdle">Standby Color</label>
+                            <select id="colorIdle" class="input-field">
+                                <option value="BLUE" selected>Blue</option>
+                                <option value="GREEN">Green</option>
+                                <option value="RED">Red</option>
+                                <option value="ORANGE">Orange</option>
+                                <option value="YELLOW">Yellow</option>
+                                <option value="TEAL">Teal</option>
+                                <option value="PURPLE">Purple</option>
+                                <option value="WHITE">White</option>
+                            </select>
+                            
+                            <div class="range-container">
+                                <label for="brightIdleRange" style="margin:0; font-size: 0.8rem; min-width: 60px;">Brightness:</label>
+                                <input type="range" id="brightIdleRange" min="0" max="1" step="0.05" value="0.2" oninput="document.getElementById('valIdle').innerText = Math.round(this.value * 100) + '%'">
+                                <span id="valIdle" class="range-value">20%</span>
                             </div>
-                            <input type="range" id="brightIdleRange" min="0" max="1" step="0.05" value="0.2" oninput="document.getElementById('brightIdle').value = this.value">
                         </div>
 
                         <div class="input-group">
-                            <label>Printing Color & Brightness</label>
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
-                                <select id="colorPrint" class="input-field">
-                                    <option value="WHITE" selected>White</option>
-                                    <option value="BLUE">Blue</option>
-                                    <option value="GREEN">Green</option>
-                                    <option value="RED">Red</option>
-                                    <option value="ORANGE">Orange</option>
-                                    <option value="TEAL">Teal</option>
-                                    <option value="PURPLE">Purple</option>
-                                    <option value="YELLOW">Yellow</option>
-                                </select>
-                                <input type="number" id="brightPrint" class="input-field" value="1.0" step="0.1" min="0" max="1" readonly>
+                            <label for="colorPrint">Printing Color</label>
+                            <select id="colorPrint" class="input-field">
+                                <option value="WHITE" selected>White</option>
+                                <option value="BLUE">Blue</option>
+                                <option value="GREEN">Green</option>
+                                <option value="RED">Red</option>
+                                <option value="ORANGE">Orange</option>
+                                <option value="TEAL">Teal</option>
+                                <option value="PURPLE">Purple</option>
+                                <option value="YELLOW">Yellow</option>
+                            </select>
+
+                            <div class="range-container">
+                                <label for="brightPrintRange" style="margin:0; font-size: 0.8rem; min-width: 60px;">Brightness:</label>
+                                <input type="range" id="brightPrintRange" min="0" max="1" step="0.05" value="1.0" oninput="document.getElementById('valPrint').innerText = Math.round(this.value * 100) + '%'">
+                                <span id="valPrint" class="range-value">100%</span>
                             </div>
-                            <input type="range" id="brightPrintRange" min="0" max="1" step="0.05" value="1.0" oninput="document.getElementById('brightPrint').value = this.value">
                         </div>
                         
                         <div class="input-group">

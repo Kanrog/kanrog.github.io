@@ -1,6 +1,11 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
  * VERSION: FINAL UNABRIDGED 2026.01.12
+ * * This file handles:
+ * 1. UI Visualization (HTML5 Canvas)
+ * 2. Color Mixing Calculations
+ * 3. Material Logistics
+ * 4. Template Assembly
  */
 
 const canvas = document.getElementById('previewCanvas');
@@ -18,6 +23,9 @@ const COLOR_MAP = {
     'WHITE':  {r: 0.8, g: 0.8, b: 0.8}
 };
 
+/**
+ * Update the Canvas Visualization
+ */
 function updateUI() {
     // Collect Inputs for Visualization
     const kin = document.getElementById('kin').value;
@@ -95,6 +103,9 @@ function getRGBString(colorName, brightness) {
     return `RED=${r} GREEN=${g} BLUE=${b}`;
 }
 
+/**
+ * Main Generator Function
+ */
 function generateMacros() {
     // 1. MECHANICS
     const kin = document.getElementById('kin').value;
@@ -128,14 +139,14 @@ function generateMacros() {
     const useLED = document.getElementById('useLED').value === 'true';
     const ledName = document.getElementById('ledName').value || 'status_leds';
     
-    // Calculate Idle Color string
+    // Calculate Idle Color string using slider value
     const idleColorName = document.getElementById('colorIdle').value;
-    const idleBright = parseFloat(document.getElementById('brightIdle').value);
+    const idleBright = parseFloat(document.getElementById('brightIdleRange').value);
     const idleRGB = getRGBString(idleColorName, idleBright);
 
-    // Calculate Print Color string
+    // Calculate Print Color string using slider value
     const printColorName = document.getElementById('colorPrint').value;
-    const printBright = parseFloat(document.getElementById('brightPrint').value);
+    const printBright = parseFloat(document.getElementById('brightPrintRange').value);
     const printRGB = getRGBString(printColorName, printBright);
     
     // 5. STRESS
@@ -174,10 +185,16 @@ function generateMacros() {
     document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
 }
 
+/**
+ * Copy to clipboard helper
+ */
 function copyToClipboard() {
     navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText).then(() => alert("Copied!"));
 }
 
+/**
+ * File Download helper
+ */
 function downloadConfig() {
     const blob = new Blob([document.getElementById('gcodeOutput').innerText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -187,4 +204,5 @@ function downloadConfig() {
     a.click();
 }
 
+// Initial Visualization
 window.onload = updateUI;
