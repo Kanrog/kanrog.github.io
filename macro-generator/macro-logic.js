@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: FINAL COMPLETE SMART BUZZ 2026.01.12
+ * VERSION: FINAL (NO BUZZ) 2026.01.12
  */
 
 const canvas = document.getElementById('previewCanvas');
@@ -187,7 +187,6 @@ function generateMacros() {
     const bowden = document.getElementById('bowden').value || 450;
     const probeType = document.getElementById('probeType').value;
     const useZTilt = document.getElementById('useZTilt').value === 'true';
-    const buzzLogic = document.getElementById('buzzLogic').value; // CAPTURED BUZZ LOGIC
     const useChamber = document.getElementById('useChamber').value === 'true';
     const usePurge = document.getElementById('usePurge').value === 'true';
     const heatStyle = document.getElementById('heatStyle').value;
@@ -220,8 +219,8 @@ function generateMacros() {
     output += GCODE_TEMPLATES.user_vars(pkX, pkY, maxZ - 10, bowden, margin, pTemp, bTemp, material, retractSpeed, fanSpeed);
     if (useLED) output += GCODE_TEMPLATES.lighting(ledName, idleRGB, printRGB);
     
-    // Pass `buzzLogic` to diagnostics
-    output += GCODE_TEMPLATES.diagnostics(kin, probeType, useZTilt, buzzLogic);
+    // Removed buzzLogic param
+    output += GCODE_TEMPLATES.diagnostics(kin, probeType, useZTilt);
     
     output += GCODE_TEMPLATES.torture(maxX, maxY, maxZ, margin, stressSpeed);
     output += GCODE_TEMPLATES.core_ops(kin, usePurge, pStart, pEnd, heatStyle, material, probeType, useZTilt);

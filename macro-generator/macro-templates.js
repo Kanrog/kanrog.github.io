@@ -1,6 +1,6 @@
 /**
  * THE KANROG UNIVERSAL MACRO LIBRARY
- * VERSION: FINAL COMPLETE SMART BUZZ + NAMING FIX 2026.01.12
+ * VERSION: FINAL (NO BUZZ) 2026.01.12
  */
 
 const GCODE_TEMPLATES = {
@@ -121,51 +121,10 @@ gcode:
     },
 
     // =================================================================
-    // 4. DIAGNOSTICS (Smart Buzz + Naming Fix)
+    // 4. DIAGNOSTICS & PROBE & TILT
     // =================================================================
-    diagnostics: (kin, probeType, useZTilt, buzzLogic) => {
-        // Determine Stepper Names
-        const isDelta = (kin === 'delta');
-        const m1 = isDelta ? 'stepper_a' : 'stepper_x';
-        const m2 = isDelta ? 'stepper_b' : 'stepper_y';
-        const m3 = isDelta ? 'stepper_c' : 'stepper_z';
-
-        // 1. Build Buzz Motors Logic
-        let buzz_block = "";
-        if (buzzLogic === 'smart') {
-            // Smart Logic: Check AXIS param
-            buzz_block = `[gcode_macro BUZZ_MOTORS]
-description: Test steppers. Usage: BUZZ_MOTORS [AXIS=X/Y/Z/E]
-gcode:
-    {% set axis = params.AXIS|default('ALL')|lower %}
-    
-    {% if axis == 'all' %}
-        M118 Buzzing All Motors...
-        STEPPER_BUZZ STEPPER=${m1}
-        STEPPER_BUZZ STEPPER=${m2}
-        STEPPER_BUZZ STEPPER=${m3}
-        STEPPER_BUZZ STEPPER=extruder
-    {% elif axis == 'x' or axis == 'a' %}
-        STEPPER_BUZZ STEPPER=${m1}
-    {% elif axis == 'y' or axis == 'b' %}
-        STEPPER_BUZZ STEPPER=${m2}
-    {% elif axis == 'z' or axis == 'c' %}
-        STEPPER_BUZZ STEPPER=${m3}
-    {% elif axis == 'e' or axis == 'extruder' %}
-        STEPPER_BUZZ STEPPER=extruder
-    {% endif %}`;
-        } else {
-            // Sequential Logic
-            buzz_block = `[gcode_macro BUZZ_MOTORS]
-description: Test all steppers sequentially
-gcode: 
-    STEPPER_BUZZ STEPPER=${m1}
-    STEPPER_BUZZ STEPPER=${m2}
-    STEPPER_BUZZ STEPPER=${m3}
-    STEPPER_BUZZ STEPPER=extruder`;
-        }
-
-        // 2. Probe Logic
+    diagnostics: (kin, probeType, useZTilt) => {
+        // 1. Probe Logic
         let probe_macro_block = "";
         if (probeType !== 'none') {
             probe_macro_block = `[gcode_macro CHECK_PROBE]
@@ -187,7 +146,7 @@ gcode:
     SCREWS_TILT_CALCULATE`;
         }
 
-        // 3. Manual Leveling Logic
+        // 2. Manual Leveling Logic
         let manual_level_block = "";
         if (probeType === 'none') {
             manual_level_block = `#=====================================================
@@ -211,7 +170,7 @@ gcode:
     Z_ENDSTOP_CALIBRATE`;
         }
 
-        // 4. Z-Tilt Logic
+        // 3. Z-Tilt Logic
         let z_tilt_block = "";
         if (useZTilt) {
             z_tilt_block = `[gcode_macro ALIGN_Z_GANTRY]
@@ -221,7 +180,7 @@ gcode:
     Z_TILT_ADJUST`;
         }
 
-        // 5. Delta Logic
+        // 4. Delta Logic
         let delta_cal_block = "";
         if (kin === 'delta') {
             delta_cal_block = `[gcode_macro ENDSTOPS_CALIBRATION]
@@ -240,8 +199,6 @@ gcode:
         return `#--------------------------------------------------------------------
 # DIAGNOSTICS
 #--------------------------------------------------------------------
-${buzz_block}
-
 [gcode_macro PID_HOTEND]
 description: PID Tune Hotend to Preset Temp
 gcode:
