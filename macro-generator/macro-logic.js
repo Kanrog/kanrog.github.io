@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: PURGE + MARGIN + STICKY FIX 2026.01.12
+ * VERSION: FINAL 2026.01.12
  */
 
 let canvas, ctx;
@@ -12,6 +12,22 @@ function initCanvas() {
         canvas.width = 300; 
         canvas.height = 200; 
     }
+}
+
+function resetDefaults() {
+    document.getElementById('kin').value = "bedslinger";
+    document.getElementById('maxX').value = 235;
+    document.getElementById('maxY').value = 235;
+    document.getElementById('margin').value = 20;
+    document.getElementById('material').value = "PLA";
+    document.getElementById('ledName').value = "status_leds";
+    document.getElementById('useLED').value = "true";
+    document.getElementById('tortureLevel').value = "standard";
+    document.getElementById('probeType').value = "none";
+    document.getElementById('useZTilt').value = "false";
+    updateMaterialPresets();
+    updateUI();
+    document.getElementById('outputCard').classList.add('hidden');
 }
 
 function updateMaterialPresets() {
@@ -39,106 +55,61 @@ function updateUI() {
     const pInput = document.getElementById('printTemp'), pErr = document.getElementById('err-printTemp');
     const bInput = document.getElementById('bedTemp'), bErr = document.getElementById('err-bedTemp');
 
-    // --- RESET SAFETY STATES ---
+    // Reset Safety States
     pInput.classList.remove('input-error', 'input-warning');
     bInput.classList.remove('input-error', 'input-warning');
-    pErr.classList.add('hidden');
-    bErr.classList.add('hidden');
-    pErr.className = "error-text";
-    bErr.className = "error-text";
-    pErr.innerHTML = "";
-    bErr.innerHTML = "";
+    pErr.classList.add('hidden'); bErr.classList.add('hidden');
+    pErr.className = "error-text"; bErr.className = "error-text";
+    pErr.innerHTML = ""; bErr.innerHTML = "";
 
-    // Margin Check
+    // Validation logic
     let mBad = (kin === 'delta') ? (m >= (x/2 - 10)) : ((x - m*2) <= 10 || (y - m*2) <= 10);
     mErr.classList.toggle('hidden', !mBad);
     if(mBad) block = true;
 
-    // Nozzle Logic
-    if (pT < 170 || pT > 305) { 
-        pErr.innerHTML = "Invalid Printing Temp!"; 
-        pErr.classList.remove('hidden'); 
-        pInput.classList.add('input-error');
-        block = true; 
-    } else if (pT > 290) { 
-        pErr.innerHTML = "All-Metal Hotend Required"; 
-        pErr.className = "warning-text"; 
-        pErr.classList.remove('hidden'); 
-        pInput.classList.add('input-warning');
-    } else if (pT > 260) { 
-        pErr.innerHTML = "PTFE Liner Danger Zone"; 
-        pErr.className = "warning-text"; 
-        pErr.classList.remove('hidden'); 
-        pInput.classList.add('input-warning');
-    }
+    if (pT < 170 || pT > 305) { pErr.innerHTML = "Invalid Printing Temp!"; pErr.classList.remove('hidden'); pInput.classList.add('input-error'); block = true; }
+    else if (pT > 290) { pErr.innerHTML = "All-Metal Hotend Required"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); pInput.classList.add('input-warning'); }
+    else if (pT > 260) { pErr.innerHTML = "PTFE Liner Danger Zone"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); pInput.classList.add('input-warning'); }
 
-    // Bed Logic
-    if (bT < 0 || bT > 125) { 
-        bErr.innerHTML = "Unsafe Bed Temp!"; 
-        bErr.classList.remove('hidden'); 
-        bInput.classList.add('input-error');
-        block = true; 
-    } else if (bT > 85) { 
-        bErr.innerHTML = "Magnet Demagnetization Risk"; 
-        bErr.className = "warning-text"; 
-        bErr.classList.remove('hidden'); 
-        bInput.classList.add('input-warning');
-    }
+    if (bT < 0 || bT > 125) { bErr.innerHTML = "Unsafe Bed Temp!"; bErr.classList.remove('hidden'); bInput.classList.add('input-error'); block = true; }
+    else if (bT > 85) { bErr.innerHTML = "Magnet Demagnetization Risk"; bErr.className = "warning-text"; bErr.classList.remove('hidden'); bInput.classList.add('input-warning'); }
 
     document.getElementById('generateBtn').disabled = block;
 
-    // --- DRAWING ROUTINE ---
-    ctx.fillStyle = "#111111"; 
-    ctx.fillRect(0, 0, 300, 200);
+    // Drawing
+    ctx.fillStyle = "#111111"; ctx.fillRect(0, 0, 300, 200);
+    const scale = 120 / Math.max(x, y), cx = 150, cy = 100;
 
-    const scale = 120 / Math.max(x, y);
-    const cx = 150, cy = 100;
+    ctx.strokeStyle = "#9b59b6"; ctx.fillStyle = "rgba(155, 89, 182, 0.15)"; ctx.lineWidth = 2;
+    if (kin === 'delta') { ctx.beginPath(); ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
+    else { ctx.fillRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); ctx.strokeRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); }
 
-    // 1. Bed Surface
-    ctx.strokeStyle = "#9b59b6"; 
-    ctx.fillStyle = "rgba(155, 89, 182, 0.15)"; 
-    ctx.lineWidth = 2;
-    if (kin === 'delta') { 
-        ctx.beginPath(); ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); ctx.fill(); ctx.stroke(); 
-    } else { 
-        ctx.fillRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); 
-        ctx.strokeRect(cx - (x/2)*scale, cy - (y / 2) * scale, x * scale, y * scale); 
-    }
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; ctx.setLineDash([5, 5]); ctx.beginPath();
+    if (kin === 'delta') { ctx.arc(cx, cy, (x/2 - m)*scale, 0, Math.PI * 2); }
+    else { ctx.rect(cx - (x/2 - m)*scale, cy - (y/2 - m)*scale, (x - m*2)*scale, (y - m*2)*scale); }
+    ctx.stroke(); ctx.setLineDash([]);
 
-    // 2. Safe Margin Boundary
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; 
-    ctx.setLineDash([5, 5]); 
-    ctx.beginPath();
-    if (kin === 'delta') { 
-        ctx.arc(cx, cy, (x/2 - m)*scale, 0, Math.PI * 2); 
-    } else { 
-        ctx.rect(cx - (x/2 - m)*scale, cy - (y/2 - m)*scale, (x - m*2)*scale, (y - m*2)*scale); 
-    }
-    ctx.stroke(); 
-    ctx.setLineDash([]);
-
-    // 3. Purge Line (Pink)
-    ctx.strokeStyle = "#ff00ff";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    if (kin === 'delta') {
-        const purgeY = cy + (y/2 - m) * scale;
-        ctx.moveTo(cx - 20 * scale, purgeY);
-        ctx.lineTo(cx + 20 * scale, purgeY);
-    } else {
-        const purgeX = cx - (x/2 - m) * scale;
-        const purgeY = cy + (y/2 - m) * scale;
-        ctx.moveTo(purgeX, purgeY);
-        ctx.lineTo(purgeX + (50 * scale), purgeY);
-    }
+    // Purge Line
+    ctx.strokeStyle = "#ff00ff"; ctx.lineWidth = 3; ctx.beginPath();
+    if (kin === 'delta') { ctx.moveTo(cx - 20 * scale, cy + (y/2 - m) * scale); ctx.lineTo(cx + 20 * scale, cy + (y/2 - m) * scale); }
+    else { ctx.moveTo(cx - (x/2 - m) * scale, cy + (y/2 - m) * scale); ctx.lineTo(cx - (x/2 - m - 50) * scale, cy + (y/2 - m) * scale); }
     ctx.stroke();
 
-    // 4. Home Point
-    ctx.fillStyle = "#ff4d4d"; 
-    ctx.beginPath();
+    ctx.fillStyle = "#ff4d4d"; ctx.beginPath();
     if (kin === 'delta') { ctx.arc(cx, cy, 6, 0, Math.PI*2); }
     else { ctx.arc(cx - (x/2)*scale, cy + (y/2)*scale, 6, 0, Math.PI*2); }
     ctx.fill();
+}
+
+function downloadMacros() {
+    const code = document.getElementById('gcodeOutput').innerText;
+    if (!code) return;
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'kanrog_macros.cfg';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
 function generateMacros() {
