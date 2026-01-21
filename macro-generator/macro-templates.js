@@ -255,6 +255,7 @@ gcode:
     {% endif %}
     G90
     G1 Z20 F1500
+    G1 X${m} Y${m} F${speed} ; Move to start position at the safety margin
     G91
     {% for i in range(10) %}
         G1 X+${(x-m*2).toFixed(1)} Y+${(y-m*2).toFixed(1)} F${speed}
