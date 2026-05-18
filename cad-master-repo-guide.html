@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Use the Master CAD Library - Your Site Name</title>
+    <link rel="stylesheet" href="article-style.css">
+</head>
+<body>
+    <nav class="nav-header">
+        <div class="container">
+            <a href="index.html" class="back-link">← Back to Main Page</a>
+            <div class="nav-title">CAD Library Guide</div>
+        </div>
+    </nav>
+
+    <header class="header">
+        <div class="container">
+            <h1>How to Use the Master CAD Library</h1>
+            <div class="subtitle">Grab exactly the 3D printer components you need without bogging down your assemblies.</div>
+            <div class="author">By Marius</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="content-section">
+            <h2 class="section-title">Getting Started with the Library</h2>
+
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Accessing the Models</div>
+                    <div class="step-subtitle">Navigating the master document</div>
+                </div>
+                <div class="step-content">
+                    <p>This master document is designed to be the ultimate reference library for anyone building custom 3D printers, toolheads, or motion systems. Instead of hunting down dozens of obscure datasheets or downloading heavily detailed step files that crash your CAD software, everything here is built as lightweight "clearance bricks."</p>
+
+                    <h4>Viewing the Library</h4>
+                    <p>You can access the library directly through your web browser using the public Onshape link provided. You don't need to install any software to view the models, check dimensions, or see how the parts fit together.</p>
+
+                    <div class="info-block">
+                        <h4>ℹ️ Cloud-Based Access</h4>
+                        <p>Because the library is hosted on Onshape, any updates, dimensional corrections, or new fan sizes added to the document will be instantly available to you the next time you open the link.</p>
+                    </div>
+
+                    <div class="success-block">
+                        <h4>💡 Pro Tip</h4>
+                        <p>If you are an Onshape user, you don't need to download anything. Just click "Insert" in your own Assembly, navigate to "Other Documents," paste the library URL, and drop the parts straight into your build.</p>
+                    </div>
+
+                    <div class="warning-block">
+                        <h4>⚠️ Performance Warning</h4>
+                        <p>These models intentionally omit internal geometry like bearing tracks or motor coils. They are strictly for layout, clearance checking, and assembly mapping. Do not try to use these to manufacture replacement internals!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Using Configurations</div>
+                    <div class="step-subtitle">One file, dozens of variations</div>
+                </div>
+                <div class="step-content">
+                    <p>The real magic of this library is the configuration system. Instead of navigating through folders containing 21 different axial fans or 8 different linear rails, you only deal with a few main "Part Studios."</p>
+
+                    <h4>How to change a part size:</h4>
+                    <ul>
+                        <li><strong>Step 1:</strong> Open the Part Studio for the component type you need (e.g., NEMA Motors, Axial Fans, MGN Carriages).</li>
+                        <li><strong>Step 2:</strong> Look at the top-left corner of the viewport for the Configuration Dropdown menu.</li>
+                        <li><strong>Step 3:</strong> Select your exact spec from the list (like swapping from a 5015 Radial Blower to a 12032). The 3D model, mounting holes, and part names will instantly update.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Library Reference Guide</div>
+                    <div class="step-subtitle">What's inside the master document</div>
+                </div>
+                <div class="step-content">
+                    <div class="legend" style="color: #bb8fce; font-size: 0.9rem; margin: 0.5rem 0 1rem;">
+                        A quick breakdown of the component categories available and what they include.
+                    </div>
+
+                    <div class="table-scroll" style="width: 100%; overflow-x: auto; margin: 20px 0;">
+                        <table class="material-table" style="width: 100%; border-collapse: collapse; background: #1a1a1a; border: 2px solid #9b59b6; border-radius: 10px; color: white;">
+                            <caption style="background: #2a2a2a; color: #9b59b6; border-bottom: 2px solid #9b59b6; text-align: left; padding: 1rem; font-weight: 600; font-size: 1.1rem;">Component Categories</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="padding: 1rem; background: #2a2a2a; color: #9b59b6; font-weight: 700; border-bottom: 2px solid #9b59b6; text-align: left;">Category</th>
+                                    <th scope="col" style="padding: 1rem; background: #2a2a2a; color: #9b59b6; font-weight: 700; border-bottom: 2px solid #9b59b6; text-align: left;">Included Parts</th>
+                                    <th scope="col" style="padding: 1rem; background: #2a2a2a; color: #9b59b6; font-weight: 700; border-bottom: 2px solid #9b59b6; text-align: left;">Configurable Options</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row" style="padding: 1rem; color: #bb8fce; font-weight: 600; border-bottom: 1px solid #3a3a3a; text-align: left;">Motion</th>
+                                    <td style="padding: 1rem; color: white; border-bottom: 1px solid #3a3a3a; text-align: left;">Motors, Pulleys, Rails</td>
+                                    <td style="padding: 1rem; color: white; border-bottom: 1px solid #3a3a3a; text-align: left;">NEMA sizes, MGN block sizes, bore diameters.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" style="padding: 1rem; color: #bb8fce; font-weight: 600; border-bottom: 1px solid #3a3a3a; text-align: left;">Cooling</th>
+                                    <td style="padding: 1rem; color: white; border-bottom: 1px solid #3a3a3a; text-align: left;">Axial Fans, Radial Blowers</td>
+                                    <td style="padding: 1rem; color: white; border-bottom: 1px solid #3a3a3a; text-align: left;">Over 30 sizes from 2510 to 14025, plus blowers.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" style="padding: 1rem; color: #bb8fce; font-weight: 600; border-bottom: 1px solid #3a3a3a; text-align: left;">Electronics</th>
+                                    <td style="padding: 1rem; color: white; border-bottom: 1px solid #3a3a3a; text-align: left;">Controller Boards, Pi Hosts</td>
+                                    <td style="padding: 1rem; color: white; border-bottom: 1px solid #3a3a3a; text-align: left;">SKR, Manta, Leviathan, and Raspberry Pi mounting footprints.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            </section>
+
+        <section class="content-section">
+            <h2 class="section-title">Final Thoughts</h2>
+            <div class="conclusion">
+                <h2>🎉 Time to Build!</h2>
+                <p>If you prefer to work in Fusion360 or SolidWorks, you can easily export these files. Just select the configuration you want, right-click the part in the bottom-left feature tree, and select "Export" to download a clean STEP file.</p>
+                <p>This library is designed to take the friction out of the design process. Spend less time measuring mounting hole distances, and more time actually building your dream machine. Happy making!</p>
+            </div>
+        </section>
+
+        <section class="back-section">
+            <div class="back-card">
+                <h3>Return to Main Page</h3>
+                <p>Ready to explore more resources?</p>
+                <a href="index.html" class="back-button">← Back to Main Site</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+
+    <footer>
+        <p>© 2026 - Marius</p>
+    </footer>
+</body>
+</html>
