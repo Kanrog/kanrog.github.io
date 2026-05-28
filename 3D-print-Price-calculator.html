@@ -13,8 +13,8 @@
             --text-color: #f3f4f6;
             --text-muted: #9ca3af;
             --border-color: #2e2e33;
-            --accent-color: #10b981;
-            --accent-bg: #064e3b;
+            --accent-bg: #2e1065; /* Deep purple background for the summary box */
+            --accent-text: #e9d5ff; /* Bright purple/magenta text for summary highlights */
             --sub-calc-bg: #252529;
         }
 
@@ -165,7 +165,7 @@
 
         .result-box {
             background: var(--accent-bg);
-            border: 2px solid var(--accent-color);
+            border: 2px solid var(--primary-color);
             border-radius: 12px;
             padding: 24px;
             text-align: center;
@@ -175,7 +175,7 @@
         .total-price {
             font-size: 2.5rem;
             font-weight: 700;
-            color: var(--accent-color);
+            color: var(--accent-text);
             margin: 10px 0 0 0;
         }
 
@@ -183,8 +183,8 @@
             margin-top: 18px;
             font-size: 0.9rem;
             text-align: left;
-            color: #a7f3d0;
-            border-top: 1px dashed rgba(16, 185, 129, 0.3);
+            color: var(--text-color);
+            border-top: 1px dashed rgba(168, 85, 247, 0.3);
             padding-top: 12px;
         }
 
@@ -192,6 +192,11 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 6px;
+        }
+        
+        .breakdown-item span:last-child {
+            color: var(--accent-text);
+            font-weight: 600;
         }
         
         small {
@@ -289,7 +294,7 @@
     </div>
 
     <div class="result-box">
-        <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a7f3d0;">Estimated Total Price</span>
+        <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Estimated Total Price</span>
         <div class="total-price" id="totalDisplay">0.00 NOK</div>
         
         <div class="breakdown">
