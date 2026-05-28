@@ -136,7 +136,7 @@
             padding: 12px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
 
         .toggle-label {
@@ -201,7 +201,7 @@
         }
 
         .volume-container.show {
-            max-height: 100px;
+            max-height: 140px;
         }
 
         .power-calc-box {
@@ -366,6 +366,19 @@
             font-size: 0.75rem;
         }
 
+        .feature-desc {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-top: -4px;
+            margin-bottom: 14px;
+            padding: 0 4px;
+        }
+        
+        .feature-desc strong {
+            color: var(--primary-hover);
+        }
+
         .footer-container {
             text-align: center;
             margin-top: 32px;
@@ -453,11 +466,17 @@
                     <span class="slider"></span>
                 </label>
             </div>
+            <div class="feature-desc">
+                Enable this to distribute one-off setup and design costs across a commercial production run. Ideal for setting retail prices on web marketplaces.
+            </div>
 
             <div id="volumeWrapper" class="volume-container">
                 <div class="form-group">
                     <label for="batchVolume">Expected Sales Volume (Units)</label>
                     <input type="number" id="batchVolume" value="50" min="1" step="1" oninput="calculatePrice()">
+                    <small style="color: var(--primary-hover); font-size: 0.75rem; margin-top: 6px;">
+                        💡 Design and prep fees will be divided by this number.
+                    </small>
                 </div>
             </div>
         </div>
@@ -535,7 +554,7 @@
                 <strong>Print Time & Power Allocation:</strong> Accounts for machine usage and electrical grid consumption. The sub-calculator determines your baseline machine burn rate via <span class="math-concept">(Printer Watts / 1000) × Electricity Cost per kWh</span> to determine a clean hourly factor, which is multiplied instantly by total runtime hours.
             </li>
             <li>
-                <strong>Design & Labor Amortization:</strong> If <em>Batch Production Mode</em> is disabled, upfront development and configuration labor costs are added directly to a single invoice[cite: 1]. When enabled, upfront design fees and setup processing runtimes are divided across your <strong>Expected Sales Volume</strong>, presenting a realistic production price point for storefront item optimization.
+                <strong>Design & Labor Amortization:</strong> If <em>Batch Production Mode</em> is disabled, upfront engineering and physical prep labor costs are applied entirely to a single invoice[cite: 1]. When enabled, upfront engineering fees and machine setup hours are split evenly across your <strong>Expected Sales Volume</strong>. This ensures your recurring physical overheads (material and power) are accurately coupled with distributed development costs to give a balanced per-unit production cost profile.
             </li>
         </ul>
     </div>
@@ -659,7 +678,7 @@ PROJECT PARAMETERS:
 - Filament Weight:       ${filamentGrams} grams
 - Filament Shipping:     ${shippingCost} ${currentCurrency}
 - Machine Print Time:    ${printTime} hours
-- upfront Engineering:   ${designTime} hours
+- Upfront Engineering:   ${designTime} hours
 - Machine Setup/Labor:   ${workTime} hours
 - Batch Mode Active:     ${isBatchActive ? 'YES' : 'NO'}
 - Target Sales Volume:   ${volumeUsed} units
