@@ -16,6 +16,7 @@
             --accent-bg: #2e1065; 
             --accent-text: #e9d5ff; 
             --sub-calc-bg: #252529;
+            --info-bg: #1e1b4b;
         }
 
         body {
@@ -216,6 +217,49 @@
             color: var(--accent-text);
             font-weight: 600;
         }
+
+        /* Description Box Styling */
+        .info-box {
+            background: var(--info-bg);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-text);
+            margin-top: 0;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-list {
+            margin: 0;
+            padding-left: 20px;
+            color: #d1d5db;
+            font-size: 0.9rem;
+        }
+
+        .info-list li {
+            margin-bottom: 12px;
+        }
+
+        .info-list li strong {
+            color: var(--text-color);
+        }
+
+        .math-concept {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--primary-hover);
+        }
         
         small {
             display: block;
@@ -352,6 +396,26 @@
             <div class="breakdown-item"><span>Design Fee:</span> <span id="breakdownDesign">0.00 NOK</span></div>
             <div class="breakdown-item"><span>Labor Fee:</span> <span id="breakdownLabor">0.00 NOK</span></div>
         </div>
+    </div>
+
+    <div class="info-box">
+        <div class="info-title">
+            <span>ℹ️</span> How It Works & Cost Explanations
+        </div>
+        <ul class="info-list">
+            <li>
+                <strong>Filament Amount & Cost:</strong> Measures how much raw physical plastic your model uses. The engine calculates the material component via <span class="math-concept">(Grams × Cost per kg / 1000)</span> and incorporates your custom flat <strong>Shipping Cost</strong> directly into the final material line item.
+            </li>
+            <li>
+                <strong>Print Time & Power Allocation:</strong> Accounts for machine usage and electrical grid consumption. The sub-calculator determines your baseline machine burn rate via <span class="math-concept">(Printer Watts / 1000) × Electricity Cost per kWh</span> to determine a clean hourly factor, which is multiplied instantly by total runtime hours.
+            </li>
+            <li>
+                <strong>Design Time:</strong> Tracks engineering and modeling overhead (CAD generation, mesh cleanups, file corrections). This factor multiplies your custom hourly rate by your active project design tracking hours.
+            </li>
+            <li>
+                <strong>Prep/Post-Work Time (Labor):</strong> Factors in active physical hands-on work. This covers machine bed preparation, material reloading, slicing manipulation, support removals, and manual surface post-processing at your targeted hourly labor baseline.
+            </li>
+        </ul>
     </div>
 
     <div class="footer-container">
