@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Price Calculator</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary-color: #2563eb;
+            --text-color: #1f2937;
+            --text-muted: #4b5563;
+            --border-color: #e5e7eb;
+            --accent-color: #059669;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 24px;
+        }
+
+        .currency-selector-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .currency-selector-container label {
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .power-calc-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 14px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .power-calc-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .live-calc-badge {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: #eff6ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #bfdbfe;
+        }
+
+        .result-box {
+            background: #f0fdf4;
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .total-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 10px 0 0 0;
+        }
+
+        .breakdown {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            text-align: left;
+            color: var(--text-muted);
+            border-top: 1px dashed var(--border-color);
+            padding-top: 10px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>3D Print Price Calculator</h1>
+    
+    <!-- Currency Selector Dropdown -->
+    <div class="currency-selector-container">
+        <label for="currencySelect">Select Currency:</label>
+        <select id="currencySelect" onchange="handleCurrencyChange()">
+            <option value="NOK">NOK (kr)</option>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+        </select>
+    </div>
+    
+    <div class="grid">
+        <!-- Project Specific Inputs -->
+        <div class="card">
+            <div class="card-title">Project Details</div>
+            
+            <div class="form-group">
+                <label for="filamentAmount">Filament Amount (grams)</label>
+                <input type="number" id="filamentAmount" value="150" min="0" oninput="calculatePrice()">
+            </div>
+            
+            <div class="form-group">
+                <label for="shippingCost">Filament Shipping Cost (<span class="currency-label">NOK</span>)</label>
+                <input type="number" id="shippingCost" value="79" min="0" oninput="calculatePrice()">
+            </div>
+            
+            <div class="form-group">
+                <label for="printTime">Print Time (hours)</label>
+                <input type="number" id="printTime" value="12" min="0" step="0.1" oninput="calculatePrice()">
+            </div>
+            
+            <div class="form-group">
+                <label for="designTime">Design Time (hours)</label>
+                <input type="number" id="designTime" value="1" min="0" step="0.1" oninput="calculatePrice()">
+            </div>
+            
+            <div class="form-group">
+                <label for="workTime">Prep/Post-Work Time (hours)</label>
+                <input type="number" id="workTime" value="0.5" min="0" step="0.1" oninput="calculatePrice()">
+            </div>
+        </div>
+
+        <!-- Hidden/Default Cost Settings -->
+        <div class="card">
+            <div class="card-title">Rates & Settings (Defaults)</div>
+            
+            <div class="form-group">
+                <label for="filamentCostKg">Filament Cost per kg (<span class="currency-label">NOK</span>)</label>
+                <input type="number" id="filamentCostKg" value="350" min="0" oninput="calculatePrice()">
+            </div>
+            
+            <!-- Power Module Integrated Calculator -->
+            <div class="form-group">
+                <label>Power Cost Estimation</label>
+                <div class="power-calc-box">
+                    <div class="power-calc-title">Electricity Sub-Calculator</div>
+                    
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label for="powerCostKwh" style="font-size: 0.8rem;">Rate per kWh (<span class="currency-label">NOK</span>)</label>
+                        <input type="number" id="powerCostKwh" value="1.25" min="0" step="0.01" oninput="calculatePrice()">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 5px;">
+                        <label for="printerWatts" style="font-size: 0.8rem;">Avg Printer Draw (Watts)</label>
+                        <input type="number" id="printerWatts" value="300" min="0" step="10" oninput="calculatePrice()">
+                    </div>
+                    
+                    <div class="live-calc-badge">
+                        Calculated Rate: <span id="hourlyPowerCostBadge">0.00</span> <span class="currency-label">NOK</span> / hr
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="designRate">Hourly Design Rate (<span class="currency-label">NOK</span>)</label>
+                <input type="number" id="designRate" value="300" min="0" oninput="calculatePrice()">
+            </div>
+            
+            <div class="form-group">
+                <label for="workRate">Hourly Labor Rate (<span class="currency-label">NOK</span>)</label>
+                <input type="number" id="workRate" value="200" min="0" oninput="calculatePrice()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Output -->
+    <div class="result-box">
+        <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Estimated Total Price</span>
+        <div class="total-price" id="totalDisplay">0.00 NOK</div>
+        
+        <div class="breakdown">
+            <div class="breakdown-item"><span>Material + Shipping:</span> <span id="breakdownMaterial">0.00 NOK</span></div>
+            <div class="breakdown-item"><span>Power Allocation:</span> <span id="breakdownPower">0.00 NOK</span></div>
+            <div class="breakdown-item"><span>Design Fee:</span> <span id="breakdownDesign">0.00 NOK</span></div>
+            <div class="breakdown-item"><span>Labor Fee:</span> <span id="breakdownLabor">0.00 NOK</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentCurrency = "NOK";
+
+// Object containing geographic average pricing anchors for mid-2026
+const regionalAverages = {
+    NOK: { kwhCost: 1.25, filament: 350, design: 300, labor: 200, shipping: 79 },
+    USD: { kwhCost: 0.18, filament: 30,   design: 35,  labor: 25,  shipping: 8  },
+    EUR: { kwhCost: 0.29, filament: 28,   design: 32,  labor: 22,  shipping: 7  },
+    GBP: { kwhCost: 0.26, filament: 25,   design: 30,  labor: 20,  shipping: 6  }
+};
+
+function handleCurrencyChange() {
+    currentCurrency = document.getElementById('currencySelect').value;
+    
+    // Update text labels
+    const labels = document.getElementsByClassName('currency-label');
+    for (let i = 0; i < labels.length; i++) {
+        labels[i].innerText = currentCurrency;
+    }
+
+    // Apply baseline anchors automatically to match currency profile swaps
+    const defaults = regionalAverages[currentCurrency];
+    if (defaults) {
+        document.getElementById('powerCostKwh').value = defaults.kwhCost;
+        document.getElementById('filamentCostKg').value = defaults.filament;
+        document.getElementById('designRate').value = defaults.design;
+        document.getElementById('workRate').value = defaults.labor;
+        document.getElementById('shippingCost').value = defaults.shipping;
+    }
+
+    calculatePrice();
+}
+
+function calculatePrice() {
+    // Inputs
+    const filamentGrams = parseFloat(document.getElementById('filamentAmount').value) || 0;
+    const shippingCost = parseFloat(document.getElementById('shippingCost').value) || 0;
+    const printTime = parseFloat(document.getElementById('printTime').value) || 0;
+    const designTime = parseFloat(document.getElementById('designTime').value) || 0;
+    const workTime = parseFloat(document.getElementById('workTime').value) || 0;
+
+    // Rates & Power Calculation Sub-elements
+    const filamentCostKg = parseFloat(document.getElementById('filamentCostKg').value) || 0;
+    const powerCostKwh = parseFloat(document.getElementById('powerCostKwh').value) || 0;
+    const printerWatts = parseFloat(document.getElementById('printerWatts').value) || 0;
+    const designRate = parseFloat(document.getElementById('designRate').value) || 0;
+    const workRate = parseFloat(document.getElementById('workRate').value) || 0;
+
+    // 1. Calculate hourly rate profile: (Watts / 1000) * Cost per kWh
+    const calculatedHourlyPowerCost = (printerWatts / 1000) * powerCostKwh;
+    
+    // Update live badge view in the sub-calculator window
+    document.getElementById('hourlyPowerCostBadge').innerText = calculatedHourlyPowerCost.toFixed(3);
+
+    // 2. Final Cost Line Item Arrays
+    const materialCost = (filamentGrams * (filamentCostKg / 1000)) + shippingCost;
+    const powerCost = printTime * calculatedHourlyPowerCost;
+    const designCost = designTime * designRate;
+    const laborCost = workTime * workRate;
+
+    const totalPrice = materialCost + powerCost + designCost + laborCost;
+
+    // Update Output displays
+    document.getElementById('totalDisplay').innerText = `${totalPrice.toFixed(2)} ${currentCurrency}`;
+    document.getElementById('breakdownMaterial').innerText = `${materialCost.toFixed(2)} ${currentCurrency}`;
+    document.getElementById('breakdownPower').innerText = `${powerCost.toFixed(2)} ${currentCurrency}`;
+    document.getElementById('breakdownDesign').innerText = `${designCost.toFixed(2)} ${currentCurrency}`;
+    document.getElementById('breakdownLabor').innerText = `${laborCost.toFixed(2)} ${currentCurrency}`;
+}
+
+// Global initialization setup
+window.onload = function() {
+    handleCurrencyChange();
+};
+</script>
+
+</body>
+</html>
