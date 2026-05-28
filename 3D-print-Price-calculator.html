@@ -127,6 +127,83 @@
             margin-bottom: 18px;
         }
 
+        /* Toggle Switch Styling */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--sub-calc-bg);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 18px;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-color);
+            transition: .3s;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-muted);
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-bg);
+            border-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: var(--primary-color);
+        }
+
+        /* Collapsible Volume Container */
+        .volume-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .volume-container.show {
+            max-height: 100px;
+        }
+
         .power-calc-box {
             background: var(--sub-calc-bg);
             border: 1px solid var(--border-color);
@@ -152,7 +229,7 @@
             color: var(--text-muted);
         }
 
-        input {
+        input[type="number"] {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border-color);
@@ -164,7 +241,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        input:focus {
+        input[type="number"]:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
@@ -219,7 +296,6 @@
             font-weight: 600;
         }
 
-        /* Save Button Style */
         .save-btn {
             display: inline-flex;
             align-items: center;
@@ -241,11 +317,6 @@
             transform: translateY(-1px);
         }
 
-        .save-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Description Box Styling */
         .info-box {
             background: var(--info-bg);
             border: 1px solid rgba(168, 85, 247, 0.3);
@@ -373,6 +444,22 @@
                 <label for="workTime">Prep/Post-Work Time (hours)</label>
                 <input type="number" id="workTime" value="0.5" min="0" step="0.1" oninput="calculatePrice()">
             </div>
+
+            <!-- New Batch Amortization Feature Selector -->
+            <div class="toggle-container">
+                <label for="batchToggle" class="toggle-label">Batch Production / Market Sale</label>
+                <label class="switch">
+                    <input type="checkbox" id="batchToggle" onchange="toggleBatchMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div id="volumeWrapper" class="volume-container">
+                <div class="form-group">
+                    <label for="batchVolume">Expected Sales Volume (Units)</label>
+                    <input type="number" id="batchVolume" value="50" min="1" step="1" oninput="calculatePrice()">
+                </div>
+            </div>
         </div>
 
         <!-- Hidden/Default Cost Settings -->
@@ -420,17 +507,16 @@
 
     <!-- Final Output Summary Box -->
     <div class="result-box">
-        <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Estimated Total Price</span>
+        <span id="priceLabelDisplay" style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Estimated Total Price</span>
         <div class="total-price" id="totalDisplay">0.00 NOK</div>
         
         <div class="breakdown">
             <div class="breakdown-item"><span>Material + Shipping:</span> <span id="breakdownMaterial">0.00 NOK</span></div>
             <div class="breakdown-item"><span>Power Allocation:</span> <span id="breakdownPower">0.00 NOK</span></div>
-            <div class="breakdown-item"><span>Design Fee:</span> <span id="breakdownDesign">0.00 NOK</span></div>
-            <div class="breakdown-item"><span>Labor Fee:</span> <span id="breakdownLabor">0.00 NOK</span></div>
+            <div class="breakdown-item"><span>Design Fee (Allocated):</span> <span id="breakdownDesign">0.00 NOK</span></div>
+            <div class="breakdown-item"><span>Labor Fee (Allocated):</span> <span id="breakdownLabor">0.00 NOK</span></div>
         </div>
 
-        <!-- Text File Save Button -->
         <button class="save-btn" onclick="saveAsTxtFile()">
             <span>💾</span> Save Quote as Text File
         </button>
@@ -443,16 +529,13 @@
         </div>
         <ul class="info-list">
             <li>
-                <strong>Filament Amount & Cost:</strong> Measures how much raw physical plastic your model uses. The engine calculates the material component via <span class="math-concept">(Grams × Cost per kg / 1000)</span> and incorporates your custom flat <strong>Shipping Cost</strong> directly into the final material line item.
+                <strong>Filament Amount & Cost:</strong> Measures how much raw physical plastic your model uses. The engine calculates the material component via <span class="math-concept">(Grams × Cost per kg / 1000)</span> and incorporates your custom flat <strong>Shipping Cost</strong> directly into the final material line item[cite: 1].
             </li>
             <li>
                 <strong>Print Time & Power Allocation:</strong> Accounts for machine usage and electrical grid consumption. The sub-calculator determines your baseline machine burn rate via <span class="math-concept">(Printer Watts / 1000) × Electricity Cost per kWh</span> to determine a clean hourly factor, which is multiplied instantly by total runtime hours.
             </li>
             <li>
-                <strong>Design Time:</strong> Tracks engineering and modeling overhead (CAD generation, mesh cleanups, file corrections). This factor multiplies your custom hourly rate by your active project design tracking hours.
-            </li>
-            <li>
-                <strong>Prep/Post-Work Time (Labor):</strong> Factors in active physical hands-on work. This covers machine bed preparation, material reloading, slicing manipulation, support removals, and manual surface post-processing at your targeted hourly labor baseline.
+                <strong>Design & Labor Amortization:</strong> If <em>Batch Production Mode</em> is disabled, upfront development and configuration labor costs are added directly to a single invoice[cite: 1]. When enabled, upfront design fees and setup processing runtimes are divided across your <strong>Expected Sales Volume</strong>, presenting a realistic production price point for storefront item optimization.
             </li>
         </ul>
     </div>
@@ -466,7 +549,6 @@
 <script>
 let currentCurrency = "NOK";
 
-// Geographic average pricing anchors
 const regionalAverages = {
     NOK: { kwhCost: 1.25, filament: 350, design: 300, labor: 200, shipping: 79 },
     USD: { kwhCost: 0.18, filament: 30,   design: 35,  labor: 25,  shipping: 8  },
@@ -474,16 +556,29 @@ const regionalAverages = {
     GBP: { kwhCost: 0.26, filament: 25,   design: 30,  labor: 20,  shipping: 6  }
 };
 
+function toggleBatchMode() {
+    const isChecked = document.getElementById('batchToggle').checked;
+    const wrapper = document.getElementById('volumeWrapper');
+    const label = document.getElementById('priceLabelDisplay');
+    
+    if (isChecked) {
+        wrapper.classList.add('show');
+        label.innerText = "Estimated Price Per Unit";
+    } else {
+        wrapper.classList.remove('show');
+        label.innerText = "Estimated Total Price";
+    }
+    calculatePrice();
+}
+
 function handleCurrencyChange() {
     currentCurrency = document.getElementById('currencySelect').value;
     
-    // Update text labels
     const labels = document.getElementsByClassName('currency-label');
     for (let i = 0; i < labels.length; i++) {
         labels[i].innerText = currentCurrency;
     }
 
-    // Apply baseline anchors automatically
     const defaults = regionalAverages[currentCurrency];
     if (defaults) {
         document.getElementById('powerCostKwh').value = defaults.kwhCost;
@@ -504,28 +599,32 @@ function calculatePrice() {
     const designTime = parseFloat(document.getElementById('designTime').value) || 0;
     const workTime = parseFloat(document.getElementById('workTime').value) || 0;
 
-    // Rates & Power Calculation Sub-elements
+    // Settings
     const filamentCostKg = parseFloat(document.getElementById('filamentCostKg').value) || 0;
     const powerCostKwh = parseFloat(document.getElementById('powerCostKwh').value) || 0;
     const printerWatts = parseFloat(document.getElementById('printerWatts').value) || 0;
     const designRate = parseFloat(document.getElementById('designRate').value) || 0;
     const workRate = parseFloat(document.getElementById('workRate').value) || 0;
 
-    // Calculate hourly rate profile
+    // Batch Distribution Settings
+    const isBatchActive = document.getElementById('batchToggle').checked;
+    const batchVolume = isBatchActive ? (parseInt(document.getElementById('batchVolume').value) || 1) : 1;
+
+    // Power math engine
     const calculatedHourlyPowerCost = (printerWatts / 1000) * powerCostKwh;
-    
-    // Update live badge view
     document.getElementById('hourlyPowerCostBadge').innerText = calculatedHourlyPowerCost.toFixed(3);
 
-    // Final Cost Calculations
+    // Baseline Line Item Array Operations
     const materialCost = (filamentGrams * (filamentCostKg / 1000)) + shippingCost;
     const powerCost = printTime * calculatedHourlyPowerCost;
-    const designCost = designTime * designRate;
-    const laborCost = workTime * workRate;
+    
+    // Non-recurring cost processing divided dynamically by active batch factor volume
+    const designCost = (designTime * designRate) / batchVolume;
+    const laborCost = (workTime * workRate) / batchVolume;
 
     const totalPrice = materialCost + powerCost + designCost + laborCost;
 
-    // Update Output displays
+    // Dynamic UI string rendering updates
     document.getElementById('totalDisplay').innerText = `${totalPrice.toFixed(2)} ${currentCurrency}`;
     document.getElementById('breakdownMaterial').innerText = `${materialCost.toFixed(2)} ${currentCurrency}`;
     document.getElementById('breakdownPower').innerText = `${powerCost.toFixed(2)} ${currentCurrency}`;
@@ -534,12 +633,14 @@ function calculatePrice() {
 }
 
 function saveAsTxtFile() {
-    // Fetch live data directly from the DOM elements
     const filamentGrams = document.getElementById('filamentAmount').value;
     const shippingCost = document.getElementById('shippingCost').value;
     const printTime = document.getElementById('printTime').value;
     const designTime = document.getElementById('designTime').value;
     const workTime = document.getElementById('workTime').value;
+    
+    const isBatchActive = document.getElementById('batchToggle').checked;
+    const volumeUsed = isBatchActive ? document.getElementById('batchVolume').value : "1 (Single Job)";
 
     const totalStr = document.getElementById('totalDisplay').innerText;
     const matStr = document.getElementById('breakdownMaterial').innerText;
@@ -549,7 +650,6 @@ function saveAsTxtFile() {
 
     const timestamp = new Date().toLocaleString();
 
-    // Construct clean plaintext document body layout
     const txtContent = `=========================================
 3D PRINT PRICE QUOTE - KANROG CREATIONS
 Generated on: ${timestamp}
@@ -559,24 +659,25 @@ PROJECT PARAMETERS:
 - Filament Weight:       ${filamentGrams} grams
 - Filament Shipping:     ${shippingCost} ${currentCurrency}
 - Machine Print Time:    ${printTime} hours
-- Engineering/Design:    ${designTime} hours
-- Prep & Post-Processing: ${workTime} hours
+- upfront Engineering:   ${designTime} hours
+- Machine Setup/Labor:   ${workTime} hours
+- Batch Mode Active:     ${isBatchActive ? 'YES' : 'NO'}
+- Target Sales Volume:   ${volumeUsed} units
 
-COST BREAKDOWN:
+COST CALCULATION PER UNIT:
 -----------------------------------------
 - Material + Shipping:   ${matStr}
 - Power Allocation:      ${powStr}
-- Design/CAD Fee:        ${desStr}
-- Labor/Handling Fee:    ${labStr}
+- Allocated Design Fee:  ${desStr}
+- Allocated Labor Fee:   ${labStr}
 -----------------------------------------
-ESTIMATED TOTAL PRICE:   ${totalStr}
+${isBatchActive ? 'TARGET PRICE PER UNIT' : 'ESTIMATED TOTAL PRICE'}:  ${totalStr}
 
 =========================================
 Thank you for choosing Kanrog Creations!
 Visit us at: https://kanrog.com
 =========================================`;
 
-    // Package content into an in-memory blob object and fire the download trigger
     const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8" });
     const tempLink = document.createElement("a");
     tempLink.download = `Kanrog_3D_Quote_${Date.now()}.txt`;
