@@ -6,13 +6,16 @@
     <title>3D Print Price Calculator</title>
     <style>
         :root {
-            --bg-color: #312b36;
-            --card-bg: #110b0b;
-            --primary-color: #6b0c77;
-            --text-color: #ffffff;
-            --text-muted: #6f6f70;
-            --border-color: #d01afd;
-            --accent-color: #08553d;
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --primary-color: #a855f7;
+            --primary-hover: #c084fc;
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #2e2e33;
+            --accent-color: #10b981;
+            --accent-bg: #064e3b;
+            --sub-calc-bg: #252529;
         }
 
         body {
@@ -33,34 +36,38 @@
             text-align: center;
             color: var(--text-color);
             margin-bottom: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .currency-selector-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 24px;
             background: var(--card-bg);
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 14px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
         }
 
         .currency-selector-container label {
             margin-bottom: 0;
             font-weight: 600;
+            color: var(--text-color);
         }
 
         select {
-            padding: 8px 12px;
+            padding: 8px 16px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
-            background-color: var(--card-bg);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
+            transition: border-color 0.2s;
         }
 
         select:focus {
@@ -84,7 +91,6 @@
             background: var(--card-bg);
             padding: 24px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
         }
 
@@ -92,29 +98,30 @@
             font-size: 1.2rem;
             font-weight: 600;
             margin-top: 0;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 8px;
+            color: var(--text-color);
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .power-calc-box {
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            padding: 14px;
+            background: var(--sub-calc-bg);
+            border: 1px solid var(--border-color);
+            padding: 16px;
             border-radius: 8px;
             margin-top: 8px;
         }
 
         .power-calc-title {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             font-weight: bold;
-            color: var(--text-muted);
-            margin-bottom: 10px;
+            color: var(--primary-color);
+            margin-bottom: 12px;
             letter-spacing: 0.5px;
         }
 
@@ -128,17 +135,20 @@
 
         input {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         input:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
         }
 
         .live-calc-badge {
@@ -146,20 +156,20 @@
             margin-top: 8px;
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--primary-color);
-            background: #eff6ff;
-            padding: 4px 8px;
+            color: var(--primary-hover);
+            background: rgba(168, 85, 247, 0.1);
+            padding: 4px 10px;
             border-radius: 4px;
-            border: 1px solid #bfdbfe;
+            border: 1px solid rgba(168, 85, 247, 0.2);
         }
 
         .result-box {
-            background: #f0fdf4;
+            background: var(--accent-bg);
             border: 2px solid var(--accent-color);
             border-radius: 12px;
             padding: 24px;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         .total-price {
@@ -170,18 +180,25 @@
         }
 
         .breakdown {
-            margin-top: 15px;
+            margin-top: 18px;
             font-size: 0.9rem;
             text-align: left;
-            color: var(--text-muted);
-            border-top: 1px dashed var(--border-color);
-            padding-top: 10px;
+            color: #a7f3d0;
+            border-top: 1px dashed rgba(16, 185, 129, 0.3);
+            padding-top: 12px;
         }
 
         .breakdown-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+        }
+        
+        small {
+            display: block;
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -190,7 +207,6 @@
 <div class="container">
     <h1>3D Print Price Calculator</h1>
     
-    <!-- Currency Selector Dropdown -->
     <div class="currency-selector-container">
         <label for="currencySelect">Select Currency:</label>
         <select id="currencySelect" onchange="handleCurrencyChange()">
@@ -202,7 +218,6 @@
     </div>
     
     <div class="grid">
-        <!-- Project Specific Inputs -->
         <div class="card">
             <div class="card-title">Project Details</div>
             
@@ -232,7 +247,6 @@
             </div>
         </div>
 
-        <!-- Hidden/Default Cost Settings -->
         <div class="card">
             <div class="card-title">Rates & Settings (Defaults)</div>
             
@@ -241,13 +255,12 @@
                 <input type="number" id="filamentCostKg" value="350" min="0" oninput="calculatePrice()">
             </div>
             
-            <!-- Power Module Integrated Calculator -->
             <div class="form-group">
                 <label>Power Cost Estimation</label>
                 <div class="power-calc-box">
                     <div class="power-calc-title">Electricity Sub-Calculator</div>
                     
-                    <div class="form-group" style="margin-bottom: 10px;">
+                    <div class="form-group" style="margin-bottom: 12px;">
                         <label for="powerCostKwh" style="font-size: 0.8rem;">Rate per kWh (<span class="currency-label">NOK</span>)</label>
                         <input type="number" id="powerCostKwh" value="1.25" min="0" step="0.01" oninput="calculatePrice()">
                     </div>
@@ -275,9 +288,8 @@
         </div>
     </div>
 
-    <!-- Final Output -->
     <div class="result-box">
-        <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Estimated Total Price</span>
+        <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a7f3d0;">Estimated Total Price</span>
         <div class="total-price" id="totalDisplay">0.00 NOK</div>
         
         <div class="breakdown">
@@ -292,7 +304,7 @@
 <script>
 let currentCurrency = "NOK";
 
-// Object containing geographic average pricing anchors for mid-2026
+// Geographic average pricing anchors
 const regionalAverages = {
     NOK: { kwhCost: 1.25, filament: 350, design: 300, labor: 200, shipping: 79 },
     USD: { kwhCost: 0.18, filament: 30,   design: 35,  labor: 25,  shipping: 8  },
@@ -309,7 +321,7 @@ function handleCurrencyChange() {
         labels[i].innerText = currentCurrency;
     }
 
-    // Apply baseline anchors automatically to match currency profile swaps
+    // Apply baseline anchors automatically
     const defaults = regionalAverages[currentCurrency];
     if (defaults) {
         document.getElementById('powerCostKwh').value = defaults.kwhCost;
@@ -337,13 +349,13 @@ function calculatePrice() {
     const designRate = parseFloat(document.getElementById('designRate').value) || 0;
     const workRate = parseFloat(document.getElementById('workRate').value) || 0;
 
-    // 1. Calculate hourly rate profile: (Watts / 1000) * Cost per kWh
+    // Calculate hourly rate profile
     const calculatedHourlyPowerCost = (printerWatts / 1000) * powerCostKwh;
     
-    // Update live badge view in the sub-calculator window
+    // Update live badge view
     document.getElementById('hourlyPowerCostBadge').innerText = calculatedHourlyPowerCost.toFixed(3);
 
-    // 2. Final Cost Line Item Arrays
+    // Final Cost Calculations
     const materialCost = (filamentGrams * (filamentCostKg / 1000)) + shippingCost;
     const powerCost = printTime * calculatedHourlyPowerCost;
     const designCost = designTime * designRate;
@@ -359,7 +371,6 @@ function calculatePrice() {
     document.getElementById('breakdownLabor').innerText = `${laborCost.toFixed(2)} ${currentCurrency}`;
 }
 
-// Global initialization setup
 window.onload = function() {
     handleCurrencyChange();
 };
