@@ -205,6 +205,7 @@
             color: var(--text-color);
             border-top: 1px dashed rgba(168, 85, 247, 0.3);
             padding-top: 12px;
+            margin-bottom: 20px;
         }
 
         .breakdown-item {
@@ -216,6 +217,32 @@
         .breakdown-item span:last-child {
             color: var(--accent-text);
             font-weight: 600;
+        }
+
+        /* Save Button Style */
+        .save-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--primary-color);
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .save-btn:hover {
+            background-color: var(--primary-hover);
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
         }
 
         /* Description Box Styling */
@@ -299,12 +326,14 @@
 
 <div class="container">
     
+    <!-- Header with Branding & Logo -->
     <div class="header-container">
         <img src="Kanrog LOGO wtext.png" alt="Kanrog Creations Logo" class="logo">
         <h1>3D Print Price Calculator</h1>
         <p class="by-line">by Kanrog Creations</p>
     </div>
     
+    <!-- Currency Selector Dropdown -->
     <div class="currency-selector-container">
         <label for="currencySelect">Select Currency:</label>
         <select id="currencySelect" onchange="handleCurrencyChange()">
@@ -316,6 +345,7 @@
     </div>
     
     <div class="grid">
+        <!-- Project Specific Inputs -->
         <div class="card">
             <div class="card-title">Project Details</div>
             
@@ -345,6 +375,7 @@
             </div>
         </div>
 
+        <!-- Hidden/Default Cost Settings -->
         <div class="card">
             <div class="card-title">Rates & Settings (Defaults)</div>
             
@@ -353,6 +384,7 @@
                 <input type="number" id="filamentCostKg" value="350" min="0" oninput="calculatePrice()">
             </div>
             
+            <!-- Power Module Integrated Calculator -->
             <div class="form-group">
                 <label>Power Cost Estimation</label>
                 <div class="power-calc-box">
@@ -386,6 +418,7 @@
         </div>
     </div>
 
+    <!-- Final Output Summary Box -->
     <div class="result-box">
         <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Estimated Total Price</span>
         <div class="total-price" id="totalDisplay">0.00 NOK</div>
@@ -396,8 +429,14 @@
             <div class="breakdown-item"><span>Design Fee:</span> <span id="breakdownDesign">0.00 NOK</span></div>
             <div class="breakdown-item"><span>Labor Fee:</span> <span id="breakdownLabor">0.00 NOK</span></div>
         </div>
+
+        <!-- Text File Save Button -->
+        <button class="save-btn" onclick="saveAsTxtFile()">
+            <span>💾</span> Save Quote as Text File
+        </button>
     </div>
 
+    <!-- Explanatory Description Box -->
     <div class="info-box">
         <div class="info-title">
             <span>ℹ️</span> How It Works & Cost Explanations
@@ -418,6 +457,7 @@
         </ul>
     </div>
 
+    <!-- Footer Back Button -->
     <div class="footer-container">
         <a href="https://kanrog.com" class="back-btn">← Back to Main Site</a>
     </div>
@@ -491,6 +531,61 @@ function calculatePrice() {
     document.getElementById('breakdownPower').innerText = `${powerCost.toFixed(2)} ${currentCurrency}`;
     document.getElementById('breakdownDesign').innerText = `${designCost.toFixed(2)} ${currentCurrency}`;
     document.getElementById('breakdownLabor').innerText = `${laborCost.toFixed(2)} ${currentCurrency}`;
+}
+
+function saveAsTxtFile() {
+    // Fetch live data directly from the DOM elements
+    const filamentGrams = document.getElementById('filamentAmount').value;
+    const shippingCost = document.getElementById('shippingCost').value;
+    const printTime = document.getElementById('printTime').value;
+    const designTime = document.getElementById('designTime').value;
+    const workTime = document.getElementById('workTime').value;
+
+    const totalStr = document.getElementById('totalDisplay').innerText;
+    const matStr = document.getElementById('breakdownMaterial').innerText;
+    const powStr = document.getElementById('breakdownPower').innerText;
+    const desStr = document.getElementById('breakdownDesign').innerText;
+    const labStr = document.getElementById('breakdownLabor').innerText;
+
+    const timestamp = new Date().toLocaleString();
+
+    // Construct clean plaintext document body layout
+    const txtContent = `=========================================
+3D PRINT PRICE QUOTE - KANROG CREATIONS
+Generated on: ${timestamp}
+=========================================
+
+PROJECT PARAMETERS:
+- Filament Weight:       ${filamentGrams} grams
+- Filament Shipping:     ${shippingCost} ${currentCurrency}
+- Machine Print Time:    ${printTime} hours
+- Engineering/Design:    ${designTime} hours
+- Prep & Post-Processing: ${workTime} hours
+
+COST BREAKDOWN:
+-----------------------------------------
+- Material + Shipping:   ${matStr}
+- Power Allocation:      ${powStr}
+- Design/CAD Fee:        ${desStr}
+- Labor/Handling Fee:    ${labStr}
+-----------------------------------------
+ESTIMATED TOTAL PRICE:   ${totalStr}
+
+=========================================
+Thank you for choosing Kanrog Creations!
+Visit us at: https://kanrog.com
+=========================================`;
+
+    // Package content into an in-memory blob object and fire the download trigger
+    const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8" });
+    const tempLink = document.createElement("a");
+    tempLink.download = `Kanrog_3D_Quote_${Date.now()}.txt`;
+    tempLink.href = URL.createObjectURL(blob);
+    tempLink.style.display = "none";
+    
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
 }
 
 window.onload = function() {
