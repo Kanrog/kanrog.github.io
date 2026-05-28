@@ -13,8 +13,8 @@
             --text-color: #f3f4f6;
             --text-muted: #9ca3af;
             --border-color: #2e2e33;
-            --accent-bg: #2e1065; /* Deep purple background for the summary box */
-            --accent-text: #e9d5ff; /* Bright purple/magenta text for summary highlights */
+            --accent-bg: #2e1065; 
+            --accent-text: #e9d5ff; 
             --sub-calc-bg: #252529;
         }
 
@@ -32,12 +32,30 @@
             margin: 0 auto;
         }
 
-        h1 {
+        .header-container {
             text-align: center;
-            color: var(--text-color);
             margin-bottom: 24px;
+        }
+
+        .logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin: 0 0 4px 0;
             font-weight: 700;
             letter-spacing: -0.5px;
+        }
+
+        .by-line {
+            color: var(--primary-hover);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0;
+            letter-spacing: 0.5px;
         }
 
         .currency-selector-container {
@@ -205,12 +223,43 @@
             color: var(--text-muted);
             font-size: 0.75rem;
         }
+
+        .footer-container {
+            text-align: center;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #000000;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>3D Print Price Calculator</h1>
+    
+    <div class="header-container">
+        <img src="Kanrog LOGO wtext.png" alt="Kanrog Creations Logo" class="logo">
+        <h1>3D Print Price Calculator</h1>
+        <p class="by-line">by Kanrog Creations</p>
+    </div>
     
     <div class="currency-selector-container">
         <label for="currencySelect">Select Currency:</label>
@@ -303,6 +352,10 @@
             <div class="breakdown-item"><span>Design Fee:</span> <span id="breakdownDesign">0.00 NOK</span></div>
             <div class="breakdown-item"><span>Labor Fee:</span> <span id="breakdownLabor">0.00 NOK</span></div>
         </div>
+    </div>
+
+    <div class="footer-container">
+        <a href="https://kanrog.com" class="back-btn">← Back to Main Site</a>
     </div>
 </div>
 
