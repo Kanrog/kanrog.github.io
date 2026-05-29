@@ -2,8 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Shopping Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Price Calc</title>
+
+    <!-- Apple Web App Meta (Forces Full-Screen Status) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Price Calc">
+    
+    <!-- Android / Chrome Meta -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#121212">
+
+    <!-- High-Contrast App Icon (Data URI SVG so you don't need a separate image file) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23121212'><rect width='100' height='100' rx='22' fill='%231e1e1e'/><path d='M35 30h40l-6 28H41L33 20H20' stroke='%2300adb5' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='44' cy='72' r='7' fill='%2300adb5'/><circle cx='68' cy='72' r='7' fill='%2300adb5'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23121212'><rect width='100' height='100' rx='22' fill='%231e1e1e'/><path d='M35 30h40l-6 28H41L33 20H20' stroke='%2300adb5' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='44' cy='72' r='7' fill='%2300adb5'/><circle cx='68' cy='72' r='7' fill='%2300adb5'/></svg>">
+
     <style>
         :root {
             --bg-color: #121212;
@@ -21,6 +35,7 @@
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -31,25 +46,25 @@
             align-items: flex-start;
             min-height: 100vh;
             padding: 15px;
+            padding-top: env(safe-area-inset-top, 15px); /* Respects phone camera notches */
         }
 
         .calculator-card {
             background-color: var(--card-bg);
             width: 100%;
             max-width: 400px;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border-color);
             margin-top: 10px;
         }
 
-        /* Mode Selector Toggle */
         .mode-container {
             display: flex;
             background-color: var(--toggle-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 4px;
             margin-bottom: 20px;
         }
@@ -59,10 +74,10 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            padding: 10px 5px;
+            padding: 12px 5px;
             font-size: 0.85rem;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 7px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -73,7 +88,7 @@
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         label {
@@ -85,14 +100,15 @@
 
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 1rem;
             outline: none;
             transition: border-color 0.2s;
+            -webkit-appearance: none;
         }
 
         input:focus, select:focus {
@@ -134,23 +150,23 @@
         }
 
         .result-value {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: var(--accent-color);
         }
 
         .result-value.secondary {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--text-color);
         }
 
         .btn-clear {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             background-color: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-muted);
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
             margin-top: 15px;
@@ -205,11 +221,11 @@
 
         <div class="results-container">
             <div class="result-row">
-                <span class="result-label" id="result-label-1">Price per kg/L/item:</span>
+                <span class="result-label" id="result-label-1">Price per kg:</span>
                 <span class="result-value" id="result-val-1">--</span>
             </div>
             <div class="result-row" id="secondary-row">
-                <span class="result-label" id="result-label-2">Price per 100g/ml:</span>
+                <span class="result-label" id="result-label-2">Price per 100g:</span>
                 <span class="result-value secondary" id="result-val-2">--</span>
             </div>
         </div>
@@ -218,7 +234,7 @@
     </div>
 
     <script>
-        let currentMode = 'calc-unit'; // 'calc-unit' or 'calc-item'
+        let currentMode = 'calc-unit';
 
         const primaryInput = document.getElementById('primary-input');
         const quantityInput = document.getElementById('quantity');
@@ -238,27 +254,22 @@
 
         function setMode(mode) {
             currentMode = mode;
-            
-            // Update active state toggles
             document.getElementById('mode-calc-unit').classList.toggle('active', mode === 'calc-unit');
             document.getElementById('mode-calc-item').classList.toggle('active', mode === 'calc-item');
             
-            // Reset fields
             primaryInput.value = '';
             quantityInput.value = '';
             
             if (currentMode === 'calc-unit') {
                 labelPrimaryInput.textContent = 'Sale Price';
                 labelSecondaryInput.textContent = 'Package Size / Weight';
-                unitPcsOption.style.display = 'block'; // Show "item" option
+                unitPcsOption.style.display = 'block';
                 if(unitSelect.value === '') unitSelect.value = 'kg';
             } else {
                 labelPrimaryInput.textContent = 'Price per Bulk Unit (per kg or L)';
                 labelSecondaryInput.textContent = 'Item Weight / Volume';
-                unitPcsOption.style.display = 'none'; // Hide "item" option since it doesn't apply
-                if (unitSelect.value === 'pcs') {
-                    unitSelect.value = 'kg';
-                }
+                unitPcsOption.style.display = 'none';
+                if (unitSelect.value === 'pcs') unitSelect.value = 'kg';
             }
             
             calculate();
@@ -277,7 +288,6 @@
             }
 
             if (currentMode === 'calc-unit') {
-                // MODE 1: Input total sale price and size -> Outputs price per kg/L/item
                 let pricePerBase = 0;
                 let baseUnit = '';
                 let showSecondary = false;
@@ -321,25 +331,23 @@
                 }
 
                 resultLabel1.textContent = `Price per ${baseUnit}:`;
-                resultVal1.textContent = pricePerBase.toFixed(2);
+                resultVal1.textContent = '$' + pricePerBase.toFixed(2);
 
                 if (showSecondary) {
                     secondaryRow.style.display = 'flex';
                     resultLabel2.textContent = `Price per ${subUnit}:`;
-                    resultVal2.textContent = pricePerSub.toFixed(2);
+                    resultVal2.textContent = '$' + pricePerSub.toFixed(2);
                 } else {
                     secondaryRow.style.display = 'none';
                 }
 
             } else {
-                // MODE 2: Input unit price (per kg/L) and item weight -> Outputs specific item cost
                 let itemPrice = 0;
-                secondaryRow.style.display = 'none'; // No sub-units needed here
+                secondaryRow.style.display = 'none';
 
                 switch (unit) {
                     case 'g':
                     case 'ml':
-                        // If user inputs weight in g/ml, convert to kg/L to match the bulk unit price
                         itemPrice = val1 * (qty / 1000);
                         break;
                     case 'kg':
@@ -349,16 +357,14 @@
                 }
 
                 resultLabel1.textContent = 'Estimated Item Price:';
-                resultVal1.textContent = itemPrice.toFixed(2);
+                resultVal1.textContent = '$' + itemPrice.toFixed(2);
             }
         }
 
-        // Setup live calculations
         primaryInput.addEventListener('input', calculate);
         quantityInput.addEventListener('input', calculate);
         unitSelect.addEventListener('change', calculate);
 
-        // Clear everything
         clearBtn.addEventListener('click', () => {
             primaryInput.value = '';
             quantityInput.value = '';
@@ -367,7 +373,6 @@
             primaryInput.focus();
         });
 
-        // Initialize defaults
         setMode('calc-unit');
     </script>
 </body>
