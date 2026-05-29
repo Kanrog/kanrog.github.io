@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Price Calc</title>
 
-    <!-- Apple Web App Meta (Forces Full-Screen Status) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Price Calc">
     
-    <!-- Android / Chrome Meta -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#121212">
 
-    <!-- High-Contrast App Icon (Data URI SVG so you don't need a separate image file) -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23121212'><rect width='100' height='100' rx='22' fill='%231e1e1e'/><path d='M35 30h40l-6 28H41L33 20H20' stroke='%2300adb5' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='44' cy='72' r='7' fill='%2300adb5'/><circle cx='68' cy='72' r='7' fill='%2300adb5'/></svg>">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23121212'><rect width='100' height='100' rx='22' fill='%231e1e1e'/><path d='M35 30h40l-6 28H41L33 20H20' stroke='%2300adb5' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='44' cy='72' r='7' fill='%2300adb5'/><circle cx='68' cy='72' r='7' fill='%2300adb5'/></svg>">
 
@@ -46,7 +43,7 @@
             align-items: flex-start;
             min-height: 100vh;
             padding: 15px;
-            padding-top: env(safe-area-inset-top, 15px); /* Respects phone camera notches */
+            padding-top: env(safe-area-inset-top, 15px);
         }
 
         .calculator-card {
@@ -124,7 +121,7 @@
             flex: 2;
         }
 
-        .flex-inputs .unit {
+        .flex-inputs .unit, .flex-inputs .currency {
             flex: 1;
         }
 
@@ -198,7 +195,20 @@
         
         <div class="input-group">
             <label id="label-primary-input" for="primary-input">Sale Price</label>
-            <input type="number" id="primary-input" inputmode="decimal" step="any" placeholder="0.00" autocomplete="off">
+            <div class="flex-inputs">
+                <div class="amount" style="flex: 2.5;">
+                    <input type="number" id="primary-input" inputmode="decimal" step="any" placeholder="0.00" autocomplete="off">
+                </div>
+                <div class="currency" style="flex: 1;">
+                    <select id="currency" onchange="updateCurrencySymbols()">
+                        <option value="kr" selected>NOK (kr)</option>
+                        <option value="$">USD ($)</option>
+                        <option value="€">EUR (€)</option>
+                        <option value="£">GBP (£)</option>
+                        <option value="kr.">SEK/DKK</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="input-group">
@@ -235,10 +245,12 @@
 
     <script>
         let currentMode = 'calc-unit';
+        let currentSymbol = 'kr';
 
         const primaryInput = document.getElementById('primary-input');
         const quantityInput = document.getElementById('quantity');
         const unitSelect = document.getElementById('unit');
+        const currencySelect = document.getElementById('currency');
         const unitPcsOption = document.getElementById('unit-pcs-option');
         
         const labelPrimaryInput = document.getElementById('label-primary-input');
@@ -251,6 +263,20 @@
         const resultVal2 = document.getElementById('result-val-2');
         
         const clearBtn = document.getElementById('clear-btn');
+
+        function updateCurrencySymbols() {
+            currentSymbol = currencySelect.value;
+            calculate();
+        }
+
+        function formatCurrency(amount) {
+            // Places suffix for Scandinavian crowns, prefix for standard western symbols
+            if (currentSymbol === 'kr' || currentSymbol === 'kr.') {
+                return `${amount.toFixed(2)} ${currentSymbol}`;
+            } else {
+                return `${currentSymbol}${amount.toFixed(2)}`;
+            }
+        }
 
         function setMode(mode) {
             currentMode = mode;
@@ -266,7 +292,7 @@
                 unitPcsOption.style.display = 'block';
                 if(unitSelect.value === '') unitSelect.value = 'kg';
             } else {
-                labelPrimaryInput.textContent = 'Price per Bulk Unit (per kg or L)';
+                labelPrimaryInput.textContent = 'Price per Bulk Unit';
                 labelSecondaryInput.textContent = 'Item Weight / Volume';
                 unitPcsOption.style.display = 'none';
                 if (unitSelect.value === 'pcs') unitSelect.value = 'kg';
@@ -331,12 +357,12 @@
                 }
 
                 resultLabel1.textContent = `Price per ${baseUnit}:`;
-                resultVal1.textContent = '$' + pricePerBase.toFixed(2);
+                resultVal1.textContent = formatCurrency(pricePerBase);
 
                 if (showSecondary) {
                     secondaryRow.style.display = 'flex';
                     resultLabel2.textContent = `Price per ${subUnit}:`;
-                    resultVal2.textContent = '$' + pricePerSub.toFixed(2);
+                    resultVal2.textContent = formatCurrency(pricePerSub);
                 } else {
                     secondaryRow.style.display = 'none';
                 }
@@ -357,7 +383,7 @@
                 }
 
                 resultLabel1.textContent = 'Estimated Item Price:';
-                resultVal1.textContent = '$' + itemPrice.toFixed(2);
+                resultVal1.textContent = formatCurrency(itemPrice);
             }
         }
 
