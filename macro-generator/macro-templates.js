@@ -467,7 +467,7 @@ gcode:
     M109 S{T}
     G91
     G1 E10 F100
-    G1 E-250 F{printer["gcode_macro _USER_VARS"].variable_retract_speed}
+    G1 E-{printer["gcode_macro _USER_VARS"].variable_bowden_len + 50} F{printer["gcode_macro _USER_VARS"].variable_retract_speed}
     G90
 
 [gcode_macro PAUSE]

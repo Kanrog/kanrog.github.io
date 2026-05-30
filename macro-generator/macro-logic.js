@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: DYNAMIC PASSTHROUGH (PRODUCTION READY) 2026.05.30
+ * VERSION: CODE-ONLY DYNAMIC CODES (FIXED RUNTIME) 2026.05.30
  */
 
 /**
@@ -96,10 +96,6 @@ function downloadMacros() {
 }
 
 function generateMacros() {
-    // Re-verify UI before rendering to guarantee absolute consistency
-    updateUI();
-    if (document.getElementById('generateBtn').disabled) return;
-
     const kin = document.getElementById('kin').value;
     const pT = document.getElementById('printTemp').value;
     const bT = document.getElementById('bedTemp').value;
