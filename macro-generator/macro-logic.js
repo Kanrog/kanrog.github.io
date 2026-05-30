@@ -1,18 +1,7 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: RUNTIME OBJECT MODEL PASSTHROUGH 2026.05.30
+ * VERSION: CODE-ONLY DYNAMIC CODES 2026.05.30
  */
-
-let canvas, ctx;
-
-function initCanvas() {
-    canvas = document.getElementById('previewCanvas');
-    if (canvas) { 
-        ctx = canvas.getContext('2d'); 
-        canvas.width = 300; 
-        canvas.height = 200; 
-    }
-}
 
 /**
  * Reverts all UI inputs to their default startup values
@@ -45,13 +34,7 @@ function updateMaterialPresets() {
 function setCustomMaterial() { document.getElementById('material').value = "Custom"; }
 
 function updateUI() {
-    if (!ctx) initCanvas();
     const kin = document.getElementById('kin').value;
-    
-    // Canvas tracker fallback constants (used strictly to render the animation preview box window)
-    const x = 235;
-    const y = 235;
-    
     const m = parseFloat(document.getElementById('margin').value) || 20;
     const pT = parseFloat(document.getElementById('printTemp').value) || 0;
     const bT = parseFloat(document.getElementById('bedTemp').value) || 0;
@@ -68,8 +51,8 @@ function updateUI() {
     pErr.className = "error-text"; bErr.className = "error-text";
     pErr.innerHTML = ""; bErr.innerHTML = "";
 
-    // Kinematic Margin Check
-    let mBad = (kin === 'delta') ? (m >= (x/2 - 10)) : ((x - m*2) <= 10 || (y - m*2) <= 10);
+    // General Safety Margin Limit checks
+    let mBad = (m < 0 || m > 100);
     mErr.classList.toggle('hidden', !mBad);
     if(mBad) block = true;
 
@@ -83,30 +66,6 @@ function updateUI() {
     else if (bT > 85) { bErr.innerHTML = "Magnet Demagnetization Risk"; bErr.className = "warning-text"; bErr.classList.remove('hidden'); bInput.classList.add('input-warning'); }
 
     document.getElementById('generateBtn').disabled = block;
-
-    // Drawing Visualizer
-    ctx.fillStyle = "#111111"; ctx.fillRect(0, 0, 300, 200);
-    const scale = 120 / Math.max(x, y), cx = 150, cy = 100;
-
-    ctx.strokeStyle = "#9b59b6"; ctx.fillStyle = "rgba(155, 89, 182, 0.15)"; ctx.lineWidth = 2;
-    if (kin === 'delta') { ctx.beginPath(); ctx.arc(cx, cy, (x/2)*scale, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
-    else { ctx.fillRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); ctx.strokeRect(cx - (x/2)*scale, cy - (y/2)*scale, x*scale, y*scale); }
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; ctx.setLineDash([5, 5]); ctx.beginPath();
-    if (kin === 'delta') { ctx.arc(cx, cy, (x/2 - m)*scale, 0, Math.PI * 2); }
-    else { ctx.rect(cx - (x/2 - m)*scale, cy - (y/2 - m)*scale, (x - m*2)*scale, (y - m*2)*scale); }
-    ctx.stroke(); ctx.setLineDash([]);
-
-    // Purge Line Visualization
-    ctx.strokeStyle = "#ff00ff"; ctx.lineWidth = 3; ctx.beginPath();
-    if (kin === 'delta') { ctx.moveTo(cx - 20 * scale, cy + (y/2 - m) * scale); ctx.lineTo(cx + 20 * scale, cy + (y/2 - m) * scale); }
-    else { ctx.moveTo(cx - (x/2 - m) * scale, cy + (y/2 - m) * scale); ctx.lineTo(cx - (x/2 - m - 50) * scale, cy + (y/2 - m) * scale); }
-    ctx.stroke();
-
-    ctx.fillStyle = "#ff4d4d"; ctx.beginPath();
-    if (kin === 'delta') { ctx.arc(cx, cy, 6, 0, Math.PI*2); }
-    else { ctx.arc(cx - (x/2)*scale, cy + (y/2)*scale, 6, 0, Math.PI*2); }
-    ctx.fill();
 }
 
 function downloadMacros() {
@@ -152,4 +111,4 @@ function generateMacros() {
 
 function copyToClipboard() { navigator.clipboard.writeText(document.getElementById('gcodeOutput').innerText); alert("Copied to clipboard!"); }
 
-window.onload = function() { initCanvas(); updateMaterialPresets(); updateUI(); };
+window.onload = function() { updateMaterialPresets(); updateUI(); };
