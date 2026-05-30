@@ -1,6 +1,6 @@
 /**
  * THE KANROG UNIVERSAL MACRO LIBRARY
- * VERSION: FINAL (NO BUZZ) 2026.01.12
+ * VERSION: DYNAMIC RUNTIME + 2026.05.30
  * INSTRUCTIONS: NEVER REMOVE SECTIONS. ONLY INJECT VARIABLES.
  */
 
@@ -8,25 +8,20 @@ const GCODE_TEMPLATES = {
     // =================================================================
     // 1. HEADER
     // =================================================================
-    header: (kin, x, y, z, m) => {
+    header: (kin) => {
         return `#====================================================================
-# KANROG UNIVERSAL MACRO CONFIGURATION
+# KANROG UNIVERSAL DYNAMIC MACRO CONFIGURATION
 # Archetype: ${kin.toUpperCase()}
-# Volume: ${x}mm x ${y}mm x ${z}mm
-# Safety Margin: ${m}mm
+# Volume: Automatically read from active printer.cfg
 #====================================================================\n\n`;
     },
 
     // =================================================================
     // 2. USER VARS
     // =================================================================
-    user_vars: (pkX, pkY, zPark, bowden, m, pTemp, bTemp, mat, rSpeed, fSpeed) => {
+    user_vars: (m, pTemp, bTemp, mat, rSpeed, fSpeed) => {
         return `[gcode_macro _USER_VARS]
 description: Central database for printer variables
-variable_park_x: ${pkX}
-variable_park_y: ${pkY}
-variable_z_park: ${zPark}
-variable_bowden_len: ${bowden}
 variable_margin: ${m}
 # --- Material Settings for ${mat} ---
 variable_print_temp: ${pTemp}
@@ -127,7 +122,6 @@ gcode:
     diagnostics: (kin, probeType, useZTilt) => {
         let probe_macro_block = "";
         if (probeType !== 'none') {
-            // Added Tap specific safety if selected
             const tap_pre = (probeType === 'tap') ? `
     M104 S150 ; Set nozzle to safe probing temp for Tap` : "";
 
@@ -243,23 +237,35 @@ ${delta_cal_block}\n\n`;
     // =================================================================
     // 5. STRESS TESTING
     // =================================================================
-    torture: (x, y, z, m, speed) => {
+    torture: (speed) => {
         return `#--------------------------------------------------------------------
 # STRESS TESTS
 #--------------------------------------------------------------------
 [gcode_macro TORTURE_XY]
-description: Full bed raster movement test
+description: Full bed raster movement test pulling boundaries dynamically
 gcode:
     {% if "xyz" not in printer.toolhead.homed_axes %}
         G28
     {% endif %}
+    
+    # Extract structural boundaries directly from printer.cfg object model
+    {% set max_x = printer.configfile.config["stepper_x"]["position_max"]|float %}
+    {% set max_y = printer.configfile.config["stepper_y"]["position_max"]|float %}
+    {% set margin = printer["gcode_macro _USER_VARS"].margin|float %}
+    
+    # Calculate travel destinations
+    {% set safe_x = max_x - margin %}
+    {% set safe_y = max_y - margin %}
+    {% set travel_x = max_x - (margin * 2) %}
+    {% set travel_y = max_y - (margin * 2) %}
+
     G90
     G1 Z20 F1500
-    G1 X${m} Y${m} F${speed} ; Move to start position at the safety margin
+    G1 X{margin} Y{margin} F${speed} ; Move to start position at safety margin
     G91
     {% for i in range(10) %}
-        G1 X+${(x-m*2).toFixed(1)} Y+${(y-m*2).toFixed(1)} F${speed}
-        G1 X-${(x-m*2).toFixed(1)} Y-${(y-m*2).toFixed(1)} F${speed}
+        G1 X+{travel_x|round(1)} Y+{travel_y|round(1)} F${speed}
+        G1 X-{travel_x|round(1)} Y-{travel_y|round(1)} F${speed}
     {% endfor %}
     G90
 
@@ -280,7 +286,7 @@ gcode:
     // =================================================================
     // 6. CORE OPERATIONS
     // =================================================================
-    core_ops: (kin, usePurge, pStart, pEnd, heatStyle, material, probeType, useZTilt, useLED) => {
+    core_ops: (kin, usePurge, heatStyle, material, probeType, useZTilt, useLED) => {
         
         const led_cycle = useLED ? "LED_CYCLE" : "# LED Cycle Disabled";
         const led_heating = useLED ? "LED_HEATING" : "# LED Heating Disabled";
@@ -313,12 +319,11 @@ gcode:
 
         let purge_logic_block = "";
         if (usePurge) {
-            purge_logic_block = `PURGE`;
+            purge_logic_block = `    PURGE`;
         } else {
-            purge_logic_block = `# Purge Disabled`;
+            purge_logic_block = `    # Purge Disabled`;
         }
 
-        // Tap Safety Logic inside PRINT_START
         const tap_prep = (probeType === 'tap') ? `    M104 S150 ; Tap Safety` : "";
 
         return `#--------------------------------------------------------------------
@@ -328,13 +333,13 @@ gcode:
 description: Full Start Sequence (Heat, Home, Tilt, Mesh, Purge)
 gcode:
     # 1. Visual Indicator
-    ${led_cycle}
+    \t${led_cycle}
     
     # 2. Get Temperatures
     {% set T_BED = params.T_BED|default(printer["gcode_macro _USER_VARS"].bed_temp)|float %}
     {% set T_EXT = params.T_EXTRUDER|default(printer["gcode_macro _USER_VARS"].print_temp)|float %}
     
-    ${led_heating}
+    \t${led_heating}
     M140 S{T_BED}
     
     # 3. Heating Logic: ${heatStyle.toUpperCase()}
@@ -345,15 +350,15 @@ ${heating_logic_block}
     G28
     
     # 5. Z-Tilt Adjustment (If Enabled)
-    ${z_tilt_op}
+    \t${z_tilt_op}
     
     # 6. Load Bed Mesh for ${material}
-    ${mesh_logic_block}
+    \t${mesh_logic_block}
     
     # 7. Print Status
-    ${led_print}
+    \t${led_print}
     G90
-    ${purge_logic_block}
+${purge_logic_block}
 
 [gcode_macro END_PRINT]
 description: Safely finish print and retract
@@ -362,25 +367,36 @@ gcode:
     # Retract filament to prevent oozing
     G1 E-15 F1000
     G90
-    # Move to safe home
-    G28
+    # Move to safe home position using dynamic center logic
+    {% set max_x = printer.configfile.config["stepper_x"]["position_max"]|float %}
+    {% set max_y = printer.configfile.config["stepper_y"]["position_max"]|float %}
+    G1 X{max_x / 2} Y{max_y / 2} F3000
     # Cooldown
     TURN_OFF_HEATERS
-    ${led_cycle}
+    \t${led_cycle}
     M106 S0
     M84
 
 [gcode_macro PURGE]
-description: Prime the nozzle
+description: Prime the nozzle dynamically relative to machine endpoints
 gcode:
+    {% set max_x = printer.configfile.config["stepper_x"]["position_max"]|float %}
+    {% set max_y = printer.configfile.config["stepper_y"]["position_max"]|float %}
+    {% set margin = printer["gcode_macro _USER_VARS"].margin|float %}
+    
+    # Dynamic positions for purge sequencing
+    {% set start_x = margin %}
+    {% set start_y = max_y - margin %}
+    {% set end_x = start_x + 50 %}
+    
     G90
     G1 Z0.3 F3000
-    G1 ${pStart} F3000
-    G1 ${pEnd} E15 F300
+    G1 X{start_x} Y{start_y} F3000
+    G1 X{end_x} Y{start_y} E15 F300
     G92 E0
 
 [gcode_macro M600]
-description: Filament Change Trigger
+description: Filament Change Trigger with dynamic parking location
 gcode:
     SAVE_GCODE_STATE NAME=M600_state
     PAUSE
@@ -388,7 +404,9 @@ gcode:
     G1 E-.8 F2700
     G1 Z10
     G90
-    G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} F3000
+    {% set max_x = printer.configfile.config["stepper_x"]["position_max"]|float %}
+    {% set max_y = printer.configfile.config["stepper_y"]["position_max"]|float %}
+    G1 X{max_x / 2} Y{max_y / 2} F3000
     RESTORE_GCODE_STATE NAME=M600_state\n\n`;
     },
 
@@ -452,7 +470,7 @@ gcode:
     _LOW_TEMP_CHECK T={T}
     M109 S{T}
     M83
-    G1 E{printer["gcode_macro _USER_VARS"].variable_bowden_len} F2000
+    G1 E200 F2000
     G1 E50 F200
 
 [gcode_macro UNLOAD_FILAMENT]
@@ -463,8 +481,7 @@ gcode:
     M109 S{T}
     G91
     G1 E10 F100
-    # Use variable retract speed for flexible filaments
-    G1 E-{printer["gcode_macro _USER_VARS"].variable_bowden_len + 50} F{printer["gcode_macro _USER_VARS"].variable_retract_speed}
+    G1 E-250 F{printer["gcode_macro _USER_VARS"].variable_retract_speed}
     G90
 
 [gcode_macro PAUSE]
@@ -474,7 +491,9 @@ gcode:
     G91
     G1 E-2 F1000
     G90
-    G1 X{printer["gcode_macro _USER_VARS"].park_x} Y{printer["gcode_macro _USER_VARS"].park_y} Z{printer.toolhead.position.z + 10} F3000
+    {% set max_x = printer.configfile.config["stepper_x"]["position_max"]|float %}
+    {% set max_y = printer.configfile.config["stepper_y"]["position_max"]|float %}
+    G1 X{max_x / 2} Y{max_y / 2} Z{printer.toolhead.position.z + 10} F3000
     LED_RED
 
 [gcode_macro RESUME]

@@ -22,6 +22,18 @@
         }
         .disclaimer-box i { color: #e74c3c; margin-right: 10px; }
 
+        .info-badge {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px dashed #3498db;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #d2dae2;
+            line-height: 1.4;
+        }
+        .info-badge i { color: #3498db; margin-right: 6px; }
+
         .generator-section { 
             background: var(--medium-gray); 
             border: 2px solid var(--primary-purple); 
@@ -164,12 +176,13 @@
                                 <option value="corexy">CoreXY</option>
                                 <option value="delta">Delta</option>
                             </select>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                                <div><label>X (mm)</label><input type="number" id="maxX" class="input-field" value="235" oninput="updateUI()"></div>
-                                <div><label>Y (mm)</label><input type="number" id="maxY" class="input-field" value="235" oninput="updateUI()"></div>
+                            
+                            <div class="info-badge">
+                                <p><i class="fas fa-microchip"></i> <strong>Dynamic Sizing Enabled:</strong> This generator footprint no longer needs input values for bed volume dimensions. The generated configuration profiles evaluate axis limits directly from your active <code>[stepper_x]</code> and <code>[stepper_y]</code> properties listed inside your printer configuration file at runtime.</p>
                             </div>
+
                             <div style="margin-top:15px;">
-                                <label>Margin (mm)</label>
+                                <label>Safety Margin (mm)</label>
                                 <input type="number" id="margin" class="input-field" value="20" oninput="updateUI()">
                                 <span id="err-margin" class="error-text hidden">Invalid Margin</span>
                             </div>

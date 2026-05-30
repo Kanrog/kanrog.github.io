@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: ROADMAP + RESET READY 2026.01.12
+ * VERSION: RUNTIME OBJECT MODEL PASSTHROUGH 2026.05.30
  */
 
 let canvas, ctx;
@@ -19,8 +19,6 @@ function initCanvas() {
  */
 function resetDefaults() {
     document.getElementById('kin').value = "bedslinger";
-    document.getElementById('maxX').value = 235;
-    document.getElementById('maxY').value = 235;
     document.getElementById('margin').value = 20;
     document.getElementById('material').value = "PLA";
     document.getElementById('ledName').value = "status_leds";
@@ -49,8 +47,11 @@ function setCustomMaterial() { document.getElementById('material').value = "Cust
 function updateUI() {
     if (!ctx) initCanvas();
     const kin = document.getElementById('kin').value;
-    const x = parseFloat(document.getElementById('maxX').value) || 235;
-    const y = parseFloat(document.getElementById('maxY').value) || 235;
+    
+    // Canvas tracker fallback constants (used strictly to render the animation preview box window)
+    const x = 235;
+    const y = 235;
+    
     const m = parseFloat(document.getElementById('margin').value) || 20;
     const pT = parseFloat(document.getElementById('printTemp').value) || 0;
     const bT = parseFloat(document.getElementById('bedTemp').value) || 0;
@@ -108,9 +109,6 @@ function updateUI() {
     ctx.fill();
 }
 
-/**
- * Triggers a download of the generated macros as a .cfg file
- */
 function downloadMacros() {
     const code = document.getElementById('gcodeOutput').innerText;
     if (!code) return;
@@ -124,37 +122,27 @@ function downloadMacros() {
 
 function generateMacros() {
     const kin = document.getElementById('kin').value;
-    const x = document.getElementById('maxX').value;
-    const y = document.getElementById('maxY').value;
     const pT = document.getElementById('printTemp').value;
     const bT = document.getElementById('bedTemp').value;
     const m = document.getElementById('margin').value;
     const zT = document.getElementById('useZTilt').value === 'true';
     const probe = document.getElementById('probeType').value;
     const led = document.getElementById('ledName').value;
-    const useLED = document.getElementById('useLED').value === 'true'; // Strict Boolean Check
+    const useLED = document.getElementById('useLED').value === 'true';
     const torture = document.getElementById('tortureLevel').value;
 
-    let out = GCODE_TEMPLATES.header(kin, x, y, 250, m);
+    let out = GCODE_TEMPLATES.header(kin);
     
-    // Core Variables
-    out += GCODE_TEMPLATES.user_vars(x/2, y/2, 240, 450, m, pT, bT, "Custom", 2000, 255);
+    // Core Variables without physical size requirements
+    out += GCODE_TEMPLATES.user_vars(m, pT, bT, "Custom", 2000, 255);
     
-    // Conditional Lighting: Only adds if "Yes" is selected
     if(useLED && led) {
         out += GCODE_TEMPLATES.lighting(led, "RED=0.0 GREEN=0.0 BLUE=1.0", "RED=1.0 GREEN=1.0 BLUE=1.0");
     }
     
-    // Hardware & Diagnostics
     out += GCODE_TEMPLATES.diagnostics(kin, probe, zT);
-    
-    // Stress Test
-    out += GCODE_TEMPLATES.torture(x, y, 250, m, (torture === 'aggressive' ? 800000 : 500000));
-    
-    // Start/End Macros (Pass useLED as a flag to the template)
-    out += GCODE_TEMPLATES.core_ops(kin, true, "X20 Y20", "X60 Y20", "staged", "Custom", probe, zT, useLED);
-    
-    // Utility
+    out += GCODE_TEMPLATES.torture((torture === 'aggressive' ? 800000 : 500000));
+    out += GCODE_TEMPLATES.core_ops(kin, true, "staged", "Custom", probe, zT, useLED);
     out += GCODE_TEMPLATES.utility(false, probe, bT);
 
     document.getElementById('gcodeOutput').innerText = out;
