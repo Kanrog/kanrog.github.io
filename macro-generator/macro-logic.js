@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: CODE-ONLY DYNAMIC CODES (FIXED RUNTIME) 2026.05.30
+ * VERSION: DYNAMIC PASSTHROUGH (PRODUCTION READY) 2026.05.30
  */
 
 /**
@@ -96,6 +96,10 @@ function downloadMacros() {
 }
 
 function generateMacros() {
+    // Re-verify UI before rendering to guarantee absolute consistency
+    updateUI();
+    if (document.getElementById('generateBtn').disabled) return;
+
     const kin = document.getElementById('kin').value;
     const pT = document.getElementById('printTemp').value;
     const bT = document.getElementById('bedTemp').value;
@@ -106,12 +110,12 @@ function generateMacros() {
     const useLED = document.getElementById('useLED').value === 'true';
     const torture = document.getElementById('tortureLevel').value;
 
-    let out = GCODE_TEMPLATES.header(kin);
+    let out = GCODE_TEMPLATES.header(kin, m);
     
-    // Core Variables without physical size requirements
+    // Core Variables without size selectors
     out += GCODE_TEMPLATES.user_vars(m, pT, bT, "Custom", 2000, 255);
     
-    if(useLED && led) {
+    if (useLED && led) {
         out += GCODE_TEMPLATES.lighting(led, "RED=0.0 GREEN=0.0 BLUE=1.0", "RED=1.0 GREEN=1.0 BLUE=1.0");
     }
     

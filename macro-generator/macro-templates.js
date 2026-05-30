@@ -1,6 +1,6 @@
 /**
  * THE KANROG UNIVERSAL MACRO LIBRARY
- * VERSION: DYNAMIC RUNTIME + 2026.05.30
+ * VERSION: DYNAMIC RUNTIME ENGINE + 2026.05.30
  * INSTRUCTIONS: NEVER REMOVE SECTIONS. ONLY INJECT VARIABLES.
  */
 
@@ -8,11 +8,12 @@ const GCODE_TEMPLATES = {
     // =================================================================
     // 1. HEADER
     // =================================================================
-    header: (kin) => {
+    header: (kin, m) => {
         return `#====================================================================
 # KANROG UNIVERSAL DYNAMIC MACRO CONFIGURATION
 # Archetype: ${kin.toUpperCase()}
-# Volume: Automatically read from active printer.cfg
+# Volume: Automatically read from active printer.cfg bounds
+# Safety Margin: ${m}mm
 #====================================================================\n\n`;
     },
 
@@ -122,8 +123,7 @@ gcode:
     diagnostics: (kin, probeType, useZTilt) => {
         let probe_macro_block = "";
         if (probeType !== 'none') {
-            const tap_pre = (probeType === 'tap') ? `
-    M104 S150 ; Set nozzle to safe probing temp for Tap` : "";
+            const tap_pre = (probeType === 'tap') ? `\n    M104 S150 ; Set nozzle to safe probing temp for Tap` : "";
 
             probe_macro_block = `[gcode_macro CHECK_PROBE]
 description: Test probe accuracy
@@ -248,20 +248,18 @@ gcode:
         G28
     {% endif %}
     
-    # Extract structural boundaries directly from printer.cfg object model
+    # Extract structural boundaries directly from printer config model
     {% set max_x = printer.configfile.config["stepper_x"]["position_max"]|float %}
     {% set max_y = printer.configfile.config["stepper_y"]["position_max"]|float %}
     {% set margin = printer["gcode_macro _USER_VARS"].margin|float %}
     
-    # Calculate travel destinations
-    {% set safe_x = max_x - margin %}
-    {% set safe_y = max_y - margin %}
+    # Calculate motion profiles dynamically
     {% set travel_x = max_x - (margin * 2) %}
     {% set travel_y = max_y - (margin * 2) %}
 
     G90
     G1 Z20 F1500
-    G1 X{margin} Y{margin} F${speed} ; Move to start position at safety margin
+    G1 X{margin} Y{margin} F${speed}
     G91
     {% for i in range(10) %}
         G1 X+{travel_x|round(1)} Y+{travel_y|round(1)} F${speed}
@@ -287,7 +285,6 @@ gcode:
     // 6. CORE OPERATIONS
     // =================================================================
     core_ops: (kin, usePurge, heatStyle, material, probeType, useZTilt, useLED) => {
-        
         const led_cycle = useLED ? "LED_CYCLE" : "# LED Cycle Disabled";
         const led_heating = useLED ? "LED_HEATING" : "# LED Heating Disabled";
         const led_print = useLED ? "LED_PRINT" : "# LED Print Disabled";
@@ -306,8 +303,7 @@ gcode:
 
         let z_tilt_op = "";
         if (useZTilt) {
-            z_tilt_op = `Z_TILT_ADJUST
-    G28 Z`;
+            z_tilt_op = `Z_TILT_ADJUST\n    G28 Z`;
         }
 
         let mesh_logic_block = "";
@@ -317,13 +313,7 @@ gcode:
             mesh_logic_block = `# Manual Leveling: No Mesh Load`;
         }
 
-        let purge_logic_block = "";
-        if (usePurge) {
-            purge_logic_block = `    PURGE`;
-        } else {
-            purge_logic_block = `    # Purge Disabled`;
-        }
-
+        let purge_logic_block = usePurge ? `PURGE` : `# Purge Disabled`;
         const tap_prep = (probeType === 'tap') ? `    M104 S150 ; Tap Safety` : "";
 
         return `#--------------------------------------------------------------------
@@ -333,13 +323,13 @@ gcode:
 description: Full Start Sequence (Heat, Home, Tilt, Mesh, Purge)
 gcode:
     # 1. Visual Indicator
-    \t${led_cycle}
+    ${led_cycle}
     
     # 2. Get Temperatures
     {% set T_BED = params.T_BED|default(printer["gcode_macro _USER_VARS"].bed_temp)|float %}
     {% set T_EXT = params.T_EXTRUDER|default(printer["gcode_macro _USER_VARS"].print_temp)|float %}
     
-    \t${led_heating}
+    ${led_heating}
     M140 S{T_BED}
     
     # 3. Heating Logic: ${heatStyle.toUpperCase()}
@@ -350,15 +340,15 @@ ${heating_logic_block}
     G28
     
     # 5. Z-Tilt Adjustment (If Enabled)
-    \t${z_tilt_op}
+    ${z_tilt_op}
     
     # 6. Load Bed Mesh for ${material}
-    \t${mesh_logic_block}
+    ${mesh_logic_block}
     
     # 7. Print Status
-    \t${led_print}
+    ${led_print}
     G90
-${purge_logic_block}
+    ${purge_logic_block}
 
 [gcode_macro END_PRINT]
 description: Safely finish print and retract
@@ -367,13 +357,15 @@ gcode:
     # Retract filament to prevent oozing
     G1 E-15 F1000
     G90
-    # Move to safe home position using dynamic center logic
+    
+    # Dynamic center calculation for safe park location on finish
     {% set max_x = printer.configfile.config["stepper_x"]["position_max"]|float %}
     {% set max_y = printer.configfile.config["stepper_y"]["position_max"]|float %}
     G1 X{max_x / 2} Y{max_y / 2} F3000
+    
     # Cooldown
     TURN_OFF_HEATERS
-    \t${led_cycle}
+    ${led_cycle}
     M106 S0
     M84
 
@@ -384,15 +376,10 @@ gcode:
     {% set max_y = printer.configfile.config["stepper_y"]["position_max"]|float %}
     {% set margin = printer["gcode_macro _USER_VARS"].margin|float %}
     
-    # Dynamic positions for purge sequencing
-    {% set start_x = margin %}
-    {% set start_y = max_y - margin %}
-    {% set end_x = start_x + 50 %}
-    
     G90
     G1 Z0.3 F3000
-    G1 X{start_x} Y{start_y} F3000
-    G1 X{end_x} Y{start_y} E15 F300
+    G1 X{margin} Y{max_y - margin} F3000 ; Dynamic start point
+    G1 X{margin + 50} Y{max_y - margin} E15 F300 ; Extrude 50mm dynamic line
     G92 E0
 
 [gcode_macro M600]
@@ -414,7 +401,6 @@ gcode:
     // 7. UTILITY
     // =================================================================
     utility: (useChamber, probeType, bTemp) => {
-        
         let chamber_block = "";
         if (useChamber) {
             chamber_block = `[gcode_macro HEAT_CHAMBER]
