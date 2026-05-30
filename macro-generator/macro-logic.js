@@ -1,6 +1,6 @@
 /**
  * KLIPPER MACRO GENERATOR - LOGIC ENGINE
- * VERSION: CODE-ONLY DYNAMIC CODES 2026.05.30
+ * VERSION: CODE-ONLY DYNAMIC CODES (FIXED RUNTIME) 2026.05.30
  */
 
 /**
@@ -34,7 +34,6 @@ function updateMaterialPresets() {
 function setCustomMaterial() { document.getElementById('material').value = "Custom"; }
 
 function updateUI() {
-    const kin = document.getElementById('kin').value;
     const m = parseFloat(document.getElementById('margin').value) || 20;
     const pT = parseFloat(document.getElementById('printTemp').value) || 0;
     const bT = parseFloat(document.getElementById('bedTemp').value) || 0;
@@ -45,27 +44,44 @@ function updateUI() {
     const bInput = document.getElementById('bedTemp'), bErr = document.getElementById('err-bedTemp');
 
     // Reset Safety Styles
-    pInput.classList.remove('input-error', 'input-warning');
-    bInput.classList.remove('input-error', 'input-warning');
-    pErr.classList.add('hidden'); bErr.classList.add('hidden');
-    pErr.className = "error-text"; bErr.className = "error-text";
-    pErr.innerHTML = ""; bErr.innerHTML = "";
+    if (pInput) pInput.classList.remove('input-error', 'input-warning');
+    if (bInput) bInput.classList.remove('input-error', 'input-warning');
+    if (pErr) { pErr.classList.add('hidden'); pErr.className = "error-text"; pErr.innerHTML = ""; }
+    if (bErr) { bErr.classList.add('hidden'); bErr.className = "error-text"; bErr.innerHTML = ""; }
 
     // General Safety Margin Limit checks
     let mBad = (m < 0 || m > 100);
-    mErr.classList.toggle('hidden', !mBad);
-    if(mBad) block = true;
+    if (mErr) mErr.classList.toggle('hidden', !mBad);
+    if (mBad) block = true;
 
     // Nozzle Safety
-    if (pT < 170 || pT > 305) { pErr.innerHTML = "Invalid Printing Temp!"; pErr.classList.remove('hidden'); pInput.classList.add('input-error'); block = true; }
-    else if (pT > 290) { pErr.innerHTML = "All-Metal Hotend Required"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); pInput.classList.add('input-warning'); }
-    else if (pT > 260) { pErr.innerHTML = "PTFE Liner Danger Zone"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); pInput.classList.add('input-warning'); }
+    if (pT < 170 || pT > 305) { 
+        if (pErr) { pErr.innerHTML = "Invalid Printing Temp!"; pErr.classList.remove('hidden'); }
+        if (pInput) pInput.classList.add('input-error'); 
+        block = true; 
+    }
+    else if (pT > 290) { 
+        if (pErr) { pErr.innerHTML = "All-Metal Hotend Required"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); }
+        if (pInput) pInput.classList.add('input-warning'); 
+    }
+    else if (pT > 260) { 
+        if (pErr) { pErr.innerHTML = "PTFE Liner Danger Zone"; pErr.className = "warning-text"; pErr.classList.remove('hidden'); }
+        if (pInput) pInput.classList.add('input-warning'); 
+    }
 
     // Bed Safety
-    if (bT < 0 || bT > 125) { bErr.innerHTML = "Unsafe Bed Temp!"; bErr.classList.remove('hidden'); bInput.classList.add('input-error'); block = true; }
-    else if (bT > 85) { bErr.innerHTML = "Magnet Demagnetization Risk"; bErr.className = "warning-text"; bErr.classList.remove('hidden'); bInput.classList.add('input-warning'); }
+    if (bT < 0 || bT > 125) { 
+        if (bErr) { bErr.innerHTML = "Unsafe Bed Temp!"; bErr.classList.remove('hidden'); }
+        if (bInput) bInput.classList.add('input-error'); 
+        block = true; 
+    }
+    else if (bT > 85) { 
+        if (bErr) { bErr.innerHTML = "Magnet Demagnetization Risk"; bErr.className = "warning-text"; bErr.classList.remove('hidden'); }
+        if (bInput) bInput.classList.add('input-warning'); 
+    }
 
-    document.getElementById('generateBtn').disabled = block;
+    const genBtn = document.getElementById('generateBtn');
+    if (genBtn) genBtn.disabled = block;
 }
 
 function downloadMacros() {
