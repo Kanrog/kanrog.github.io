@@ -20,14 +20,17 @@
     <header class="header">
         <div class="container">
             <h1>Resurrecting E-Waste for Klipper</h1>
-            <div class="subtitle">Turning old hardware into a powerful 3D printer host</div>
-            <div class="author">By Marius Måle Stokken</div>
+            <div class="subtitle">Turning old hardware into a powerful 3D printer host with KlipperScreen</div>
+            <div class="author">By Kanrog Creations</div>
         </div>
     </header>
 
     <div class="container">
         <!-- Main Content Section -->
         <section class="content-section">
+            <h2 class="section-title">The Premise</h2>
+            <p>Why spend money on a new Raspberry Pi when you likely have a better computer gathering dust? This guide shows you how to rescue an old, "discarded" laptop and transform it into a dedicated, all-in-one Klipper host. By using the laptop's own screen and hardware, you get a powerful, integrated KlipperScreen terminal that can handle your printer, slicing, and CAD work—all without needing extra displays or expensive proprietary boards.</p>
+
             <h2 class="section-title">Getting Started</h2>
 
             <!-- STEP 1 -->
@@ -35,19 +38,19 @@
                 <div class="step-header">
                     <div class="step-number">1</div>
                     <div class="step-title">Prepare Your Hardware</div>
-                    <div class="step-subtitle">Hardware selection and OS prep</div>
+                    <div class="step-subtitle">Selecting and cleaning up your donor machine</div>
                 </div>
                 <div class="step-content">
-                    <p>Don't throw away that old laptop! Any x86 machine with at least 2GB of RAM is more than enough to run Klipper. The biggest bottleneck in old hardware is usually a failing mechanical hard drive.</p>
+                    <p>Identify an old laptop or mini-PC. Any x86 machine (Intel/AMD) with at least 2GB of RAM is more than enough to run Klipper smoothly. The most common reason these machines feel "slow" is simply a failing mechanical hard drive.</p>
                     
                     <div class="info-block">
                         <h4>ℹ️ The SSD Advantage</h4>
-                        <p>Swapping a dying HDD for a cheap SSD makes the OS feel modern and snappy. It also eliminates the reliability issues common with SD cards used in Raspberry Pis.</p>
+                        <p>Swapping a legacy HDD for a cheap, high-reliability SSD will make the operating system feel instant. This is a critical upgrade for system stability and prevents the data corruption often seen with SD cards.</p>
                     </div>
 
                     <div class="warning-block">
                         <h4>⚠️ BIOS/UEFI Settings</h4>
-                        <p>Disable "Secure Boot" in your BIOS if the Debian installer struggles to boot. Look for "AC Auto-On" or "Wake-on-AC" settings if you want the laptop to turn on automatically when power is restored.</p>
+                        <p>You may need to enter your BIOS (usually F2, F12, or Del at startup) to disable "Secure Boot," which can block Linux installations. Look for "AC Auto-On" or "Wake-on-AC" power settings, which ensure your host turns itself on automatically if power is interrupted.</p>
                     </div>
                 </div>
             </div>
@@ -57,19 +60,19 @@
                 <div class="step-header">
                     <div class="step-number">2</div>
                     <div class="step-title">Install Debian Server</div>
-                    <div class="step-subtitle">A lean, headless foundation</div>
+                    <div class="step-subtitle">Establishing a lean, stable foundation</div>
                 </div>
                 <div class="step-content">
-                    <p>Flash the Debian Netinst ISO to a USB drive using BalenaEtcher or Raspberry Pi Imager. During the installation process:</p>
+                    <p>Download the official Debian Netinst ISO and flash it to a USB stick using a tool like BalenaEtcher. During the installation steps:</p>
                     <ul>
-                        <li><strong>Deselect Desktop Environments:</strong> Keep it "headless" to save system resources.</li>
-                        <li><strong>Select SSH Server:</strong> Ensure this is checked to manage the machine remotely.</li>
-                        <li><strong>Set up User:</strong> Create your standard user account.</li>
+                        <li><strong>Deselect Desktop Environments:</strong> We want to keep the system "headless" to prioritize processing power for printer control.</li>
+                        <li><strong>Select SSH Server:</strong> This is a crucial step that allows you to manage the laptop remotely from your primary desktop or phone.</li>
+                        <li><strong>Set up User:</strong> You will be prompted to create your standard login; ensure you remember these credentials.</li>
                     </ul>
 
                     <div class="success-block">
                         <h4>💡 Sudo Privileges</h4>
-                        <p>If you forgot to add your user to the sudo group, log in as root and run: <code>usermod -aG sudo [your_username]</code>. You must reboot for this to take effect.</p>
+                        <p>If you find you cannot run administrative commands, your user may not have sudo access. Log in as root (or use the recovery mode during boot) and run: <code>usermod -aG sudo [your_username]</code>, then reboot the machine.</p>
                     </div>
                 </div>
             </div>
@@ -79,10 +82,11 @@
                 <div class="step-header">
                     <div class="step-number">3</div>
                     <div class="step-title">The "Emergency Exit" (TTY Trick)</div>
-                    <div class="step-subtitle">Troubleshoot without a second computer</div>
+                    <div class="step-subtitle">Troubleshooting without a second computer</div>
                 </div>
                 <div class="step-content">
-                    <p>If KlipperScreen "traps" you, press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Return to the interface with <strong>Ctrl + Alt + F7</strong>.</p>
+                    <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to fix something, you don't need a second computer.</p>
+                    <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login screen. Once you have finished your repairs, press <strong>Ctrl + Alt + F7</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
                 </div>
             </div>
 
@@ -96,12 +100,12 @@
                 <div class="step-content">
                     <div class="info-block">
                         <h4>🖱️ Enable Mouse Cursor</h4>
-                        <p>To enable the mouse cursor in KlipperScreen, edit <code>~/KlipperScreen/KlipperScreen.conf</code> and add <code>show_cursor: True</code> under the <code>[main]</code> section. Restart with <code>sudo systemctl restart KlipperScreen</code>.</p>
+                        <p>KlipperScreen assumes it is running on a touchscreen and hides the mouse cursor by default. To enable it for laptop trackpads or mice: Edit the file <code>~/KlipperScreen/KlipperScreen.conf</code>, add <code>show_cursor: True</code> under the <code>[main]</code> section, and run <code>sudo systemctl restart KlipperScreen</code>.</p>
                     </div>
 
                     <div class="warning-block">
                         <h4>🌐 Fixing Network Errors</h4>
-                        <p>If the network isn't managed, edit <code>sudo nano /etc/network/interfaces</code> and comment out your interface (e.g., <code>#auto wlp2s0</code>). Restart the service with <code>sudo systemctl restart NetworkManager</code>.</p>
+                        <p>If you see a "not managed" network error, it's because Debian is trying to control the hardware separately from the interface. Edit <code>sudo nano /etc/network/interfaces</code> and add a <code>#</code> to comment out your specific interface (e.g., <code>#auto wlp2s0</code>). Restart the service with <code>sudo systemctl restart NetworkManager</code>.</p>
                     </div>
                 </div>
             </div>
@@ -111,10 +115,10 @@
                 <div class="step-header">
                     <div class="step-number">5</div>
                     <div class="step-title">Deploying Klipper via KIAUH</div>
-                    <div class="step-subtitle">The easiest way to get up and running</div>
+                    <div class="step-subtitle">The easiest way to install the Klipper ecosystem</div>
                 </div>
                 <div class="step-content">
-                    <p>Log into your laptop via SSH and run these commands:</p>
+                    <p>KIAUH (Klipper Installation And Update Helper) automates the download and setup of Klipper, Moonraker, and your chosen interface. Connect via SSH from your main PC and run these commands:</p>
                     <pre>sudo apt update && sudo apt install git -y
 git clone https://github.com/dw-0/kiauh.git
 ./kiauh/kiauh.sh</pre>
@@ -126,7 +130,7 @@ git clone https://github.com/dw-0/kiauh.git
                 <div class="step-header">
                     <div class="step-number">6</div>
                     <div class="step-title">Deployment Scenarios</div>
-                    <div class="step-subtitle">Choose your interface level</div>
+                    <div class="step-subtitle">Choose how you want to interact with your host</div>
                 </div>
                 <div class="step-content">
                     <div class="table-scroll">
@@ -142,12 +146,12 @@ git clone https://github.com/dw-0/kiauh.git
                                 <tr>
                                     <td><strong>Headless</strong></td>
                                     <td>Laptop only</td>
-                                    <td>Hidden in a closet/workshop.</td>
+                                    <td>Closet/Shelf storage; remote browser control.</td>
                                 </tr>
                                 <tr>
                                     <td><strong>KlipperScreen</strong></td>
-                                    <td>Laptop + USB Mouse</td>
-                                    <td>Dedicated desk terminal.</td>
+                                    <td>Laptop + Mouse</td>
+                                    <td>Dedicated bench-top printer terminal.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -161,7 +165,7 @@ git clone https://github.com/dw-0/kiauh.git
             <h2 class="section-title">Final Thoughts</h2>
             <div class="conclusion">
                 <h2>🎉 You're Ready to Print!</h2>
-                <p>By repurposing old hardware, you've saved significant money and kept functional tech out of the landfill. You now have a professional-grade Klipper host for the price of a coffee.</p>
+                <p>By breathing new life into old hardware, you've saved significant money and kept perfectly functional tech out of the landfill. You now have a professional-grade Klipper host for the price of a coffee.</p>
             </div>
         </section>
     </div>
@@ -179,7 +183,7 @@ git clone https://github.com/dw-0/kiauh.git
     </script>
 
     <footer>
-        <p>© 2026 - Marius Måle Stokken</p>
+        <p>© 2026 - Kanrog Creations</p>
     </footer>
 </body>
 </html>
