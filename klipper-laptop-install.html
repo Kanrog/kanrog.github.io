@@ -29,7 +29,8 @@
         <!-- Main Content Section -->
         <section class="content-section">
             <h2 class="section-title">The Premise</h2>
-            <p>Why spend money on a new Raspberry Pi when you likely have a better computer gathering dust? This guide shows you how to rescue an old, "discarded" laptop and transform it into a dedicated, all-in-one Klipper host. By using the laptop's own screen and hardware, you get a powerful, integrated KlipperScreen terminal that can handle your printer, slicing, and CAD work—all without needing extra displays or expensive proprietary boards.</p>
+            <p>Why spend money on a new Raspberry Pi when you likely have a better computer gathering dust? This guide shows you how to rescue an old, "discarded" laptop and transform it into a dedicated, all-in-one Klipper host. By using the laptop's own screen and hardware, you get a powerful, integrated KlipperScreen terminal that can handle your printer—all without needing extra displays or expensive proprietary boards.</p>
+            <p><strong>Note:</strong> While powerful laptops can also handle CAD (like Onshape/Fusion 360) and slicing, this guide focuses on the "ultra-cheap" route using a headless Debian Server setup optimized for KlipperScreen.</p>
 
             <h2 class="section-title">Getting Started</h2>
 
@@ -38,19 +39,26 @@
                 <div class="step-header">
                     <div class="step-number">1</div>
                     <div class="step-title">Prepare Your Hardware</div>
-                    <div class="step-subtitle">Selecting and cleaning up your donor machine</div>
+                    <div class="step-subtitle">What to look for on the used market</div>
                 </div>
                 <div class="step-content">
-                    <p>Identify an old laptop or mini-PC. Any x86 machine (Intel/AMD) with at least 2GB of RAM is more than enough to run Klipper smoothly. The most common reason these machines feel "slow" is simply a failing mechanical hard drive.</p>
+                    <p>When scouring local listings for a "maker terminal," you don't need a powerhouse. Aim for machines that are 5–10 years old, as they are often treated as e-waste but are vastly more capable than an SBC.</p>
                     
+                    <h4>Minimum Recommended Specs:</h4>
+                    <ul>
+                        <li><strong>Processor:</strong> Intel Core i3 (or equivalent) 4th Gen or newer.</li>
+                        <li><strong>RAM:</strong> 2GB minimum (4GB+ is ideal for extra headroom).</li>
+                        <li><strong>Connectivity:</strong> At least one USB port for your printer connection.</li>
+                    </ul>
+
                     <div class="info-block">
-                        <h4>ℹ️ The SSD Advantage</h4>
-                        <p>Swapping a legacy HDD for a cheap, high-reliability SSD will make the operating system feel instant. This is a critical upgrade for system stability and prevents the data corruption often seen with SD cards.</p>
+                        <h4>ℹ️ Storage: SSD vs. USB Thumbdrive</h4>
+                        <p>Swapping a legacy HDD for a cheap, high-reliability SSD is ideal for longevity. However, for an "ultra-budget" build, a simple USB 3.0 thumbdrive (8GB+) is more than enough to act as your boot drive.</p>
                     </div>
 
                     <div class="warning-block">
                         <h4>⚠️ BIOS/UEFI Settings</h4>
-                        <p>You may need to enter your BIOS (usually F2, F12, or Del at startup) to disable "Secure Boot," which can block Linux installations. Look for "AC Auto-On" or "Wake-on-AC" power settings, which ensure your host turns itself on automatically if power is interrupted.</p>
+                        <p>You may need to enter your BIOS to disable "Secure Boot." Also, look for "AC Auto-On" or "Wake-on-AC" settings; these ensure your host turns itself on automatically if power is interrupted, making it feel like a truly dedicated appliance.</p>
                     </div>
                 </div>
             </div>
@@ -63,16 +71,16 @@
                     <div class="step-subtitle">Establishing a lean, stable foundation</div>
                 </div>
                 <div class="step-content">
-                    <p>Download the official Debian Netinst ISO and flash it to a USB stick using a tool like BalenaEtcher. During the installation steps:</p>
+                    <p>Download the official Debian Netinst ISO and flash it to your chosen boot media (SSD or USB stick). During the installation steps:</p>
                     <ul>
-                        <li><strong>Deselect Desktop Environments:</strong> We want to keep the system "headless" to prioritize processing power for printer control.</li>
-                        <li><strong>Select SSH Server:</strong> This is a crucial step that allows you to manage the laptop remotely from your primary desktop or phone.</li>
-                        <li><strong>Set up User:</strong> You will be prompted to create your standard login; ensure you remember these credentials.</li>
+                        <li><strong>Deselect Desktop Environments:</strong> Keep it "headless" to save system resources.</li>
+                        <li><strong>Select SSH Server:</strong> This allows you to manage the laptop remotely from your primary PC.</li>
+                        <li><strong>Set up User:</strong> Create your standard login credentials.</li>
                     </ul>
 
                     <div class="success-block">
                         <h4>💡 Sudo Privileges</h4>
-                        <p>If you find you cannot run administrative commands, your user may not have sudo access. Log in as root (or use the recovery mode during boot) and run: <code>usermod -aG sudo [your_username]</code>, then reboot the machine.</p>
+                        <p>If you cannot run administrative commands, log in as root and run: <code>usermod -aG sudo [your_username]</code>, then reboot the machine.</p>
                     </div>
                 </div>
             </div>
@@ -81,12 +89,14 @@
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">3</div>
-                    <div class="step-title">The "Emergency Exit" (TTY Trick)</div>
-                    <div class="step-subtitle">Troubleshooting without a second computer</div>
+                    <div class="step-title">Deploying Klipper via KIAUH</div>
+                    <div class="step-subtitle">The easiest way to install the Klipper ecosystem</div>
                 </div>
                 <div class="step-content">
-                    <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to fix something, you don't need a second computer.</p>
-                    <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login screen. Once you have finished your repairs, press <strong>Ctrl + Alt + F7</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
+                    <p>KIAUH (Klipper Installation And Update Helper) automates the download and setup of Klipper, Moonraker, and your chosen interface. Connect via SSH from your main PC and run these commands:</p>
+                    <pre>sudo apt update && sudo apt install git -y
+git clone https://github.com/dw-0/kiauh.git
+./kiauh/kiauh.sh</pre>
                 </div>
             </div>
 
@@ -94,6 +104,19 @@
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">4</div>
+                    <div class="step-title">The "Emergency Exit" (TTY Trick)</div>
+                    <div class="step-subtitle">Troubleshooting without a second computer</div>
+                </div>
+                <div class="step-content">
+                    <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to fix something, you don't need a second computer.</p>
+                    <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Once you have finished your repairs, press <strong>Ctrl + Alt + F7</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">5</div>
                     <div class="step-title">Troubleshooting & Configuration</div>
                     <div class="step-subtitle">Fixing common interface and network issues</div>
                 </div>
@@ -107,21 +130,6 @@
                         <h4>🌐 Fixing Network Errors</h4>
                         <p>If you see a "not managed" network error, it's because Debian is trying to control the hardware separately from the interface. Edit <code>sudo nano /etc/network/interfaces</code> and add a <code>#</code> to comment out your specific interface (e.g., <code>#auto wlp2s0</code>). Restart the service with <code>sudo systemctl restart NetworkManager</code>.</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- STEP 5 -->
-            <div class="step-card">
-                <div class="step-header">
-                    <div class="step-number">5</div>
-                    <div class="step-title">Deploying Klipper via KIAUH</div>
-                    <div class="step-subtitle">The easiest way to install the Klipper ecosystem</div>
-                </div>
-                <div class="step-content">
-                    <p>KIAUH (Klipper Installation And Update Helper) automates the download and setup of Klipper, Moonraker, and your chosen interface. Connect via SSH from your main PC and run these commands:</p>
-                    <pre>sudo apt update && sudo apt install git -y
-git clone https://github.com/dw-0/kiauh.git
-./kiauh/kiauh.sh</pre>
                 </div>
             </div>
 
