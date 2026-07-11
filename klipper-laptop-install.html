@@ -78,6 +78,38 @@
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">3</div>
+                    <div class="step-title">The "Emergency Exit" (TTY Trick)</div>
+                    <div class="step-subtitle">Troubleshoot without a second computer</div>
+                </div>
+                <div class="step-content">
+                    <p>If KlipperScreen "traps" you, press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Return to the interface with <strong>Ctrl + Alt + F7</strong>.</p>
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Troubleshooting & Configuration</div>
+                    <div class="step-subtitle">Fixing common interface and network issues</div>
+                </div>
+                <div class="step-content">
+                    <div class="info-block">
+                        <h4>🖱️ Enable Mouse Cursor</h4>
+                        <p>To enable the mouse cursor in KlipperScreen, edit <code>~/KlipperScreen/KlipperScreen.conf</code> and add <code>show_cursor: True</code> under the <code>[main]</code> section. Restart with <code>sudo systemctl restart KlipperScreen</code>.</p>
+                    </div>
+
+                    <div class="warning-block">
+                        <h4>🌐 Fixing Network Errors</h4>
+                        <p>If the network isn't managed, edit <code>sudo nano /etc/network/interfaces</code> and comment out your interface (e.g., <code>#auto wlp2s0</code>). Restart the service with <code>sudo systemctl restart NetworkManager</code>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">5</div>
                     <div class="step-title">Deploying Klipper via KIAUH</div>
                     <div class="step-subtitle">The easiest way to get up and running</div>
                 </div>
@@ -92,7 +124,7 @@ git clone https://github.com/dw-0/kiauh.git
             <!-- COMPARISON TABLE -->
             <div class="step-card">
                 <div class="step-header">
-                    <div class="step-number">4</div>
+                    <div class="step-number">6</div>
                     <div class="step-title">Deployment Scenarios</div>
                     <div class="step-subtitle">Choose your interface level</div>
                 </div>
