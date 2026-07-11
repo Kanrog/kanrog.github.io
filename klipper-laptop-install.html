@@ -58,7 +58,7 @@
 
                     <div class="warning-block">
                         <h4>⚠️ BIOS/UEFI Settings</h4>
-                        <p>You may need to enter your BIOS to disable "Secure Boot." Also, look for "AC Auto-On" or "Wake-on-AC" settings; these ensure your host turns itself on automatically if power is interrupted, making it feel like a truly dedicated appliance.</p>
+                        <p>You may need to enter your BIOS (usually F2, F12, or Del at startup) to disable "Secure Boot," which can block Linux installations. Look for "AC Auto-On" or "Wake-on-AC" settings; these ensure your host turns itself on automatically if power is interrupted, making it feel like a truly dedicated appliance.</p>
                     </div>
                 </div>
             </div>
@@ -97,6 +97,13 @@
                     <pre>sudo apt update && sudo apt install git -y
 git clone https://github.com/dw-0/kiauh.git
 ./kiauh/kiauh.sh</pre>
+                    <p><strong>What to install in KIAUH:</strong></p>
+                    <ul>
+                        <li><strong>Klipper:</strong> The core firmware that controls your printer.</li>
+                        <li><strong>Moonraker:</strong> The API service that lets web interfaces talk to Klipper.</li>
+                        <li><strong>Mainsail or Fluidd:</strong> The web-based dashboard for managing prints and printer settings.</li>
+                        <li><strong>KlipperScreen:</strong> The interface specifically designed for the laptop's own physical screen.</li>
+                    </ul>
                 </div>
             </div>
 
@@ -124,6 +131,11 @@ git clone https://github.com/dw-0/kiauh.git
                     <div class="info-block">
                         <h4>🖱️ Enable Mouse Cursor</h4>
                         <p>KlipperScreen assumes it is running on a touchscreen and hides the mouse cursor by default. To enable it for laptop trackpads or mice: Edit the file <code>~/KlipperScreen/KlipperScreen.conf</code>, add <code>show_cursor: True</code> under the <code>[main]</code> section, and run <code>sudo systemctl restart KlipperScreen</code>.</p>
+                    </div>
+
+                    <div class="info-block">
+                        <h4>💻 Prevent Sleep on Lid Close</h4>
+                        <p>If you want to tuck the laptop away with the lid closed without it going to sleep, edit <code>sudo nano /etc/systemd/logind.conf</code>. Find the line <code>#HandleLidSwitch=suspend</code>, uncomment it by removing the <code>#</code>, and change it to <code>HandleLidSwitch=ignore</code>. Save, exit, and run <code>sudo systemctl restart systemd-logind</code>.</p>
                     </div>
 
                     <div class="warning-block">
