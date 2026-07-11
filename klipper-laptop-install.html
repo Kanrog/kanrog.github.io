@@ -143,6 +143,12 @@ git clone https://github.com/dw-0/kiauh.git
                         <p>If you want to tuck the laptop away with the lid closed without it going to sleep, edit <code>sudo nano /etc/systemd/logind.conf</code>. Find the line <code>#HandleLidSwitch=suspend</code>, uncomment it by removing the <code>#</code>, and change it to <code>HandleLidSwitch=ignore</code>. Save, exit, and run <code>sudo systemctl restart systemd-logind</code>.</p>
                     </div>
 
+                    <div class="info-block">
+                        <h4>📂 Standalone Printing with klipper-usb-copy</h4>
+                        <p>Want to print without a network connection? Use <a href="https://github.com/Kanrog/klipper-usb-copy" target="_blank">klipper-usb-copy</a>. This tool automatically detects a USB drive when plugged in, copies your G-code files to the Klipper folder, and ejects the drive—no computer or network required!</p>
+                        <p><strong>Installation:</strong> <code>bash <(curl -s https://raw.githubusercontent.com/Kanrog/klipper-usb-copy/main/install.sh)</code></p>
+                    </div>
+
                     <div class="warning-block">
                         <h4>🌐 Fixing Network Errors</h4>
                         <p>If you see a "not managed" network error, it's because Debian is trying to control the hardware separately from the interface. Edit <code>sudo nano /etc/network/interfaces</code> and add a <code>#</code> to comment out your specific interface (e.g., <code>#auto wlp2s0</code>). Restart the service with <code>sudo systemctl restart NetworkManager</code>.</p>
