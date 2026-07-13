@@ -76,7 +76,7 @@
                     <div class="step-subtitle">Establishing a lean, stable foundation</div>
                 </div>
                 <div class="step-content">
-                    <p>Download the official Debian Netinst ISO and flash it to your chosen boot media (SSD or USB stick). For the smoothest experience, connect via Ethernet during the OS install. During the installation steps:</p>
+                    <p>Download the official Debian Netinst ISO and flash it to your USB stick using a software like Balena Etcher. For the smoothest experience, connect via Ethernet during the OS install. When the machine boots into the USB stick, select <strong>"Install"</strong>. During the installation steps:</p>
                     <ul>
                         <li><strong>Hostname & Domain:</strong> Set the hostname to <code>klap-host</code> and leave the domain blank.</li>
                         <li><strong>Set up User:</strong> Set both the full name and username to <code>klap</code>. (Do not use "root" as a username).</li>
@@ -105,9 +105,11 @@
                 </div>
                 <div class="step-content">
                     <p>KIAUH (Klipper Installation And Update Helper) automates the download and setup of Klipper, Moonraker, and your chosen interface. Connect via SSH from your main PC and run these commands:</p>
-                    <pre>sudo apt update && sudo apt install git -y
-git clone https://github.com/dw-0/kiauh.git
-./kiauh/kiauh.sh</pre>
+                    <ol>
+                        <li>Run <code>sudo apt update && sudo apt install git -y</code> to install Git.</li>
+                        <li>Run <code>git clone https://github.com/dw-0/kiauh.git</code> to download the KIAUH repository.</li>
+                        <li>Run <code>./kiauh/kiauh.sh</code> to launch the installer.</li>
+                    </ol>
                     <p><strong>What to install in the KIAUH menu:</strong></p>
                     <ul>
                         <li><strong>Klipper:</strong> The core firmware that controls your printer.</li>
@@ -122,12 +124,21 @@ git clone https://github.com/dw-0/kiauh.git
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">4</div>
-                    <div class="step-title">The "Emergency Exit" (TTY Trick)</div>
-                    <div class="step-subtitle">Troubleshooting without a second computer</div>
+                    <div class="step-title">Automate the Fixes with Klap</div>
+                    <div class="step-subtitle">Configure your Maker Terminal in one go</div>
                 </div>
                 <div class="step-content">
-                    <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to run scripts or fix something, you don't need a second computer.</p>
-                    <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Once you have finished your repairs, press <strong>Ctrl + Alt + F7</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
+                    <div class="info-block">
+                        <h4>⌨️ The "Emergency Exit" (TTY Trick)</h4>
+                        <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to run scripts or fix something, you don't need a second computer.</p>
+                        <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Once you have finished your repairs, press <strong>Ctrl + Alt + F7</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
+                    </div>
+
+                    <p>Instead of manually editing configuration files for the mouse cursor, lid sleep, and network authentication, you can run my <strong>Klap</strong> utility to automatically configure your Maker Terminal in one go.</p>
+                    <pre>curl -s https://raw.githubusercontent.com/Kanrog/klap/main/klap.sh > klap.sh
+chmod +x klap.sh
+sudo ./klap.sh</pre>
+                    <p>Follow the on-screen prompts and type <code>sudo reboot</code> when finished to apply all settings.</p>
                 </div>
             </div>
 
@@ -140,15 +151,6 @@ git clone https://github.com/dw-0/kiauh.git
                 </div>
                 <div class="step-content">
                     
-                    <div class="success-block">
-                        <h4>🚀 Automate the Fixes with Klap (Recommended)</h4>
-                        <p>Instead of manually editing configuration files for the mouse cursor, lid sleep, and network authentication, you can run my <strong>Klap</strong> utility to automatically configure your Maker Terminal in one go.</p>
-                        <pre>curl -s https://raw.githubusercontent.com/Kanrog/klap/main/klap.sh > klap.sh
-chmod +x klap.sh
-sudo ./klap.sh</pre>
-                        <p>Follow the on-screen prompts and type <code>sudo reboot</code> when finished to apply all settings.</p>
-                    </div>
-
                     <div class="info-block">
                         <h4>🖱️ Enable Mouse Cursor (Manual Method)</h4>
                         <p>KlipperScreen assumes it is running on a touchscreen and hides the mouse cursor by default. To enable it for laptop trackpads or mice: Edit the file <code>~/printer_data/config/KlipperScreen.conf</code>, ensure there is a <code>[main]</code> section, add <code>show_cursor: True</code> directly under it, and run <code>sudo systemctl restart KlipperScreen</code>.</p>
