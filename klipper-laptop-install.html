@@ -133,13 +133,23 @@ git clone https://github.com/dw-0/kiauh.git
                     <div class="step-subtitle">Fixing common interface and network issues</div>
                 </div>
                 <div class="step-content">
-                    <div class="info-block">
-                        <h4>🖱️ Enable Mouse Cursor</h4>
-                        <p>KlipperScreen assumes it is running on a touchscreen and hides the mouse cursor by default. To enable it for laptop trackpads or mice: Edit the file <code>~/KlipperScreen/KlipperScreen.conf</code>, add <code>show_cursor: True</code> under the <code>[main]</code> section, and run <code>sudo systemctl restart KlipperScreen</code>.</p>
+                    
+                    <div class="success-block">
+                        <h4>🚀 Automate the Fixes with Klap (Recommended)</h4>
+                        <p>Instead of manually editing configuration files for the mouse cursor, lid sleep, and network authentication, you can run my <strong>Klap</strong> utility to automatically configure your Maker Terminal in one go.</p>
+                        <pre>curl -s https://raw.githubusercontent.com/Kanrog/klap/main/klap.sh > klap.sh
+chmod +x klap.sh
+sudo ./klap.sh</pre>
+                        <p>Follow the on-screen prompts and type <code>sudo reboot</code> when finished to apply all settings.</p>
                     </div>
 
                     <div class="info-block">
-                        <h4>💻 Prevent Sleep on Lid Close</h4>
+                        <h4>🖱️ Enable Mouse Cursor (Manual Method)</h4>
+                        <p>KlipperScreen assumes it is running on a touchscreen and hides the mouse cursor by default. To enable it for laptop trackpads or mice: Edit the file <code>~/printer_data/config/KlipperScreen.conf</code>, ensure there is a <code>[main]</code> section, add <code>show_cursor: True</code> directly under it, and run <code>sudo systemctl restart KlipperScreen</code>.</p>
+                    </div>
+
+                    <div class="info-block">
+                        <h4>💻 Prevent Sleep on Lid Close (Manual Method)</h4>
                         <p>If you want to tuck the laptop away with the lid closed without it going to sleep, edit <code>sudo nano /etc/systemd/logind.conf</code>. Find the line <code>#HandleLidSwitch=suspend</code>, uncomment it by removing the <code>#</code>, and change it to <code>HandleLidSwitch=ignore</code>. Save, exit, and run <code>sudo systemctl restart systemd-logind</code>.</p>
                     </div>
 
