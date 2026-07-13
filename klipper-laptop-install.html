@@ -76,16 +76,22 @@
                     <div class="step-subtitle">Establishing a lean, stable foundation</div>
                 </div>
                 <div class="step-content">
-                    <p>Download the official Debian Netinst ISO and flash it to your chosen boot media (SSD or USB stick). During the installation steps:</p>
+                    <p>Download the official Debian Netinst ISO and flash it to your chosen boot media (SSD or USB stick). For the smoothest experience, connect via Ethernet during the OS install. During the installation steps:</p>
                     <ul>
-                        <li><strong>Deselect Desktop Environments:</strong> Keep it "headless" to save system resources.</li>
-                        <li><strong>Select SSH Server:</strong> This allows you to manage the laptop remotely from your primary PC.</li>
-                        <li><strong>Set up User:</strong> Create your standard login credentials.</li>
+                        <li><strong>Hostname & Domain:</strong> Set the hostname to <code>klap-host</code> and leave the domain blank.</li>
+                        <li><strong>Set up User:</strong> Set both the full name and username to <code>klap</code>. (Do not use "root" as a username).</li>
+                        <li><strong>Software Selection:</strong> Deselect all Desktop Environments to keep it headless. Ensure you explicitly select <strong>SSH Server</strong> and <strong>standard system utilities</strong>.</li>
                     </ul>
 
-                    <div class="success-block">
-                        <h4>💡 Sudo Privileges</h4>
-                        <p>If you cannot run administrative commands, log in as root and run: <code>usermod -aG sudo [your_username]</code>, then reboot the machine.</p>
+                    <div class="warning-block">
+                        <h4>⚠️ The "Pre-Flight" Sudo Fix</h4>
+                        <p>Debian Netinst often skips installing `sudo` and does not grant admin rights by default. Once the install finishes and you log in as <code>klap</code> for the first time, you must elevate your permissions:</p>
+                        <ol>
+                            <li>Type <code>su -</code> and enter your root password.</li>
+                            <li>Run <code>apt update && apt install sudo -y</code> to install the missing tools.</li>
+                            <li>Run <code>usermod -aG sudo klap</code> to add yourself to the admin group.</li>
+                            <li>Type <code>reboot</code> while still in this root terminal to restart and apply the changes.</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -102,11 +108,11 @@
                     <pre>sudo apt update && sudo apt install git -y
 git clone https://github.com/dw-0/kiauh.git
 ./kiauh/kiauh.sh</pre>
-                    <p><strong>What to install in KIAUH:</strong></p>
+                    <p><strong>What to install in the KIAUH menu:</strong></p>
                     <ul>
                         <li><strong>Klipper:</strong> The core firmware that controls your printer.</li>
                         <li><strong>Moonraker:</strong> The API service that lets web interfaces talk to Klipper.</li>
-                        <li><strong>Mainsail or Fluidd:</strong> The web-based dashboard for managing prints and printer settings.</li>
+                        <li><strong>Mainsail or Fluidd:</strong> The web-based dashboard. <em>(Choose only one. Do not install both, as they perform the same function).</em></li>
                         <li><strong>KlipperScreen:</strong> The interface specifically designed for the laptop's own physical screen.</li>
                     </ul>
                 </div>
@@ -120,7 +126,7 @@ git clone https://github.com/dw-0/kiauh.git
                     <div class="step-subtitle">Troubleshooting without a second computer</div>
                 </div>
                 <div class="step-content">
-                    <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to fix something, you don't need a second computer.</p>
+                    <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to run scripts or fix something, you don't need a second computer.</p>
                     <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Once you have finished your repairs, press <strong>Ctrl + Alt + F7</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
                 </div>
             </div>
