@@ -116,6 +116,7 @@
                         <li><strong>Moonraker:</strong> The API service that lets web interfaces talk to Klipper.</li>
                         <li><strong>Mainsail or Fluidd:</strong> The web-based dashboard. <em>(Choose only one. Do not install both, as they perform the same function).</em></li>
                         <li><strong>KlipperScreen:</strong> The interface specifically designed for the laptop's own physical screen.</li>
+                        <li><strong>Crowsnest:</strong> (Optional) The webcam daemon. Install this if you want to use a webcam (either the laptop's integrated camera or a USB unit) to monitor your prints.</li>
                     </ul>
                 </div>
             </div>
@@ -135,9 +136,11 @@
                     </div>
 
                     <p>Instead of manually editing configuration files for the mouse cursor, lid sleep, and network authentication, you can run my <strong>Klap</strong> utility to automatically configure your Maker Terminal in one go.</p>
-                    <pre>curl -s https://raw.githubusercontent.com/Kanrog/klap/main/klap.sh > klap.sh
-chmod +x klap.sh
-sudo ./klap.sh</pre>
+                    <ol>
+                        <li>Download the script: <code>curl -s https://raw.githubusercontent.com/Kanrog/klap/main/klap.sh > klap.sh</code></li>
+                        <li>Make it executable: <code>chmod +x klap.sh</code></li>
+                        <li>Run with root privileges: <code>sudo ./klap.sh</code></li>
+                    </ol>
                     <p>Follow the on-screen prompts and type <code>sudo reboot</code> when finished to apply all settings.</p>
                 </div>
             </div>
