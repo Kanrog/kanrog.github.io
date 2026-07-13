@@ -142,7 +142,7 @@
                         <li>Make the script executable: <code>chmod +x klap.sh</code></li>
                         <li>Run with root privileges: <code>sudo ./klap.sh</code></li>
                     </ol>
-                    <p>Follow the on-screen prompts and type <code>sudo reboot</code> when finished to apply all settings.</p>
+                    <p>Follow the on-screen prompts. The script will automatically ask if you want to reboot when finished to apply all settings.</p>
                 </div>
             </div>
 
@@ -154,26 +154,10 @@
                     <div class="step-subtitle">Fixing common interface and network issues</div>
                 </div>
                 <div class="step-content">
-                    
-                    <div class="info-block">
-                        <h4>🖱️ Enable Mouse Cursor (Manual Method)</h4>
-                        <p>KlipperScreen assumes it is running on a touchscreen and hides the mouse cursor by default. To enable it for laptop trackpads or mice: Edit the file <code>~/printer_data/config/KlipperScreen.conf</code>, ensure there is a <code>[main]</code> section, add <code>show_cursor: True</code> directly under it, and run <code>sudo systemctl restart KlipperScreen</code>.</p>
-                    </div>
-
-                    <div class="info-block">
-                        <h4>💻 Prevent Sleep on Lid Close (Manual Method)</h4>
-                        <p>If you want to tuck the laptop away with the lid closed without it going to sleep, edit <code>sudo nano /etc/systemd/logind.conf</code>. Find the line <code>#HandleLidSwitch=suspend</code>, uncomment it by removing the <code>#</code>, and change it to <code>HandleLidSwitch=ignore</code>. Save, exit, and run <code>sudo systemctl restart systemd-logind</code>.</p>
-                    </div>
-
                     <div class="info-block">
                         <h4>📂 Standalone Printing with klipper-usb-copy</h4>
                         <p>Want to print without a network connection? Use <a href="https://github.com/Kanrog/klipper-usb-copy" target="_blank">klipper-usb-copy</a>. This tool automatically detects a USB drive when plugged in, copies your G-code files to the Klipper folder, and ejects the drive—no computer or network required!</p>
                         <p><strong>Installation:</strong> <code>bash <(curl -s https://raw.githubusercontent.com/Kanrog/klipper-usb-copy/main/install.sh)</code></p>
-                    </div>
-
-                    <div class="warning-block">
-                        <h4>🌐 Fixing Network Errors</h4>
-                        <p>If you see a "not managed" network error, it's because Debian is trying to control the hardware separately from the interface. Edit <code>sudo nano /etc/network/interfaces</code> and add a <code>#</code> to comment out your specific interface (e.g., <code>#auto wlp2s0</code>). Restart the service with <code>sudo systemctl restart NetworkManager</code>.</p>
                     </div>
                 </div>
             </div>
