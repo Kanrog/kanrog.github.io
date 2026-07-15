@@ -5,6 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resurrecting E-Waste for Klipper - Maker Tech</title>
     <link rel="stylesheet" href="article-style.css">
+    <style>
+        /* Learner Mode Styles */
+        .learner-toggle-container {
+            background-color: #eef2f5;
+            border: 1px solid #cdd5df;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .learner-toggle-container input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.5);
+            cursor: pointer;
+        }
+        .learner-details {
+            display: none;
+            background-color: #222222;
+            color: #eeeeee;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.95em;
+        }
+        .learner-details h5 {
+            margin-top: 0;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .learner-details code {
+            background-color: #444444;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #ff80bf;
+        }
+    </style>
 </head>
 <body>
 
@@ -26,6 +65,15 @@
     </header>
 
     <div class="container">
+        <!-- Learner Mode Toggle -->
+        <label class="learner-toggle-container">
+            <input type="checkbox" id="learnerToggle">
+            <div>
+                <strong>🎓 Enable Learner Mode</strong>
+                <div style="font-size: 0.9em; color: #555; margin-top: 3px;">Check this box to reveal detailed explanations of what the Linux commands are actually doing behind the scenes.</div>
+            </div>
+        </label>
+
         <!-- Main Content Section -->
         <section class="content-section">
             <h2 class="section-title">The Premise</h2>
@@ -70,7 +118,6 @@
             </div>
 
             <!-- STEP 2 -->
-<!-- STEP 2 -->
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">2</div>
@@ -78,7 +125,7 @@
                     <div class="step-subtitle">Establishing a lean, stable foundation</div>
                 </div>
                 <div class="step-content">
-                    <p>Download the official <a href="https://www.debian.org/download" target="_blank">Debian Netinst ISO</a> and flash it to your USB stick using a software like Balena Etcher. For the smoothest experience, connect via Ethernet during the OS install. When the machine boots into the USB stick, select <strong>"Install"</strong>. During the installation steps:</p>
+                    <p>Download the official <a href="https://www.debian.org/download" target="_blank">Debian Netinst ISO</a> and flash it to your USB stick using a software like Balena Etcher. You can connect your laptop via Ethernet or safely use the installer's built-in Wi-Fi setup to connect to your network (our automated KLap script in Step 4 will automatically handle any backend Wi-Fi conflicts for you!). When the machine boots into the USB stick, select <strong>"Install"</strong>. During the installation steps:</p>
                     <ul>
                         <li><strong>Hostname & Domain:</strong> Set the hostname to <code>klap-host</code> and leave the domain blank. (This is your "root" user).</li>
                         <li><strong>Set up User:</strong> Set both the full name and username to <code>klap</code>. (Do not use "root" as a username).</li>
@@ -94,6 +141,13 @@
                             <li>Run <code>usermod -aG sudo klap</code> to add yourself to the admin group.</li>
                             <li>Type <code>reboot</code> while still in this root terminal to restart and apply the changes.</li>
                         </ol>
+
+                        <div class="learner-details">
+                            <h5>🎓 What's happening here?</h5>
+                            <p><strong><code>su -</code></strong>: "Switch User" to root. The <code>-</code> is crucial because it loads the root user's environment paths, allowing you to access system commands.</p>
+                            <p><strong><code>apt update && apt install sudo -y</code></strong>: <code>apt</code> is Debian's package manager. This checks for software updates and then installs the <code>sudo</code> tool. The <code>-y</code> automatically answers "yes" to any installation prompts.</p>
+                            <p><strong><code>usermod -aG sudo klap</code></strong>: Modifies user properties. <code>-aG</code> stands for "Append to Group". It adds the user <code>klap</code> to the <code>sudo</code> (admin) group.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -112,6 +166,14 @@
                         <li>Run <code>git clone https://github.com/dw-0/kiauh.git</code> to download the KIAUH repository.</li>
                         <li>Run <code>./kiauh/kiauh.sh</code> to launch the installer.</li>
                     </ol>
+
+                    <div class="learner-details">
+                        <h5>🎓 What's happening here?</h5>
+                        <p><strong><code>sudo</code></strong>: Stands for "Superuser Do". It forces the command to run with administrative privileges (which you unlocked in Step 2).</p>
+                        <p><strong><code>git clone</code></strong>: Git is a version control system. "Clone" literally copies the KIAUH project directly from the GitHub servers onto your laptop.</p>
+                        <p><strong><code>./</code></strong>: The dot-slash tells Linux "run the file located in this exact folder right here" instead of looking through standard system directories.</p>
+                    </div>
+
                     <p><strong>What to install in the KIAUH menu:</strong></p>
                     <p>(Use the number keys to select the different options and use default settings on everything)</p>
                     <ul>
@@ -145,6 +207,13 @@
                         <li>Make the script executable: <code>chmod +x klap.sh</code></li>
                         <li>Run with root privileges: <code>sudo ./klap.sh</code></li>
                     </ol>
+
+                    <div class="learner-details">
+                        <h5>🎓 What's happening here?</h5>
+                        <p><strong><code>cd klap</code></strong>: "Change Directory". This moves your terminal session inside the new folder you just cloned from GitHub.</p>
+                        <p><strong><code>chmod +x</code></strong>: "Change Mode". By default, downloaded files are treated as plain text for safety. The <code>+x</code> flag grants the file eXecutable rights so it can run as a program.</p>
+                    </div>
+
                     <p>Follow the on-screen prompts. The script will automatically ask if you want to reboot when finished to apply all settings.</p>
                 </div>
             </div>
@@ -193,15 +262,30 @@
         </section>
     </div>
 
-    <!-- Smooth Scrolling -->
+    <!-- Script Block -->
     <script>
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth Scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
                 });
             });
+            
+            // Learner Mode Toggle Logic
+            const learnerToggle = document.getElementById('learnerToggle');
+            const learnerDetails = document.querySelectorAll('.learner-details');
+
+            if (learnerToggle) {
+                learnerToggle.addEventListener('change', function() {
+                    learnerDetails.forEach(detail => {
+                        detail.style.display = this.checked ? 'block' : 'none';
+                    });
+                });
+            }
         });
     </script>
 
