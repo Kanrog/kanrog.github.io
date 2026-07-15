@@ -64,7 +64,6 @@
     </header>
 
     <div class="container">
-        
         <!-- Learner Mode Toggle -->
         <label class="learner-toggle-container">
             <input type="checkbox" id="learnerToggle">
@@ -77,9 +76,10 @@
         <!-- Main Content Section -->
         <section class="content-section">
             <h2 class="section-title">The Premise</h2>
-            <p>Why spend money on a new Raspberry Pi when you likely have a better computer gathering dust? This guide shows you how to rescue an old, "discarded" laptop and transform it into a dedicated, all-in-one Klipper host. By using the laptop's own screen and hardware, you get a powerful, integrated KlipperScreen terminal that can handle your printer—all without needing extra displays or expensive proprietary boards.</p>
-            <p><strong>Note:</strong> While powerful laptops can also handle CAD (like Onshape/Fusion 360) and slicing, this guide focuses on the "ultra-cheap" route using a headless Debian Server setup optimized for KlipperScreen.</p>
-
+            <p>Why spend money on a new Raspberry Pi when you likely have a better computer gathering dust? This guide shows you how to rescue an old, "discarded" laptop and transform it into a dedicated, all-in-one Klipper host. By using the laptop's own screen and hardware, you get a powerful, integrated KlipperScreen terminal that can handle your printer, all without needing extra displays or expensive proprietary boards.</p>
+            <br>
+            <p><strong>Note:</strong> While powerful laptops running Linux can also handle CAD (like Onshape/Fusion 360) and slicing, this guide focuses on the "ultra-cheap" route using a headless Debian Server setup optimized for KlipperScreen.</p>
+            <br>
             <h2 class="section-title">Getting Started</h2>
 
             <!-- STEP 1 -->
@@ -90,7 +90,7 @@
                     <div class="step-subtitle">What to look for on the used market</div>
                 </div>
                 <div class="step-content">
-                    <p>When scouring local listings for a "maker terminal," you don't need a powerhouse. Aim for machines that are 5–10 years old, as they are often treated as e-waste but are vastly more capable than an SBC.</p>
+                    <p>When scouring local listings for a used laptop, you don't need a powerhouse. Aim for machines that are 5–10 years old, as they are often treated as e-waste but are vastly more capable than an SBC.</p>
                     
                     <h4>Minimum Recommended Specs:</h4>
                     <ul>
@@ -106,7 +106,7 @@
 
                     <div class="info-block">
                         <h4>ℹ️ Storage: SSD vs. USB Thumbdrive</h4>
-                        <p>Swapping a legacy HDD for a cheap, high-reliability SSD is ideal for longevity. However, for an "ultra-budget" build, a simple USB 3.0 thumbdrive (8GB+) is more than enough to act as your boot drive.</p>
+                        <p>Swapping a legacy HDD for a cheap, high-reliability SSD is ideal for longevity. However, for an "ultra-budget" build, a simple USB 3.0 thumbdrive (8GB+) is more than enough to act as your boot drive. Just take this cost into consideration when looking for your laptop.</p>
                     </div>
 
                     <div class="warning-block">
@@ -124,9 +124,9 @@
                     <div class="step-subtitle">Establishing a lean, stable foundation</div>
                 </div>
                 <div class="step-content">
-                    <p>Download the official <a href="https://www.debian.org/CD/netinst/" target="_blank">Debian Netinst ISO</a> and flash it to your USB stick using a software like Balena Etcher. For the smoothest experience, connect via Ethernet during the OS install. When the machine boots into the USB stick, select <strong>"Install"</strong>. During the installation steps:</p>
+                    <p>Download the official <a href="https://www.debian.org/download" target="_blank">Debian Netinst ISO</a> and flash it to your USB stick using a software like Balena Etcher. For the smoothest experience, connect via Ethernet during the OS install. When the machine boots into the USB stick, select <strong>"Install"</strong>. During the installation steps:</p>
                     <ul>
-                        <li><strong>Hostname & Domain:</strong> Set the hostname to <code>klap-host</code> and leave the domain blank.</li>
+                        <li><strong>Hostname & Domain:</strong> Set the hostname to <code>klap-host</code> and leave the domain blank. (This is your "root" user).</li>
                         <li><strong>Set up User:</strong> Set both the full name and username to <code>klap</code>. (Do not use "root" as a username).</li>
                         <li><strong>Software Selection:</strong> Deselect all Desktop Environments to keep it headless. Ensure you explicitly select <strong>SSH Server</strong> and <strong>standard system utilities</strong>.</li>
                     </ul>
@@ -135,7 +135,7 @@
                         <h4>⚠️ The "Pre-Flight" Sudo Fix</h4>
                         <p>Debian Netinst often skips installing `sudo` and does not grant admin rights by default. Once the install finishes and you log in as <code>klap</code> for the first time, you must elevate your permissions:</p>
                         <ol>
-                            <li>Type <code>su -</code> and enter your root password.</li>
+                            <li>Type <code>su -</code> and enter your <code>klap-host</code> root password.</li>
                             <li>Run <code>apt update && apt install sudo -y</code> to install the missing tools.</li>
                             <li>Run <code>usermod -aG sudo klap</code> to add yourself to the admin group.</li>
                             <li>Type <code>reboot</code> while still in this root terminal to restart and apply the changes.</li>
@@ -159,7 +159,7 @@
                     <div class="step-subtitle">The easiest way to install the Klipper ecosystem</div>
                 </div>
                 <div class="step-content">
-                    <p><a href="https://github.com/dw-0/kiauh" target="_blank">KIAUH</a> (Klipper Installation And Update Helper) automates the download and setup of Klipper, Moonraker, and your chosen interface. Connect via SSH from your main PC and run these commands:</p>
+                    <p><strong><a href="https://github.com/dw-0/kiauh" target="_blank">KIAUH</a></strong> (Klipper Installation And Update Helper) automates the download and setup of Klipper, Moonraker, and your chosen interface. Type these commands into the terminal:</p>
                     <ol>
                         <li>Run <code>sudo apt update && sudo apt install git -y</code> to install Git.</li>
                         <li>Run <code>git clone https://github.com/dw-0/kiauh.git</code> to download the KIAUH repository.</li>
@@ -174,6 +174,7 @@
                     </div>
 
                     <p><strong>What to install in the KIAUH menu:</strong></p>
+                    <p>(Use the number keys to select the different options and use default settings on everything)</p>
                     <ul>
                         <li><strong>Klipper:</strong> The core firmware that controls your printer.</li>
                         <li><strong>Moonraker:</strong> The API service that lets web interfaces talk to Klipper.</li>
@@ -195,10 +196,10 @@
                     <div class="info-block">
                         <h4>⌨️ The "Emergency Exit" (TTY Trick)</h4>
                         <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to run scripts or fix something, you don't need a second computer.</p>
-                        <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Once you have finished your repairs, press <strong>Ctrl + Alt + F7</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
+                        <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Once you have finished your repairs, press <strong>Ctrl + Alt + F2</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
                     </div>
 
-                    <p>Instead of manually editing configuration files for the mouse cursor, lid sleep, and network authentication, you can run my <strong>Klap</strong> utility to automatically configure your Maker Terminal in one go.</p>
+                    <p>Instead of manually editing configuration files for the mouse cursor, lid sleep, and network authentication, you can run my <strong><a href="https://github.com/Kanrog/klap" target="_blank">KLap</a></strong> utility to automatically configure your Maker Terminal in one go.</p>
                     <ol>
                         <li>Clone the repository: <code>git clone https://github.com/Kanrog/klap.git</code></li>
                         <li>Move into the folder: <code>cd klap</code></li>
@@ -220,31 +221,13 @@
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">5</div>
-                    <div class="step-title">Troubleshooting & Configuration</div>
-                    <div class="step-subtitle">Fixing common interface and network issues</div>
+                    <div class="step-title"> klipper-usb-copy</div>
+                    <div class="step-subtitle">Standalone Printing with klipper-usb-copy</div>
                 </div>
                 <div class="step-content">
-                    
-                    <div class="info-block">
-                        <h4>🖱️ Enable Mouse Cursor (Manual Method)</h4>
-                        <p>KlipperScreen assumes it is running on a touchscreen and hides the mouse cursor by default. To enable it for laptop trackpads or mice: Edit the file <code>~/printer_data/config/KlipperScreen.conf</code>, ensure there is a <code>[main]</code> section, add <code>show_cursor: True</code> directly under it, and run <code>sudo systemctl restart KlipperScreen</code>.</p>
-                    </div>
-
-                    <div class="info-block">
-                        <h4>💻 Prevent Sleep on Lid Close (Manual Method)</h4>
-                        <p>If you want to tuck the laptop away with the lid closed without it going to sleep, edit <code>sudo nano /etc/systemd/logind.conf</code>. Find the line <code>#HandleLidSwitch=suspend</code>, uncomment it by removing the <code>#</code>, and change it to <code>HandleLidSwitch=ignore</code>. Save, exit, and run <code>sudo systemctl restart systemd-logind</code>.</p>
-                    </div>
-
-                    <div class="info-block">
                         <h4>📂 Standalone Printing with klipper-usb-copy</h4>
                         <p>Want to print without a network connection? Use <a href="https://github.com/Kanrog/klipper-usb-copy" target="_blank">klipper-usb-copy</a>. This tool automatically detects a USB drive when plugged in, copies your G-code files to the Klipper folder, and ejects the drive—no computer or network required!</p>
                         <p><strong>Installation:</strong> <code>bash <(curl -s https://raw.githubusercontent.com/Kanrog/klipper-usb-copy/main/install.sh)</code></p>
-                    </div>
-
-                    <div class="warning-block">
-                        <h4>🌐 Fixing Network Errors</h4>
-                        <p>If you see a "not managed" network error, it's because Debian is trying to control the hardware separately from the interface. Edit <code>sudo nano /etc/network/interfaces</code> and add a <code>#</code> to comment out your specific interface (e.g., <code>#auto wlp2s0</code>). Restart the service with <code>sudo systemctl restart NetworkManager</code>.</p>
-                    </div>
                 </div>
             </div>
 
@@ -252,7 +235,7 @@
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">6</div>
-                    <div class="step-title">Helpful Maker Resources</div>
+                    <div class="step-title">Helpful klipper Resources</div>
                     <div class="step-subtitle">Additional tools and generators</div>
                 </div>
                 <div class="step-content">
@@ -265,38 +248,6 @@
             </div>
 
             <!-- COMPARISON TABLE -->
-            <div class="step-card">
-                <div class="step-header">
-                    <div class="step-number">7</div>
-                    <div class="step-title">Deployment Scenarios</div>
-                    <div class="step-subtitle">Choose how you want to interact with your host</div>
-                </div>
-                <div class="step-content">
-                    <div class="table-scroll">
-                        <table class="material-table">
-                            <thead>
-                                <tr>
-                                    <th>Setup Type</th>
-                                    <th>Hardware Needed</th>
-                                    <th>Best For</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Headless</strong></td>
-                                    <td>Laptop only</td>
-                                    <td>Closet/Shelf storage; remote browser control.</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>KlipperScreen</strong></td>
-                                    <td>Laptop + Mouse</td>
-                                    <td>Dedicated bench-top printer terminal.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
             
         </section>
 
@@ -305,4 +256,40 @@
             <h2 class="section-title">Final Thoughts</h2>
             <div class="conclusion">
                 <h2>🎉 You're Ready to Print!</h2>
-                <p>By breathing new life into old hardware, you've saved significant money and kept perfectly functional tech out of the landfill. You now have a professional-gra
+                <p>By breathing new life into old hardware, you've saved significant money and kept perfectly functional tech out of the landfill. You now have a professional-grade Klipper host for the price of a coffee.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Script Block -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth Scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Learner Mode Toggle Logic
+            const learnerToggle = document.getElementById('learnerToggle');
+            const learnerDetails = document.querySelectorAll('.learner-details');
+
+            if (learnerToggle) {
+                learnerToggle.addEventListener('change', function() {
+                    learnerDetails.forEach(detail => {
+                        detail.style.display = this.checked ? 'block' : 'none';
+                    });
+                });
+            }
+        });
+    </script>
+
+    <footer>
+        <p>© 2026 - Kanrog Creations</p>
+    </footer>
+</body>
+</html>
