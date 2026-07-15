@@ -5,6 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klipper Host Hardware Guide - Kanrog Creations</title>
     <link rel="stylesheet" href="article-style.css">
+    <style>
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            border: 2px solid #9b59b6;
+        }
+        
+        .material-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+            min-width: 900px;
+        }
+
+        .material-table caption {
+            background: #2a2a2a;
+            color: #9b59b6;
+            border-bottom: 2px solid #9b59b6;
+            text-align: left;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .material-table th {
+            padding: 1rem;
+            border-bottom: 2px solid #9b59b6;
+            background-color: #2a2a2a;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .material-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .material-table tr:hover {
+            background-color: #252525;
+        }
+
+        .perf-tag {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        .perf-excellent { color: #34d399; }
+        .perf-great { color: #38bdf8; }
+        .perf-good { color: #facc15; }
+        .perf-acceptable { color: #fb923c; }
+        .perf-minimum { color: #f87171; }
+        .perf-overkill { color: #c084fc; }
+
+        .check-icon {
+            color: #34d399; /* Green checkmark */
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .info-link {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .info-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Header -->
@@ -27,6 +102,14 @@
     <div class="container">
         <!-- Main Content Section -->
         <section class="content-section">
+            <h2 class="section-title">What is this?</h2>
+                <p>There is a misconception in the printer community that you need a Raspberry Pi to run Klipper. While a Raspberry Pi is a good board that runs Klipper just fine, they are often pretty expensive and sometimes hard to get because of their popularity in the DIY community.</p>
+                <br>
+                <p>Performance-wise, the Pi 4 and 5 are quite overkill for what Klipper needs, the Pi 2 and 3 are pretty good, and the Pi Zero 2W is pretty much exactly what is needed for Klipper to function.</p>
+                <p>Luckily, Klipper runs on pretty much anything that runs Linux, and there is a long list of alternative hardware for us to choose from ranging from purpose-built boards, Raspberry "clones", server hardware and normal computers.</p>
+                <br>
+                <p>This website breaks down the options available for us, and at some point I want to make a specific list of known, good hardware that can run Klipper and what sort of performance users have experienced.</p>
+                <br>
             <h2 class="section-title">Selecting Your Host</h2>
 
             <!-- STEP 1: Purpose-Built Boards -->
@@ -88,39 +171,154 @@
                 </div>
             </div>
 
-            <!-- COMPARISON TABLE -->
+            <!-- STEP 4: Alternative Computing -->
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">4</div>
+                    <div class="step-title">Alternative Computing Options</div>
+                    <div class="step-subtitle">Repurposing older or larger hardware</div>
+                </div>
+                <div class="step-content">
+                    <p>Because Klipper is fundamentally just a Python application running on Linux, it does not strictly require an ARM-based single-board computer. You can use almost any x86 machine you have lying around.</p>
+                    <ul>
+                        <li><strong>Thin Clients & Mini PCs (e.g., Intel N100, Dell Wyse):</strong> These provide significantly more processing power and RAM than typical SBCs. They are perfect if you want to run multiple instances of Klipper to control a print farm from a single machine, or if you plan to host heavy network services alongside your printer.</li>
+                        <li><strong>Laptops & Old Desktops:</strong> An old laptop is a fantastic, free Klipper host. It comes with a built-in battery backup (UPS), a screen and a keyboard/trackpad for troubleshooting. You can read my full guide on how to get this set up here: <a href="https://kanrog.com/klipper-laptop-install" class="info-link">Running Klipper on an Old Laptop</a>.</li>
+                        <li><strong>Home Servers / NAS:</strong> If you already run a home server (like Debian, Proxmox, or unRAID), you can easily spin up a Klipper instance using Docker or a lightweight VM and pass your printer's USB connection through to it.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SECTION 5: Klipper Boards Table -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">5</div>
                     <div class="step-title">Hardware Comparison</div>
                     <div class="step-subtitle">Quick reference for your build</div>
                 </div>
                 <div class="step-content">
-                    <div class="table-scroll" style="width: 100%; overflow-x: auto; margin: 20px 0;">
-                        <table class="material-table" style="width: 100%; border-collapse: collapse; background: #1a1a1a; border: 2px solid #9b59b6; border-radius: 10px; color: white;">
-                            <caption style="background: #2a2a2a; color: #9b59b6; border-bottom: 2px solid #9b59b6; text-align: left; padding: 1rem; font-weight: 600;">Host Options Overview</caption>
+                    <div class="table-scroll">
+                        <table class="material-table">
+                            <caption>Host Options Overview</caption>
                             <thead>
                                 <tr>
-                                    <th style="padding: 1rem; border-bottom: 2px solid #9b59b6;">Board Class</th>
-                                    <th style="padding: 1rem; border-bottom: 2px solid #9b59b6;">Best For</th>
-                                    <th style="padding: 1rem; border-bottom: 2px solid #9b59b6;">Power Source</th>
+                                    <th>Board</th>
+                                    <th>Category</th>
+                                    <th>CPU</th>
+                                    <th>RAM</th>
+                                    <th>Storage</th>
+                                    <th>Performance</th>
+                                    <th style="text-align: center;">Confirmed</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;"><strong>Purpose-Built</strong></td>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;">Integrated Builds</td>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;">12V/24V (Printer PSU)</td>
+                                    <td><strong>Raspberry Pi 4</strong></td>
+                                    <td>General SBC</td>
+                                    <td>Broadcom BCM2711</td>
+                                    <td>2GB - 8GB</td>
+                                    <td>Needs MicroSD</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
                                 </tr>
                                 <tr>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;"><strong>Compute Modules</strong></td>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;">Tight Spaces</td>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;">Via Carrier Board</td>
+                                    <td><strong>BTT Pi (V1.2 / V2)</strong></td>
+                                    <td>Purpose-Built</td>
+                                    <td>Allwinner H616</td>
+                                    <td>1GB</td>
+                                    <td>V1.2: SD / V2: eMMC</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
                                 </tr>
                                 <tr>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;"><strong>General SBCs</strong></td>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;">General/Budget</td>
-                                    <td style="padding: 1rem; border-bottom: 1px solid #3a3a3a;">5V (USB-C)</td>
+                                    <td><strong>BTT CB1 / CB2</strong></td>
+                                    <td>Compute Module</td>
+                                    <td>H616 / RK3566</td>
+                                    <td>1GB - 2GB+</td>
+                                    <td>CB1: SD / CB2: eMMC</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Makerbase MKS PI</strong></td>
+                                    <td>Purpose-Built</td>
+                                    <td>Rockchip RK3328</td>
+                                    <td>1GB</td>
+                                    <td>Needs MicroSD</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Raspberry Pi Zero 2 W</strong></td>
+                                    <td>General SBC</td>
+                                    <td>Broadcom BCM2710A1</td>
+                                    <td>512MB</td>
+                                    <td>Needs MicroSD</td>
+                                    <td><span class="perf-tag perf-good">Good</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Orange Pi Zero LTS</strong></td>
+                                    <td>General SBC</td>
+                                    <td>Allwinner H2+</td>
+                                    <td>256MB-512MB</td>
+                                    <td>Needs MicroSD</td>
+                                    <td><span class="perf-tag perf-minimum">Minimum</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Orange Pi Zero 3</strong></td>
+                                    <td>General SBC</td>
+                                    <td>Allwinner H618</td>
+                                    <td>1GB - 4GB</td>
+                                    <td>Needs MicroSD</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Banana Pi BPI-M2 Zero</strong></td>
+                                    <td>General SBC</td>
+                                    <td>Allwinner H2+/H3</td>
+                                    <td>512MB</td>
+                                    <td>Needs MicroSD</td>
+                                    <td><span class="perf-tag perf-minimum">Minimum</span></td>
+                                    <td style="text-align: center;"></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Banana Pi BPI-M4 Zero</strong></td>
+                                    <td>General SBC</td>
+                                    <td>Allwinner H618</td>
+                                    <td>2GB</td>
+                                    <td>8GB eMMC + SD</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>WalnutPi 1 / 2</strong></td>
+                                    <td>General SBC</td>
+                                    <td>H616 / T527</td>
+                                    <td>1GB - 4GB</td>
+                                    <td>Needs MicroSD</td>
+                                    <td><span class="perf-tag perf-good">Good</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Libre Computer Le Potato</strong></td>
+                                    <td>General SBC</td>
+                                    <td>Amlogic S905X</td>
+                                    <td>1GB - 2GB</td>
+                                    <td>SD or eMMC module</td>
+                                    <td><span class="perf-tag perf-great">Great</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Intel N100 / Thin Client</strong></td>
+                                    <td>x86 / Mini PC</td>
+                                    <td>Intel x86</td>
+                                    <td>4GB - 16GB</td>
+                                    <td>SATA/NVMe SSD</td>
+                                    <td><span class="perf-tag perf-overkill">Overkill</span></td>
+                                    <td style="text-align: center;"><span class="check-icon">✔</span></td>
                                 </tr>
                             </tbody>
                         </table>
