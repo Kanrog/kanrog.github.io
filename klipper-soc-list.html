@@ -125,7 +125,6 @@
                         <li><strong>BTT Pi v1.2 & BTT Pi 2:</strong> A robust, direct drop-in replacement for a Raspberry Pi with onboard Wi-Fi.</li>
                         <li><strong>FLY-Pi / FLY Mini-pad:</strong> Highly reliable options; the Mini-pad is specifically optimized for space-constrained all-in-one builds.</li>
                         <li><strong>MKS PI:</strong> MKS's purpose-built host board that runs on 12/24V, eliminating the need for a separate Pi.</li>
-                        <li><strong>MKS Skipr:</strong> A comprehensive all-in-one that integrates both the Klipper host and stepper drivers on a single PCB.</li>
                     </ul>
                 </div>
             </div>
@@ -188,10 +187,29 @@
                 </div>
             </div>
 
-            <!-- SECTION 5: Klipper Boards Table -->
+                        <!-- STEP 5: All in one's -->
             <div class="step-card">
                 <div class="step-header">
                     <div class="step-number">5</div>
+                    <div class="step-title">Integrated Host + MCU Boards</div>
+                    <div class="step-subtitle">True all-in-one solutions on a single PCB</div>
+                </div>
+                <div class="step-content">
+                    <p>These boards represent the most streamlined approach to a Klipper upgrade. They permanently fuse the Linux host processor and the printer's microcontroller onto a single circuit board, meaning no internal USB cables and a single power input for both systems.</p>
+                    <ul>
+                        <li><strong>Makerbase MKS SKIPR (V1.0):</strong> An all-in-one board launched by Makerbase specifically for running Klipper. It pairs a 4-core Cortex-A53 RK3328 SOC with an STM32F407VET6 MCU (running at 168Mhz). It also supports up to 7-axis stepper driving, making it highly versatile for complex setups.</li>
+                        <li><strong>Mellow FLY Gemini (V3):</strong> This board fuses an STM32 controller and a Linux board featuring an Allwinner chip. It includes an onboard CAN transceiver and supports high-voltage printing up to 48V.</li>
+                        <li><strong>Kingroon KP Cheetah V2.0:</strong> Used in the KP3S Pro V2 and KLP1, this mainboard uses a GD32F303 MCU alongside TMC2209 stepper drivers. Instead of a standard SD card for the OS, it utilizes an 8GB MKS EMMC V1.0 module for much faster and more stable read/write speeds.</li>
+                        <li><strong>BigTreeTech DZ01:</strong> A compact all-in-one board featuring an integrated Allwinner H616 SOC (with 1GB DDR3L RAM) for the Klipper host and a 32-bit RP2040 MCU for machine control. It includes 4 onboard TMC2209 stepper drivers and runs directly off your printer's 12V or 24V power supply.</li>
+                        <li><strong>BTT Manta M4P / M5P / M8P:</strong> While technically these modular boards requires a BTT CB1 or Raspberry Pi CM4, once combined, they functions identically to an integrated board. It uses a 32-bit ARM chip for the MCU and provides 4 /5 or 8 stepper motor slots.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SECTION 5: Klipper Boards Table -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">6</div>
                     <div class="step-title">Hardware Comparison</div>
                     <div class="step-subtitle">Quick reference for your build</div>
                 </div>
@@ -319,6 +337,51 @@
                                     <td>SATA/NVMe SSD</td>
                                     <td><span class="perf-tag perf-overkill">Overkill</span></td>
                                     <td style="text-align: center;"><span class="check-icon">✔</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Makerbase MKS SKIPR</strong></td>
+                                    <td>Integrated (All-in-one)</td>
+                                    <td>RK3328 + STM32F407VET6</td>
+                                    <td>1GB</td>
+                                    <td>TF-card and EMMC module</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mellow FLY Gemini V3</strong></td>
+                                    <td>Integrated (All-in-one)</td>
+                                    <td>Allwinner H5 + STM32</td>
+                                    <td>1GB</td>
+                                    <td>SD / eMMC</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Kingroon KP Cheetah V2.0</strong></td>
+                                    <td>Integrated (All-in-one)</td>
+                                    <td>Armbian SOC + GD32F303</td>
+                                    <td>1GB</td>
+                                    <td>8GB EMMC</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>BTT Manta M8P (+ CB1/CM4)</strong></td>
+                                    <td>Integrated (Modular)</td>
+                                    <td>CB1/CM4 + STM32G0B1VET6</td>
+                                    <td>Varies (1GB+)</td>
+                                    <td>SD / eMMC (via Module)</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>BigTreeTech DZ01</strong></td>
+                                    <td>Integrated (All-in-one)</td>
+                                    <td>H616 + RP2040</td>
+                                    <td>1GB</td>
+                                    <td>MicroSD (SOC-Card)</td>
+                                    <td><span class="perf-tag perf-excellent">Excellent</span></td>
+                                    <td style="text-align: center;"></td>
                                 </tr>
                             </tbody>
                         </table>
