@@ -127,16 +127,17 @@
                 <div class="step-content">
                     <p>Download the official <a href="https://www.debian.org/download" target="_blank">Debian Netinst ISO</a> and flash it to your USB stick using a software like Balena Etcher. You can connect your laptop via Ethernet or safely use the installer's built-in Wi-Fi setup to connect to your network (our automated KLap script in Step 4 will automatically handle any backend Wi-Fi conflicts for you!). When the machine boots into the USB stick, select <strong>"Install"</strong>. During the installation steps:</p>
                     <ul>
-                        <li><strong>Hostname & Domain:</strong> Set the hostname to <code>klap-host</code> and leave the domain blank. (This is your "root" user).</li>
-                        <li><strong>Set up User:</strong> Set both the full name and username to <code>klap</code>. (Do not use "root" as a username).</li>
+                        <li><strong>Hostname & Domain:</strong> Set the hostname to <code>klap-host</code> and leave the domain blank.</li>
+                        <li><strong>Set up User:</strong> Set both the full name and username to <code>klap</code>. <em>(Note: These names are arbitrary. You can choose anything except "root", but using "klap" simply makes the rest of this guide easier to follow).</em></li>
                         <li><strong>Software Selection:</strong> Deselect all Desktop Environments to keep it headless. Ensure you explicitly select <strong>SSH Server</strong> and <strong>standard system utilities</strong>.</li>
                     </ul>
 
                     <div class="warning-block">
                         <h4>⚠️ The "Pre-Flight" Sudo Fix</h4>
                         <p>Debian Netinst often skips installing `sudo` and does not grant admin rights by default. Once the install finishes and you log in as <code>klap</code> for the first time, you must elevate your permissions:</p>
+                        <p><em>(Note for beginners: When a Linux terminal prompts for a password, your typing will remain completely invisible. This is normal! Just type your password and hit Enter.)</em></p>
                         <ol>
-                            <li>Type <code>su -</code> and enter your <code>klap-host</code> root password.</li>
+                            <li>Type <code>su -</code> and enter your root password.</li>
                             <li>Run <code>apt update && apt install sudo -y</code> to install the missing tools.</li>
                             <li>Run <code>usermod -aG sudo klap</code> to add yourself to the admin group.</li>
                             <li>Type <code>reboot</code> while still in this root terminal to restart and apply the changes.</li>
@@ -145,8 +146,9 @@
                         <div class="learner-details">
                             <h5>🎓 What's happening here?</h5>
                             <p><strong><code>su -</code></strong>: "Switch User" to root. The <code>-</code> is crucial because it loads the root user's environment paths, allowing you to access system commands.</p>
-                            <p><strong><code>apt update && apt install sudo -y</code></strong>: <code>apt</code> is Debian's package manager. This checks for software updates and then installs the <code>sudo</code> tool. The <code>-y</code> automatically answers "yes" to any installation prompts.</p>
-                            <p><strong><code>usermod -aG sudo klap</code></strong>: Modifies user properties. <code>-aG</code> stands for "Append to Group". It adds the user <code>klap</code> to the <code>sudo</code> (admin) group.</p>
+                            <p><strong><code>&&</code></strong>: This simply strings two separate commands together so they run in sequence.</p>
+                            <p><strong><code>apt update</code></strong> & <strong><code>apt install sudo -y</code></strong>: <code>apt</code> is Debian's package manager. The first command updates your list of available software, and the second installs the <code>sudo</code> tool. The <code>-y</code> automatically answers "yes" to any installation prompts.</p>
+                            <p><strong><code>usermod -aG sudo klap</code></strong>: Modifies user properties. <code>-aG</code> stands for "Append to Group". It adds the user <code>klap</code> to the <code>sudo</code> (admin) group, which allows <code>klap</code> to perform actions as the root user going forward.</p>
                         </div>
                     </div>
                 </div>
@@ -162,7 +164,7 @@
                 <div class="step-content">
                     <p><strong><a href="https://github.com/dw-0/kiauh" target="_blank">KIAUH</a></strong> (Klipper Installation And Update Helper) automates the download and setup of Klipper, Moonraker, and your chosen interface. Type these commands into the terminal:</p>
                     <ol>
-                        <li>Run <code>sudo apt update && sudo apt install git -y</code> to install Git.</li>
+                        <li>Run <code>sudo apt update && sudo apt install git -y</code> to install Git (a version control tool we need to download Klipper and KIAUH).</li>
                         <li>Run <code>git clone https://github.com/dw-0/kiauh.git</code> to download the KIAUH repository.</li>
                         <li>Run <code>./kiauh/kiauh.sh</code> to launch the installer.</li>
                     </ol>
@@ -170,8 +172,9 @@
                     <div class="learner-details">
                         <h5>🎓 What's happening here?</h5>
                         <p><strong><code>sudo</code></strong>: Stands for "Superuser Do". It forces the command to run with administrative privileges (which you unlocked in Step 2).</p>
-                        <p><strong><code>git clone</code></strong>: Git is a version control system. "Clone" literally copies the KIAUH project directly from the GitHub servers onto your laptop.</p>
-                        <p><strong><code>./</code></strong>: The dot-slash tells Linux "run the file located in this exact folder right here" instead of looking through standard system directories.</p>
+                        <p><strong><code>git clone</code></strong>: This copies the KIAUH project from GitHub into a folder named <code>kiauh</code> on your current path (which is your home folder, <code>~/</code>). If you were to run the command <code>ls</code> to list your files, you would see that new folder.</p>
+                        <p><strong><code>./</code></strong>: The dot indicates the "current working directory". We are using a relative shorthand to say "run the <code>kiauh.sh</code> file located inside the <code>kiauh</code> folder right here," saving us from typing the full absolute path (<code>/home/klap/kiauh/kiauh.sh</code>). You could equivalently type <code>cd kiauh</code> to move into the folder, run <code>./kiauh.sh</code>, and then run <code>cd</code> to move back to home.</p>
+                        <p><strong>Ctrl + C</strong>: If you ever make a typo or get stuck in a running program in Linux, press Ctrl+C to instantly cancel it and get a fresh command line.</p>
                     </div>
 
                     <p><strong>What to install in the KIAUH menu:</strong></p>
@@ -244,6 +247,7 @@
                         <li><strong><a href="https://kanrog.github.io/klipper-config-generator/" target="_blank">Klipper Config Generator</a>:</strong> A web-based tool for generating Klipper 3D printer configuration files.</li>
                         <li><strong><a href="https://github.com/Kanrog/klipper-shaper-snap" target="_blank">Klipper Shaper Snap</a>:</strong> One-click resonance calibration macros for Klipper. Runs the test and saves a PNG graph directly to your config folder, viewable from Mainsail/Fluidd.</li>
                         <li><strong><a href="https://kanrog.github.io/macro-generator/" target="_blank">Macro Generator</a>:</strong> Generate a set of macros to simplify your printing.</li>
+                        <li><strong><a href="https://scopeuk.github.io/3dPrintingNotes/linuxForKlipperUsers.html" target="_blank">Linux for Klipper Users</a>:</strong> A fantastic guide for anyone who wants to dive deeper into how Linux operates beneath the surface of Klipper.</li>
                     </ul>
                 </div>
             </div>
