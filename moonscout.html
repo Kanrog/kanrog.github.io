@@ -58,10 +58,9 @@
       margin-bottom: 1.25rem;
     }
 
-    /* Feature Banner Highlight */
     .feature-card {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.3);
       border-radius: 8px;
       padding: 0.85rem 1rem;
       margin-bottom: 1.25rem;
@@ -79,7 +78,7 @@
     .feature-card p {
       margin: 0;
       font-size: 0.85rem;
-      color: #6ee7b7;
+      color: #93c5fd;
       line-height: 1.45;
     }
 
@@ -299,10 +298,9 @@
     </div>
     <div class="subtitle">Scout local networks for active Moonraker / Klipper instances</div>
 
-    <!-- Highlight Feature Banner -->
     <div class="feature-card">
       <span class="icon">🏷️</span>
-      <p><strong>Printer Name Auto-Discovery:</strong> MoonScout queries Moonraker instance details to display your exact hostname/printer label next to each detected IP address!</p>
+      <p><strong>Want Printer Hostnames?</strong> Hosted HTTPS websites are restricted by browser origin rules to IP-only socket checks. Download the <strong>Standalone HTML file</strong> to read Moonraker's API and see exact printer names!</p>
     </div>
 
     <div class="input-group">
@@ -320,7 +318,7 @@
       <ol>
         <li>Ensure your device is connected to your home Wi-Fi / local network.</li>
         <li>MoonScout will attempt to auto-detect your subnet. Tap <strong>Scout</strong> to begin scanning.</li>
-        <li>Discovered printers will list their IP address along with their Moonraker/Klipper hostname.</li>
+        <li><em>Note:</em> To see printer hostnames alongside IP addresses, use the Standalone HTML file below.</li>
       </ol>
 
       <h3>How to Find Your Subnet Prefix</h3>
@@ -333,7 +331,7 @@
       </ul>
 
       <h3>Moonraker Configuration Check</h3>
-      <p>Ensure your printer's <code>moonraker.conf</code> accepts cross-origin API calls and listens on all interfaces:</p>
+      <p>To allow MoonScout to read your printer hostnames, ensure <code>cors_domains: *</code> is in <code>moonraker.conf</code>:</p>
       <pre><code>[server]
 host: 0.0.0.0
 port: 7125
@@ -344,12 +342,12 @@ cors_domains:
     </details>
 
     <details>
-      <summary>Troubleshooting & Fallback Options</summary>
-      <h3>Scan Blocked by Browser?</h3>
-      <p>Most modern browsers allow live local network probes directly on this page. However, if strict security policies block the live web scanner, run MoonScout offline as a local file:</p>
+      <summary>Download Standalone Version (Printer Names Unlocked)</summary>
+      <h3>Run MoonScout Locally</h3>
+      <p>Running MoonScout directly from a local HTML file unlocks full Moonraker JSON payload access, allowing it to extract system hostnames directly alongside IP addresses.</p>
       
       <div class="download-card">
-        <p>Download the standalone single-file version to run scans directly from your local filesystem without browser origin restrictions.</p>
+        <p>Download the standalone single-file version to run scans directly from your local filesystem with full printer name discovery.</p>
         <a id="downloadLink" class="download-btn" download="MoonScout.html" href="#">
           <span>📥 Download Standalone MoonScout</span>
         </a>
@@ -361,8 +359,8 @@ cors_domains:
       <h3>100% Client-Side & Private</h3>
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
-      <h3>Port 7125 Name Extraction & Batched Verification</h3>
-      <p>MoonScout issues queries to port <code>7125</code> in controlled batches of 10. When accessible, MoonScout extracts the hostname directly from Moonraker's <code>/server/info</code> endpoint, falling back to socket verification if cross-origin rules restrict JSON body access.</p>
+      <h3>Port 7125 Batched Verification</h3>
+      <p>MoonScout issues queries to port <code>7125</code> in controlled batches of 10. When executed locally via the standalone file, MoonScout reads the <code>/server/info</code> payload to display your printer's hostname.</p>
     </details>
   </div>
 
@@ -425,8 +423,8 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
   <div class="s">Scout local networks for active Moonraker / Klipper instances</div>
 
   <div class="feature-card">
-    <span class="icon">🏷️</span>
-    <p><strong>Printer Name Auto-Discovery:</strong> MoonScout queries Moonraker instance details to display your exact hostname/printer label next to each detected IP address!</p>
+    <span class="icon">✨</span>
+    <p><strong>Printer Name Auto-Discovery ACTIVE:</strong> Hostnames (e.g. <code>rook-mk2</code>, <code>voron-switchwire</code>) will be displayed next to each IP address!</p>
   </div>
 
   <div class="g">
@@ -442,7 +440,7 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
     <ol>
       <li>Verify your subnet prefix (e.g., <code>192.168.0</code> or <code>192.168.1</code>).</li>
       <li>Click <strong>Scout</strong> to test addresses <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
-      <li>Click <strong>Open UI &rarr;</strong> to launch Mainsail or Fluidd directly.</li>
+      <li>Discovered printers will list their system hostname along with a direct link to open the UI.</li>
     </ol>
     <h3>How to Find Your Subnet Prefix</h3>
     <p>Your subnet prefix consists of the first 3 numbers of your IP address (e.g., if your device IP is <code>192.168.0.45</code>, your subnet is <code>192.168.0</code>):</p>
@@ -465,20 +463,11 @@ cors_domains:
 
   <details>
     <summary>Troubleshooting</summary>
-    <h3>No printers found?</h3>
+    <h3>No printers or names found?</h3>
     <ul>
-      <li><strong>Wi-Fi Subnet:</strong> Make sure your device is connected to the same Wi-Fi subnet as your Klipper printers (not a Guest network or VPN).</li>
-      <li><strong>Firewall:</strong> Check that your host machine allows incoming traffic on port <code>7125</code>.</li>
+      <li><strong>CORS Settings:</strong> Make sure <code>cors_domains: *</code> is present under <code>[authorization]</code> in your <code>moonraker.conf</code> so MoonScout can read the hostname.</li>
+      <li><strong>Wi-Fi Subnet:</strong> Make sure your device is connected to the same Wi-Fi subnet as your Klipper printers.</li>
     </ul>
-  </details>
-
-  <details>
-    <summary>How It Works (Privacy & Security)</summary>
-    <h3>100% Client-Side & Private</h3>
-    <p>This standalone HTML file contains zero external scripts, tracking, or network dependencies. All scanning runs locally inside your browser sandbox.</p>
-    
-    <h3>Batched Asynchronous Sweeping</h3>
-    <p>MoonScout verifies TCP socket connections directly on port <code>7125</code> (the default Moonraker API port) and reads the <code>/server/info</code> payload to display your printer's hostname.</p>
   </details>
 </div>
 
@@ -514,21 +503,23 @@ async function detectSubnet() {
 async function probeIP(ip) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 3500);
-  
+
+  // 1. First attempt full fetch to read Moonraker JSON hostname
   try {
     const res = await fetch("http://" + ip + ":7125/server/info", { signal: controller.signal });
     clearTimeout(timeout);
     if (res.ok) {
       const data = await res.json();
-      const hostname = data?.result?.hostname || "Klipper Instance";
+      const hostname = data?.result?.hostname || "Klipper Printer";
       return { found: true, ip: ip, name: hostname };
     }
   } catch (err) {
     clearTimeout(timeout);
+    // 2. Fall back to socket ping if CORS blocks reading JSON
     try {
       const pingCtrl = new AbortController();
       const pingT = setTimeout(() => pingCtrl.abort(), 2000);
-      await fetch("http://" + ip + ":7125/server/info", { mode: 'no-cors', signal: pingCtrl.signal });
+      await fetch("http://" + ip + ":7125/server/info", { mode: "no-cors", signal: pingCtrl.signal });
       clearTimeout(pingT);
       return { found: true, ip: ip, name: null };
     } catch (pingErr) {
@@ -689,7 +680,7 @@ async function scan(){
       }
 
       btn.disabled = false;
-      statusText.innerText = `Scout complete. Found ${foundPrinters.length} active Klipper instance(s).`;
+      statusText.innerText = `Scout complete. Found ${foundPrinters.length} active Klipper printer(s).`;
     }
   </script>
 </body>
