@@ -300,7 +300,7 @@
 
     <div class="feature-card">
       <span class="icon">🏷️</span>
-      <p><strong>Want Printer Hostnames?</strong> Hosted HTTPS websites are restricted by browser origin rules to IP-only socket checks. Download the <strong>Standalone HTML file</strong> to read Moonraker's API and see exact printer names!</p>
+      <p><strong>Want System Hostnames?</strong> Hosted HTTPS websites are restricted by browser origin rules to IP-only socket checks. Download the <strong>Standalone HTML file</strong> to read Moonraker's API and display system hostnames!</p>
     </div>
 
     <div class="input-group">
@@ -318,16 +318,20 @@
       <ol>
         <li>Ensure your device is connected to your home Wi-Fi / local network.</li>
         <li>MoonScout will attempt to auto-detect your subnet. Tap <strong>Scout</strong> to begin scanning.</li>
-        <li>To display printer hostnames, ensure <code>cors_domains: *</code> is set in <code>moonraker.conf</code>.</li>
+        <li>To display printer system hostnames, use the Standalone HTML file below.</li>
       </ol>
+
+      <h3>How Hostnames Work</h3>
+      <p>MoonScout reads the Linux system <strong>hostname</strong> of the host device (e.g., Raspberry Pi or CB1) via Moonraker's system API—not the custom display name set inside Mainsail or Fluidd GUI settings.</p>
+      <p>To change a printer's displayed name in MoonScout, update the Linux system hostname on that host machine (e.g., via <code>sudo raspi-config</code> or <code>sudo hostnamectl set-hostname your-printer-name</code>).</p>
 
       <h3>How to Find Your Subnet Prefix</h3>
       <p>Your subnet prefix consists of the first 3 numbers of your IP address (e.g., if your device IP is <code>192.168.0.45</code>, your subnet is <code>192.168.0</code>):</p>
       <ul>
         <li><strong>Windows:</strong> Command Prompt &rarr; <code>ipconfig</code></li>
         <li><strong>macOS:</strong> System Settings &rarr; Network &rarr; Wi-Fi &rarr; Details</li>
-        <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap info icon <code>(i)</code></li>
-        <li><strong>Android:</strong> Settings &rarr; Wi-Fi &rarr; tap gear icon</li>
+        <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap the info icon <code>(i)</code> next to network</li>
+        <li><strong>Android:</strong> Settings &rarr; Network & internet &rarr; Wi-Fi &rarr; tap gear icon</li>
       </ul>
 
       <h3>Moonraker Configuration Requirement</h3>
@@ -342,12 +346,12 @@ cors_domains:
     </details>
 
     <details>
-      <summary>Download Standalone Version (Printer Names Unlocked)</summary>
+      <summary>Download Standalone Version (Hostnames Unlocked)</summary>
       <h3>Run MoonScout Locally</h3>
       <p>Running MoonScout directly from a local HTML file unlocks full Moonraker JSON payload access, allowing it to extract system hostnames directly alongside IP addresses.</p>
       
       <div class="download-card">
-        <p>Download the standalone single-file version to run scans directly from your local filesystem with full printer name discovery.</p>
+        <p>Download the standalone single-file version to run scans directly from your local filesystem with full system hostname discovery.</p>
         <a id="downloadLink" class="download-btn" download="MoonScout.html" href="#">
           <span>📥 Download Standalone MoonScout</span>
         </a>
@@ -360,7 +364,7 @@ cors_domains:
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
       <h3>Port 7125 Batched Verification</h3>
-      <p>MoonScout issues queries to port <code>7125</code> in controlled batches of 10. When executed locally via the standalone file, MoonScout reads the <code>/printer/info</code> payload to display your printer's hostname.</p>
+      <p>MoonScout issues queries to port <code>7125</code> in controlled batches of 10. When executed locally via the standalone file, MoonScout reads the <code>/printer/info</code> payload to display your printer's system hostname.</p>
     </details>
   </div>
 
@@ -424,7 +428,7 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
 
   <div class="feature-card">
     <span class="icon">✨</span>
-    <p><strong>Printer Name Discovery ACTIVE:</strong> Hostnames (e.g., <code>rook-mk2</code>, <code>voron-switchwire</code>) will be displayed next to each IP address!</p>
+    <p><strong>System Hostname Discovery ACTIVE:</strong> System hostnames (e.g. <code>rook-mk2</code>, <code>voron-switchwire</code>) are extracted from Moonraker's API and displayed next to each IP address.</p>
   </div>
 
   <div class="g">
@@ -442,6 +446,11 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
       <li>Click <strong>Scout</strong> to test addresses <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
       <li>Discovered printers will list their system hostname along with a direct link to open the UI.</li>
     </ol>
+    
+    <h3>About Displayed Names</h3>
+    <p>MoonScout displays the Linux <strong>system hostname</strong> of the host SBC/Raspberry Pi (not the custom name configured inside Mainsail or Fluidd web UI settings).</p>
+    <p>To change a printer's name in MoonScout, update the Linux system hostname on the host machine (e.g., via <code>sudo hostnamectl set-hostname new-name</code>).</p>
+
     <h3>How to Find Your Subnet Prefix</h3>
     <p>Your subnet prefix consists of the first 3 numbers of your IP address (e.g., if your device IP is <code>192.168.0.45</code>, your subnet is <code>192.168.0</code>):</p>
     <ul>
@@ -450,8 +459,9 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
       <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap info icon <code>(i)</code></li>
       <li><strong>Android:</strong> Settings &rarr; Wi-Fi &rarr; tap gear icon</li>
     </ul>
+
     <h3>Moonraker CORS Configuration</h3>
-    <p>Ensure your printers' <code>moonraker.conf</code> accepts cross-origin API calls:</p>
+    <p>Ensure your printers' <code>moonraker.conf</code> accepts wildcard cross-origin API calls:</p>
     <pre><code>[server]
 host: 0.0.0.0
 port: 7125
@@ -462,9 +472,9 @@ cors_domains:
   </details>
 
   <details>
-    <summary>Troubleshooting (No Printer Names Displayed?)</summary>
+    <summary>Troubleshooting</summary>
     <h3>Missing Hostnames?</h3>
-    <p>If printers show up as <em>"Klipper Instance (CORS Locked)"</em> or without a name, Moonraker is rejecting the local file request. Add wildcard authorization to <code>moonraker.conf</code> on that printer:</p>
+    <p>If printers show up as <em>"Klipper Instance (CORS Locked)"</em> or without a name, Moonraker is rejecting local file reads. Ensure wildcard authorization is set in <code>moonraker.conf</code> on that printer:</p>
     <pre><code>[authorization]
 cors_domains:
     *</code></pre>
@@ -505,17 +515,15 @@ async function probeIP(ip) {
   const timeout = setTimeout(() => controller.abort(), 3500);
 
   try {
-    // Direct REST API fetch to Moonraker printer/info endpoint
     const res = await fetch("http://" + ip + ":7125/printer/info", { signal: controller.signal });
     clearTimeout(timeout);
     if (res.ok) {
       const data = await res.json();
-      const hostname = data?.result?.hostname || "Klipper Instance";
+      const hostname = data?.result?.hostname || "Klipper Printer";
       return { found: true, ip: ip, name: hostname };
     }
   } catch (err) {
     clearTimeout(timeout);
-    // Secondary fallback: test if port 7125 accepts socket connection
     try {
       const pingCtrl = new AbortController();
       const pingT = setTimeout(() => pingCtrl.abort(), 2000);
