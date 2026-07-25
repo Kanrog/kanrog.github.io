@@ -283,8 +283,12 @@
       </ul>
 
       <h3>Moonraker Configuration Check</h3>
-      <p>Ensure your printer's <code>moonraker.conf</code> accepts cross-origin API calls:</p>
-      <pre><code>[authorization]
+      <p>Ensure your printer's <code>moonraker.conf</code> accepts cross-origin API calls and listens on all interfaces:</p>
+      <pre><code>[server]
+host: 0.0.0.0
+port: 7125
+
+[authorization]
 cors_domains:
     *</code></pre>
     </details>
@@ -387,7 +391,11 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
     </ul>
     <h3>Moonraker CORS Configuration</h3>
     <p>Ensure your printers' <code>moonraker.conf</code> accepts cross-origin API calls:</p>
-    <pre><code>[authorization]
+    <pre><code>[server]
+host: 0.0.0.0
+port: 7125
+
+[authorization]
 cors_domains:
     *</code></pre>
   </details>
@@ -444,12 +452,12 @@ function probeIP(ip) {
   return new Promise(resolve => {
     const img = new Image();
     const start = Date.now();
-    const t = setTimeout(() => { img.src = ""; resolve(false); }, 1500);
+    const t = setTimeout(() => { img.src = ""; resolve(false); }, 2500);
 
     img.onerror = () => {
       clearTimeout(t);
       const duration = Date.now() - start;
-      if (duration < 1200) resolve(true);
+      if (duration < 2400) resolve(true);
       else resolve(false);
     };
 
@@ -521,12 +529,12 @@ async function scan(){
       return new Promise(resolve => {
         const img = new Image();
         const start = Date.now();
-        const t = setTimeout(() => { img.src = ""; resolve(false); }, 1500);
+        const t = setTimeout(() => { img.src = ""; resolve(false); }, 2500);
 
         img.onerror = () => {
           clearTimeout(t);
           const duration = Date.now() - start;
-          if (duration < 1200) resolve(true);
+          if (duration < 2400) resolve(true);
           else resolve(false);
         };
 
