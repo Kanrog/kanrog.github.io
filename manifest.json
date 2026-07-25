@@ -1,8 +1,8 @@
 {
-  "name": "Klipper IP Finder",
-  "short_name": "Klipper Finder",
-  "description": "Automatically find Moonraker / Klipper 3D printers on your local network.",
-  "start_url": "./index.html",
+  "name": "MoonScout",
+  "short_name": "MoonScout",
+  "description": "Scout local networks for active Moonraker and Klipper 3D printer instances.",
+  "start_url": "./moonscout.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
