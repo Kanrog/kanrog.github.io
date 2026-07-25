@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoonScout</title>
   
+  <!-- Icon & Favicon -->
+  <link rel="icon" type="image/svg+xml" href="image/moonscout.svg">
+  
   <!-- PWA Manifest & Meta Tags -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
@@ -43,12 +46,13 @@
     .brand-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       margin-bottom: 0.25rem;
     }
 
     .brand-icon {
-      font-size: 1.5rem;
+      width: 32px;
+      height: 32px;
     }
 
     h1 {
@@ -213,7 +217,7 @@
 
   <div class="container">
     <div class="brand-header">
-      <span class="brand-icon">🌙</span>
+      <img src="image/moonscout.svg" alt="MoonScout Logo" class="brand-icon">
       <h1>MoonScout</h1>
     </div>
     <div class="subtitle">Scout local networks for active Moonraker / Klipper instances</div>
@@ -326,7 +330,6 @@ cors_domains:
       for (let i = 1; i <= 254; i++) {
         const ip = `${subnet}.${i}`;
         
-        // Image DOM probe to bypass HTTPS Mixed Content fetch locks
         const task = new Promise((resolve) => {
           const img = new Image();
           const start = Date.now();
@@ -338,7 +341,6 @@ cors_domains:
           img.onerror = () => {
             clearTimeout(timeout);
             const duration = Date.now() - start;
-            // Active Moonraker instances return a quick connection reset/error (< 1200ms)
             if (duration < 1200) {
               count++;
               const li = document.createElement("li");

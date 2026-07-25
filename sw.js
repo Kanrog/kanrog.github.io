@@ -1,8 +1,9 @@
-const CACHE_NAME = 'moonscout-v1';
+const CACHE_NAME = 'moonscout-v2';
 const ASSETS = [
   './',
-  './moonscout.html',
-  './manifest.json'
+  'moonscout.html',
+  'manifest.json',
+  'image/moonscout.svg'
 ];
 
 self.addEventListener('install', (event) => {
