@@ -55,7 +55,32 @@
     .subtitle {
       color: var(--text-muted);
       font-size: 0.875rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Feature Banner Highlight */
+    .feature-card {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .feature-card .icon {
+      font-size: 1.2rem;
+      line-height: 1;
+      margin-top: 0.1rem;
+    }
+
+    .feature-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #6ee7b7;
+      line-height: 1.45;
     }
 
     .input-group {
@@ -120,10 +145,28 @@
       border-radius: 8px;
       border-left: 4px solid var(--success);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 1.05rem;
+      font-size: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    .printer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .printer-name {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .printer-ip {
+      color: var(--text-muted);
+      font-size: 0.85rem;
     }
 
     a.result-link {
@@ -131,6 +174,7 @@
       text-decoration: none;
       font-weight: 600;
       font-size: 0.9rem;
+      white-space: nowrap;
     }
 
     a.result-link:hover {
@@ -255,6 +299,12 @@
     </div>
     <div class="subtitle">Scout local networks for active Moonraker / Klipper instances</div>
 
+    <!-- Highlight Feature Banner -->
+    <div class="feature-card">
+      <span class="icon">🏷️</span>
+      <p><strong>Printer Name Auto-Discovery:</strong> MoonScout queries Moonraker instance details to display your exact hostname/printer label next to each detected IP address!</p>
+    </div>
+
     <div class="input-group">
       <input type="text" id="subnet" placeholder="Detecting subnet...">
       <button id="scanBtn" class="scan-btn" onclick="scan()">Scout</button>
@@ -270,7 +320,7 @@
       <ol>
         <li>Ensure your device is connected to your home Wi-Fi / local network.</li>
         <li>MoonScout will attempt to auto-detect your subnet. Tap <strong>Scout</strong> to begin scanning.</li>
-        <li>If no printers appear, verify your subnet prefix manually using the guide below.</li>
+        <li>Discovered printers will list their IP address along with their Moonraker/Klipper hostname.</li>
       </ol>
 
       <h3>How to Find Your Subnet Prefix</h3>
@@ -311,8 +361,8 @@ cors_domains:
       <h3>100% Client-Side & Private</h3>
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
-      <h3>Port 7125 Batched Verification</h3>
-      <p>MoonScout checks TCP socket connections in small batches of 10 targeted directly at port <code>7125</code> (the standard Moonraker server port) with an extended 5-second socket window to capture high-load or distant Pi hosts.</p>
+      <h3>Port 7125 Name Extraction & Batched Verification</h3>
+      <p>MoonScout issues queries to port <code>7125</code> in controlled batches of 10. When accessible, MoonScout extracts the hostname directly from Moonraker's <code>/server/info</code> endpoint, falling back to socket verification if cross-origin rules restrict JSON body access.</p>
     </details>
   </div>
 
@@ -344,14 +394,21 @@ cors_domains:
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--accent:#2563eb;--accent-hover:#1d4ed8;--text:#f8fafc;--text-muted:#94a3b8;--border:#334155;--success:#10b981;--code-bg:#0f172a}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding:1.5rem 1rem;margin:0;display:flex;justify-content:center}
-.c{width:100%;max-width:500px}h1{font-size:1.5rem;margin:0 0 0.25rem 0}.s{color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem}
+.c{width:100%;max-width:500px}h1{font-size:1.5rem;margin:0 0 0.25rem 0}.s{color:var(--text-muted);font-size:0.875rem;margin-bottom:1.25rem}
+.feature-card{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:0.85rem 1rem;margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:0.75rem}
+.feature-card .icon{font-size:1.2rem;line-height:1;margin-top:0.1rem}
+.feature-card p{margin:0;font-size:0.85rem;color:#6ee7b7;line-height:1.45}
 .g{display:flex;gap:0.5rem;margin-bottom:1rem}input{flex:1;padding:0.75rem 1rem;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#fff;font-size:1rem;outline:none}
 input:focus{border-color:var(--accent)}
 button{padding:0.75rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:1rem;cursor:pointer;transition:background 0.2s}
 button:hover{background:var(--accent-hover)}button:disabled{opacity:0.5;cursor:not-allowed}
 .st{color:var(--text-muted);font-size:0.875rem;margin-bottom:1rem;min-height:1.25rem}
-ul{list-style:none;padding:0;margin:0 0 1.5rem 0}li{background:var(--card);padding:1rem;margin-bottom:0.5rem;border-radius:8px;border-left:4px solid var(--success);font-family:ui-monospace,SFMono-Regular,monospace;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center}
-a{color:var(--accent);text-decoration:none;font-weight:600;font-size:0.9rem}a:hover{text-decoration:underline}
+ul{list-style:none;padding:0;margin:0 0 1.5rem 0}
+li{background:var(--card);padding:1rem;margin-bottom:0.5rem;border-radius:8px;border-left:4px solid var(--success);font-family:ui-monospace,SFMono-Regular,monospace;font-size:1rem;display:flex;justify-content:space-between;align-items:center}
+.printer-info{display:flex;flex-direction:column;gap:0.2rem}
+.printer-name{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:600;font-size:0.95rem;color:var(--text)}
+.printer-ip{color:var(--text-muted);font-size:0.85rem}
+a{color:var(--accent);text-decoration:none;font-weight:600;font-size:0.9rem;white-space:nowrap}a:hover{text-decoration:underline}
 details{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;font-size:0.9rem;line-height:1.5;color:var(--text-muted);margin-bottom:0.75rem}
 summary{font-weight:600;color:var(--text);cursor:pointer;user-select:none}
 details[open] summary{margin-bottom:0.75rem;border-bottom:1px solid var(--border);padding-bottom:0.5rem}
@@ -366,6 +423,12 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
 <div class="c">
   <h1>🌙 MoonScout Local</h1>
   <div class="s">Scout local networks for active Moonraker / Klipper instances</div>
+
+  <div class="feature-card">
+    <span class="icon">🏷️</span>
+    <p><strong>Printer Name Auto-Discovery:</strong> MoonScout queries Moonraker instance details to display your exact hostname/printer label next to each detected IP address!</p>
+  </div>
+
   <div class="g">
     <input type="text" id="subnet" placeholder="Detecting subnet...">
     <button id="btn" onclick="scan()">Scout</button>
@@ -415,7 +478,7 @@ cors_domains:
     <p>This standalone HTML file contains zero external scripts, tracking, or network dependencies. All scanning runs locally inside your browser sandbox.</p>
     
     <h3>Batched Asynchronous Sweeping</h3>
-    <p>MoonScout verifies TCP socket connections directly on port <code>7125</code> (the default Moonraker API port) to prevent false positives and connection queueing.</p>
+    <p>MoonScout verifies TCP socket connections directly on port <code>7125</code> (the default Moonraker API port) and reads the <code>/server/info</code> payload to display your printer's hostname.</p>
   </details>
 </div>
 
@@ -450,28 +513,45 @@ async function detectSubnet() {
 
 async function probeIP(ip) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
+  const timeout = setTimeout(() => controller.abort(), 3500);
+  
   try {
-    await fetch("http://" + ip + ":7125/server/info", { mode: 'no-cors', signal: controller.signal });
+    const res = await fetch("http://" + ip + ":7125/server/info", { signal: controller.signal });
     clearTimeout(timeout);
-    return true;
+    if (res.ok) {
+      const data = await res.json();
+      const hostname = data?.result?.hostname || "Klipper Instance";
+      return { found: true, ip: ip, name: hostname };
+    }
   } catch (err) {
     clearTimeout(timeout);
-    return false;
+    try {
+      const pingCtrl = new AbortController();
+      const pingT = setTimeout(() => pingCtrl.abort(), 2000);
+      await fetch("http://" + ip + ":7125/server/info", { mode: 'no-cors', signal: pingCtrl.signal });
+      clearTimeout(pingT);
+      return { found: true, ip: ip, name: null };
+    } catch (pingErr) {
+      return { found: false, ip: ip, name: null };
+    }
   }
+  return { found: false, ip: ip, name: null };
 }
 
-function renderResults(foundIPs, resultsList) {
-  foundIPs.sort((a, b) => {
-    const numA = parseInt(a.split('.').pop(), 10);
-    const numB = parseInt(b.split('.').pop(), 10);
+function renderResults(foundPrinters, resultsList) {
+  foundPrinters.sort((a, b) => {
+    const numA = parseInt(a.ip.split('.').pop(), 10);
+    const numB = parseInt(b.ip.split('.').pop(), 10);
     return numA - numB;
   });
 
   resultsList.innerHTML = "";
-  foundIPs.forEach(ip => {
+  foundPrinters.forEach(item => {
     const li = document.createElement("li");
-    li.innerHTML = "<span>" + ip + "</span><a href='http://" + ip + "' target='_blank'>Open UI &rarr;</a>";
+    const nameLabel = item.name ? "<div class='printer-name'>" + item.name + "</div>" : "";
+    const ipLabel = "<div class='printer-ip'>" + item.ip + "</div>";
+    
+    li.innerHTML = "<div class='printer-info'>" + nameLabel + ipLabel + "</div><a href='http://" + item.ip + "' target='_blank'>Open UI &rarr;</a>";
     resultsList.appendChild(li);
   });
 }
@@ -485,7 +565,7 @@ async function scan(){
   localStorage.setItem("moonscout_subnet", sn);
   rl.innerHTML="";btn.disabled=true;
   
-  const foundIPs = [];
+  const foundPrinters = [];
   const BATCH_SIZE = 10;
   
   for(let i=1; i<=254; i+=BATCH_SIZE) {
@@ -495,10 +575,10 @@ async function scan(){
     
     for(let j=i; j<=max; j++) {
       const ip = sn + "." + j;
-      batch.push(probeIP(ip).then(found => {
-        if(found) {
-          foundIPs.push(ip);
-          renderResults(foundIPs, rl);
+      batch.push(probeIP(ip).then(res => {
+        if(res.found) {
+          foundPrinters.push(res);
+          renderResults(foundPrinters, rl);
         }
       }));
     }
@@ -506,7 +586,7 @@ async function scan(){
   }
   
   btn.disabled=false;
-  st.innerText="Scout complete. Found " + foundIPs.length + " active Klipper printer(s).";
+  st.innerText="Scout complete. Found " + foundPrinters.length + " active Klipper printer(s).";
 }
 <\/script>
 </body>
@@ -531,28 +611,45 @@ async function scan(){
 
     async function probeIP(ip) {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+      const timeout = setTimeout(() => controller.abort(), 3500);
+      
       try {
-        await fetch(`http://${ip}:7125/server/info`, { mode: 'no-cors', signal: controller.signal });
+        const res = await fetch(`http://${ip}:7125/server/info`, { signal: controller.signal });
         clearTimeout(timeout);
-        return true;
+        if (res.ok) {
+          const data = await res.json();
+          const hostname = data?.result?.hostname || "Klipper Instance";
+          return { found: true, ip: ip, name: hostname };
+        }
       } catch (err) {
         clearTimeout(timeout);
-        return false;
+        try {
+          const pingCtrl = new AbortController();
+          const pingT = setTimeout(() => pingCtrl.abort(), 2000);
+          await fetch(`http://${ip}:7125/server/info`, { mode: 'no-cors', signal: pingCtrl.signal });
+          clearTimeout(pingT);
+          return { found: true, ip: ip, name: null };
+        } catch (pingErr) {
+          return { found: false, ip: ip, name: null };
+        }
       }
+      return { found: false, ip: ip, name: null };
     }
 
-    function renderResults(foundIPs, resultsList) {
-      foundIPs.sort((a, b) => {
-        const numA = parseInt(a.split('.').pop(), 10);
-        const numB = parseInt(b.split('.').pop(), 10);
+    function renderResults(foundPrinters, resultsList) {
+      foundPrinters.sort((a, b) => {
+        const numA = parseInt(a.ip.split('.').pop(), 10);
+        const numB = parseInt(b.ip.split('.').pop(), 10);
         return numA - numB;
       });
 
       resultsList.innerHTML = "";
-      foundIPs.forEach(ip => {
+      foundPrinters.forEach(item => {
         const li = document.createElement("li");
-        li.innerHTML = `<span>${ip}</span><a class="result-link" href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
+        const nameLabel = item.name ? `<div class="printer-name">${item.name}</div>` : "";
+        const ipLabel = `<div class="printer-ip">${item.ip}</div>`;
+        
+        li.innerHTML = `<div class="printer-info">${nameLabel}${ipLabel}</div><a class="result-link" href="http://${item.ip}" target="_blank">Open UI &rarr;</a>`;
         resultsList.appendChild(li);
       });
     }
@@ -570,7 +667,7 @@ async function scan(){
       resultsList.innerHTML = "";
       btn.disabled = true;
 
-      const foundIPs = [];
+      const foundPrinters = [];
       const BATCH_SIZE = 10;
 
       for (let i = 1; i <= 254; i += BATCH_SIZE) {
@@ -580,10 +677,10 @@ async function scan(){
 
         for (let j = i; j <= max; j++) {
           const ip = `${subnet}.${j}`;
-          batch.push(probeIP(ip).then(found => {
-            if (found) {
-              foundIPs.push(ip);
-              renderResults(foundIPs, resultsList);
+          batch.push(probeIP(ip).then(res => {
+            if (res.found) {
+              foundPrinters.push(res);
+              renderResults(foundPrinters, resultsList);
             }
           }));
         }
@@ -592,7 +689,7 @@ async function scan(){
       }
 
       btn.disabled = false;
-      statusText.innerText = `Scout complete. Found ${foundIPs.length} active Klipper instance(s).`;
+      statusText.innerText = `Scout complete. Found ${foundPrinters.length} active Klipper instance(s).`;
     }
   </script>
 </body>
