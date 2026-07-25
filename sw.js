@@ -1,7 +1,7 @@
-const CACHE_NAME = 'klipper-finder-v1';
+const CACHE_NAME = 'moonscout-v1';
 const ASSETS = [
   './',
-  './index.html',
+  './moonscout.html',
   './manifest.json'
 ];
 
@@ -12,7 +12,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle local static asset requests, ignore subnet fetch sweeps
+  // Ignore active subnet probe sweeps on port 7125
   if (event.request.url.includes(':7125')) {
     return;
   }
