@@ -22,13 +22,14 @@
       --text-muted: #94a3b8;
       --border: #334155;
       --success: #10b981;
+      --code-bg: #0f172a;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 1.5rem;
+      padding: 1.5rem 1rem;
       margin: 0;
       display: flex;
       justify-content: center;
@@ -102,7 +103,7 @@
     ul {
       list-style: none;
       padding: 0;
-      margin: 0;
+      margin: 0 0 1.5rem 0;
     }
 
     li {
@@ -128,6 +129,74 @@
     a:hover {
       text-decoration: underline;
     }
+
+    /* Collapsible Instructions Drawer */
+    details {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    summary {
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    details[open] summary {
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    details h3 {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin: 1rem 0 0.25rem 0;
+    }
+
+    details ol, details ul {
+      padding-left: 1.2rem;
+      margin: 0.25rem 0;
+      list-style: auto;
+    }
+
+    details li {
+      background: none;
+      padding: 0;
+      margin-bottom: 0.25rem;
+      border: none;
+      font-family: inherit;
+      font-size: 0.875rem;
+      display: list-item;
+    }
+
+    code {
+      background: var(--code-bg);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      color: #38bdf8;
+      font-size: 0.85rem;
+    }
+
+    pre {
+      background: var(--code-bg);
+      padding: 0.75rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+    }
+
+    pre code {
+      padding: 0;
+      color: #f8fafc;
+    }
   </style>
 </head>
 <body>
@@ -143,10 +212,40 @@
 
     <div class="status" id="status">Initializing...</div>
     <ul id="results"></ul>
+
+    <!-- Instructions Panel -->
+    <details>
+      <summary>Instructions & Troubleshooting</summary>
+      
+      <h3>How to Use</h3>
+      <ol>
+        <li>Make sure your device is connected to the same Wi-Fi / local network as your printers.</li>
+        <li>The app will automatically guess your subnet prefix (e.g., <code>192.168.1</code>). Adjust it manually if needed.</li>
+        <li>Tap <strong>Scan</strong> to sweep IPs <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
+      </ol>
+
+      <h3>Install as a Mobile App</h3>
+      <ul>
+        <li><strong>iOS (Safari):</strong> Tap the <strong>Share</strong> button &rarr; <strong>Add to Home Screen</strong>.</li>
+        <li><strong>Android (Chrome):</strong> Tap the <strong>3 dots</strong> &rarr; <strong>Add to Home Screen / Install App</strong>.</li>
+      </ul>
+
+      <h3>Troubleshooting (No printers found?)</h3>
+      <ul>
+        <li>
+          <strong>Allow Insecure Content (Mixed Content):</strong> Because GitHub Pages uses <code>https://</code>, browsers block local <code>http://</code> calls by default. Tap the site settings icon in your browser address bar &rarr; <strong>Site Settings</strong> &rarr; set <strong>Insecure Content</strong> to <strong>Allow</strong>.
+        </li>
+        <li>
+          <strong>Moonraker CORS Config:</strong> If scans time out, ensure your printers' <code>moonraker.conf</code> allows cross-origin requests:
+          <pre><code>[authorization]
+cors_domains:
+    *</code></pre>
+        </li>
+      </ul>
+    </details>
   </div>
 
   <script>
-    // Register PWA Service Worker for offline app caching
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
