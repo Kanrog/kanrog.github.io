@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Klipper IP Finder</title>
+  <title>MoonScout</title>
   
   <!-- PWA Manifest & Meta Tags -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Klipper Finder">
+  <meta name="apple-mobile-web-app-title" content="MoonScout">
 
   <style>
     :root {
@@ -40,9 +40,20 @@
       max-width: 500px;
     }
 
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .brand-icon {
+      font-size: 1.5rem;
+    }
+
     h1 {
       font-size: 1.5rem;
-      margin-bottom: 0.25rem;
+      margin: 0;
     }
 
     .subtitle {
@@ -130,7 +141,6 @@
       text-decoration: underline;
     }
 
-    /* Collapsible Instructions Drawer */
     details {
       background: var(--card);
       border: 1px solid var(--border);
@@ -202,26 +212,28 @@
 <body>
 
   <div class="container">
-    <h1>Klipper IP Finder</h1>
-    <div class="subtitle">Scan your network for Moonraker instances on port 7125</div>
+    <div class="brand-header">
+      <span class="brand-icon">🌙</span>
+      <h1>MoonScout</h1>
+    </div>
+    <div class="subtitle">Scout local networks for active Moonraker / Klipper instances</div>
 
     <div class="input-group">
       <input type="text" id="subnet" placeholder="e.g. 192.168.1">
-      <button id="scanBtn" onclick="scan()">Scan</button>
+      <button id="scanBtn" onclick="scan()">Scout</button>
     </div>
 
     <div class="status" id="status">Initializing...</div>
     <ul id="results"></ul>
 
-    <!-- Instructions Panel -->
     <details>
       <summary>Instructions & Troubleshooting</summary>
       
       <h3>How to Use</h3>
       <ol>
-        <li>Make sure your device is connected to the same Wi-Fi / local network as your printers.</li>
-        <li>The app will automatically guess your subnet prefix (e.g., <code>192.168.1</code>). Adjust it manually if needed.</li>
-        <li>Tap <strong>Scan</strong> to sweep IPs <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
+        <li>Connect your device to the same Wi-Fi / local network as your Klipper printers.</li>
+        <li>MoonScout will automatically estimate your subnet prefix (e.g., <code>192.168.1</code>). Adjust it manually if needed.</li>
+        <li>Tap <strong>Scout</strong> to scan IPs <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
       </ol>
 
       <h3>Install as a Mobile App</h3>
@@ -233,10 +245,10 @@
       <h3>Troubleshooting (No printers found?)</h3>
       <ul>
         <li>
-          <strong>Allow Insecure Content (Mixed Content):</strong> Because GitHub Pages uses <code>https://</code>, browsers block local <code>http://</code> calls by default. Tap the site settings icon in your browser address bar &rarr; <strong>Site Settings</strong> &rarr; set <strong>Insecure Content</strong> to <strong>Allow</strong>.
+          <strong>Allow Insecure Content (Mixed Content):</strong> Because GitHub Pages serves over <code>https://</code>, browsers block local <code>http://</code> fetch calls by default. Tap the site settings icon in your browser address bar &rarr; <strong>Site Settings</strong> &rarr; set <strong>Insecure Content</strong> to <strong>Allow</strong>.
         </li>
         <li>
-          <strong>Moonraker CORS Config:</strong> If scans time out, ensure your printers' <code>moonraker.conf</code> allows cross-origin requests:
+          <strong>Moonraker CORS Config:</strong> If requests fail, ensure your printers' <code>moonraker.conf</code> allows cross-origin requests:
           <pre><code>[authorization]
 cors_domains:
     *</code></pre>
@@ -253,7 +265,7 @@ cors_domains:
     const COMMON_SUBNETS = ["192.168.1", "192.168.0", "10.0.0", "172.16.0"];
 
     window.addEventListener("DOMContentLoaded", async () => {
-      const savedSubnet = localStorage.getItem("klipper_subnet");
+      const savedSubnet = localStorage.getItem("moonscout_subnet");
       const subnetInput = document.getElementById("subnet");
 
       if (savedSubnet) {
@@ -298,11 +310,11 @@ cors_domains:
 
       if (!subnet) return;
 
-      localStorage.setItem("klipper_subnet", subnet);
+      localStorage.setItem("moonscout_subnet", subnet);
 
       resultsList.innerHTML = "";
       btn.disabled = true;
-      statusText.innerText = `Scanning ${subnet}.1 to ${subnet}.254 on port 7125...`;
+      statusText.innerText = `Scouting ${subnet}.1 to ${subnet}.254 on port 7125...`;
 
       let count = 0;
       const tasks = [];
@@ -332,7 +344,7 @@ cors_domains:
 
       await Promise.all(tasks);
       btn.disabled = false;
-      statusText.innerText = `Scan complete. Found ${count} active Klipper printer(s).`;
+      statusText.innerText = `Scout complete. Found ${count} active Klipper instance(s).`;
     }
   </script>
 </body>
