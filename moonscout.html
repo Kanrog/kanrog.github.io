@@ -245,10 +245,10 @@
       <h3>Troubleshooting (No printers found?)</h3>
       <ul>
         <li>
-          <strong>Allow Insecure Content (Mixed Content):</strong> Because GitHub Pages serves over <code>https://</code>, browsers block local <code>http://</code> fetch calls by default. Tap the site settings icon in your browser address bar &rarr; <strong>Site Settings</strong> &rarr; set <strong>Insecure Content</strong> to <strong>Allow</strong>.
+          <strong>Wi-Fi Network:</strong> Ensure your phone or browser isn't connected to a Guest Wi-Fi network or cellular data.
         </li>
         <li>
-          <strong>Moonraker CORS Config:</strong> If requests fail, ensure your printers' <code>moonraker.conf</code> allows cross-origin requests:
+          <strong>Moonraker CORS Config:</strong> Ensure your printers' <code>moonraker.conf</code> allows cross-origin requests:
           <pre><code>[authorization]
 cors_domains:
     *</code></pre>
@@ -282,15 +282,19 @@ cors_domains:
     async function detectSubnet() {
       const probePromises = COMMON_SUBNETS.map((subnet) => {
         return new Promise((resolve) => {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 1000);
+          const img = new Image();
+          const timeout = setTimeout(() => resolve(null), 1000);
+          
+          img.onerror = () => {
+            clearTimeout(timeout);
+            resolve(subnet);
+          };
+          img.onload = () => {
+            clearTimeout(timeout);
+            resolve(subnet);
+          };
 
-          fetch(`http://${subnet}.1`, { mode: "no-cors", signal: controller.signal })
-            .then(() => resolve(subnet))
-            .catch((err) => {
-              if (err.name !== "AbortError") resolve(subnet);
-            })
-            .finally(() => clearTimeout(timeout));
+          img.src = `http://${subnet}.1/?t=${Date.now()}`;
         });
       });
 
@@ -321,23 +325,40 @@ cors_domains:
 
       for (let i = 1; i <= 254; i++) {
         const ip = `${subnet}.${i}`;
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 1200);
+        
+        // Image DOM probe to bypass HTTPS Mixed Content fetch locks
+        const task = new Promise((resolve) => {
+          const img = new Image();
+          const start = Date.now();
+          const timeout = setTimeout(() => {
+            img.src = "";
+            resolve(null);
+          }, 1500);
 
-        const task = fetch(`http://${ip}:7125/server/info`, { signal: controller.signal })
-          .then(async (res) => {
-            if (res.ok) {
-              const data = await res.json();
-              if (data?.result?.klippy_state) {
-                count++;
-                const li = document.createElement("li");
-                li.innerHTML = `<span>${ip}</span><a href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
-                resultsList.appendChild(li);
-              }
+          img.onerror = () => {
+            clearTimeout(timeout);
+            const duration = Date.now() - start;
+            // Active Moonraker instances return a quick connection reset/error (< 1200ms)
+            if (duration < 1200) {
+              count++;
+              const li = document.createElement("li");
+              li.innerHTML = `<span>${ip}</span><a href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
+              resultsList.appendChild(li);
             }
-          })
-          .catch(() => {})
-          .finally(() => clearTimeout(timeout));
+            resolve(null);
+          };
+
+          img.onload = () => {
+            clearTimeout(timeout);
+            count++;
+            const li = document.createElement("li");
+            li.innerHTML = `<span>${ip}</span><a href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
+            resultsList.appendChild(li);
+            resolve(null);
+          };
+
+          img.src = `http://${ip}:7125/server/info?t=${Date.now()}`;
+        });
 
         tasks.push(task);
       }
