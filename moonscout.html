@@ -318,7 +318,7 @@
       <ol>
         <li>Ensure your device is connected to your home Wi-Fi / local network.</li>
         <li>MoonScout will attempt to auto-detect your subnet. Tap <strong>Scout</strong> to begin scanning.</li>
-        <li><em>Note:</em> To see printer hostnames alongside IP addresses, use the Standalone HTML file below.</li>
+        <li>To display printer hostnames, ensure <code>cors_domains: *</code> is set in <code>moonraker.conf</code>.</li>
       </ol>
 
       <h3>How to Find Your Subnet Prefix</h3>
@@ -326,12 +326,12 @@
       <ul>
         <li><strong>Windows:</strong> Command Prompt &rarr; <code>ipconfig</code></li>
         <li><strong>macOS:</strong> System Settings &rarr; Network &rarr; Wi-Fi &rarr; Details</li>
-        <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap the info icon <code>(i)</code> next to network</li>
-        <li><strong>Android:</strong> Settings &rarr; Network & internet &rarr; Wi-Fi &rarr; tap gear icon</li>
+        <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap info icon <code>(i)</code></li>
+        <li><strong>Android:</strong> Settings &rarr; Wi-Fi &rarr; tap gear icon</li>
       </ul>
 
-      <h3>Moonraker Configuration Check</h3>
-      <p>To allow MoonScout to read your printer hostnames, ensure <code>cors_domains: *</code> is in <code>moonraker.conf</code>:</p>
+      <h3>Moonraker Configuration Requirement</h3>
+      <p>To allow local browser scripts to read printer hostnames, ensure your <code>moonraker.conf</code> includes wildcard authorization:</p>
       <pre><code>[server]
 host: 0.0.0.0
 port: 7125
@@ -360,7 +360,7 @@ cors_domains:
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
       <h3>Port 7125 Batched Verification</h3>
-      <p>MoonScout issues queries to port <code>7125</code> in controlled batches of 10. When executed locally via the standalone file, MoonScout reads the <code>/server/info</code> payload to display your printer's hostname.</p>
+      <p>MoonScout issues queries to port <code>7125</code> in controlled batches of 10. When executed locally via the standalone file, MoonScout reads the <code>/printer/info</code> payload to display your printer's hostname.</p>
     </details>
   </div>
 
@@ -424,7 +424,7 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
 
   <div class="feature-card">
     <span class="icon">✨</span>
-    <p><strong>Printer Name Auto-Discovery ACTIVE:</strong> Hostnames (e.g. <code>rook-mk2</code>, <code>voron-switchwire</code>) will be displayed next to each IP address!</p>
+    <p><strong>Printer Name Discovery ACTIVE:</strong> Hostnames (e.g., <code>rook-mk2</code>, <code>voron-switchwire</code>) will be displayed next to each IP address!</p>
   </div>
 
   <div class="g">
@@ -462,12 +462,12 @@ cors_domains:
   </details>
 
   <details>
-    <summary>Troubleshooting</summary>
-    <h3>No printers or names found?</h3>
-    <ul>
-      <li><strong>CORS Settings:</strong> Make sure <code>cors_domains: *</code> is present under <code>[authorization]</code> in your <code>moonraker.conf</code> so MoonScout can read the hostname.</li>
-      <li><strong>Wi-Fi Subnet:</strong> Make sure your device is connected to the same Wi-Fi subnet as your Klipper printers.</li>
-    </ul>
+    <summary>Troubleshooting (No Printer Names Displayed?)</summary>
+    <h3>Missing Hostnames?</h3>
+    <p>If printers show up as <em>"Klipper Instance (CORS Locked)"</em> or without a name, Moonraker is rejecting the local file request. Add wildcard authorization to <code>moonraker.conf</code> on that printer:</p>
+    <pre><code>[authorization]
+cors_domains:
+    *</code></pre>
   </details>
 </div>
 
@@ -504,24 +504,24 @@ async function probeIP(ip) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 3500);
 
-  // 1. First attempt full fetch to read Moonraker JSON hostname
   try {
-    const res = await fetch("http://" + ip + ":7125/server/info", { signal: controller.signal });
+    // Direct REST API fetch to Moonraker printer/info endpoint
+    const res = await fetch("http://" + ip + ":7125/printer/info", { signal: controller.signal });
     clearTimeout(timeout);
     if (res.ok) {
       const data = await res.json();
-      const hostname = data?.result?.hostname || "Klipper Printer";
+      const hostname = data?.result?.hostname || "Klipper Instance";
       return { found: true, ip: ip, name: hostname };
     }
   } catch (err) {
     clearTimeout(timeout);
-    // 2. Fall back to socket ping if CORS blocks reading JSON
+    // Secondary fallback: test if port 7125 accepts socket connection
     try {
       const pingCtrl = new AbortController();
       const pingT = setTimeout(() => pingCtrl.abort(), 2000);
-      await fetch("http://" + ip + ":7125/server/info", { mode: "no-cors", signal: pingCtrl.signal });
+      await fetch("http://" + ip + ":7125/printer/info", { mode: "no-cors", signal: pingCtrl.signal });
       clearTimeout(pingT);
-      return { found: true, ip: ip, name: null };
+      return { found: true, ip: ip, name: "Klipper Instance (CORS Locked)" };
     } catch (pingErr) {
       return { found: false, ip: ip, name: null };
     }
@@ -605,7 +605,7 @@ async function scan(){
       const timeout = setTimeout(() => controller.abort(), 3500);
       
       try {
-        const res = await fetch(`http://${ip}:7125/server/info`, { signal: controller.signal });
+        const res = await fetch(`http://${ip}:7125/printer/info`, { signal: controller.signal });
         clearTimeout(timeout);
         if (res.ok) {
           const data = await res.json();
@@ -617,9 +617,9 @@ async function scan(){
         try {
           const pingCtrl = new AbortController();
           const pingT = setTimeout(() => pingCtrl.abort(), 2000);
-          await fetch(`http://${ip}:7125/server/info`, { mode: 'no-cors', signal: pingCtrl.signal });
+          await fetch(`http://${ip}:7125/printer/info`, { mode: 'no-cors', signal: pingCtrl.signal });
           clearTimeout(pingT);
-          return { found: true, ip: ip, name: null };
+          return { found: true, ip: ip, name: "Klipper Instance (CORS Locked)" };
         } catch (pingErr) {
           return { found: false, ip: ip, name: null };
         }
