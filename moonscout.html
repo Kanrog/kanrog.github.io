@@ -308,7 +308,7 @@ cors_domains:
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
       <h3>Port 7125 Asynchronous Sweep</h3>
-      <p>MoonScout issues light, non-blocking requests across local addresses <code>.1</code> through <code>.254</code> targeted specifically at port <code>7125</code> (the standard Moonraker server port). Active Moonraker instances report back in real time and display directly in the list above.</p>
+      <p>MoonScout issues light, batched requests across local addresses <code>.1</code> through <code>.254</code> targeted specifically at port <code>7125</code> (the standard Moonraker server port). Active Moonraker instances report back in real time and display directly in the list above.</p>
     </details>
   </div>
 
@@ -329,7 +329,10 @@ cors_domains:
         document.getElementById("status").innerText = `Detected subnet: ${detected}`;
       }
 
-      // Standalone HTML Generator using DOM Image Probe
+      generateStandaloneDownload();
+    });
+
+    function generateStandaloneDownload() {
       const standaloneHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -374,6 +377,37 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
       <li>Click <strong>Scout</strong> to test addresses <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
       <li>Click <strong>Open UI &rarr;</strong> to launch Mainsail or Fluidd directly.</li>
     </ol>
+    <h3>How to Find Your Subnet Prefix</h3>
+    <p>Your subnet prefix consists of the first 3 numbers of your IP address (e.g., if your device IP is <code>192.168.0.45</code>, your subnet is <code>192.168.0</code>):</p>
+    <ul>
+      <li><strong>Windows:</strong> Command Prompt &rarr; <code>ipconfig</code></li>
+      <li><strong>macOS:</strong> System Settings &rarr; Network &rarr; Wi-Fi Details</li>
+      <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap info icon <code>(i)</code></li>
+      <li><strong>Android:</strong> Settings &rarr; Wi-Fi &rarr; tap gear icon</li>
+    </ul>
+    <h3>Moonraker CORS Configuration</h3>
+    <p>Ensure your printers' <code>moonraker.conf</code> accepts cross-origin API calls:</p>
+    <pre><code>[authorization]
+cors_domains:
+    *</code></pre>
+  </details>
+
+  <details>
+    <summary>Troubleshooting</summary>
+    <h3>No printers found?</h3>
+    <ul>
+      <li><strong>Wi-Fi Subnet:</strong> Make sure your device is connected to the same Wi-Fi subnet as your Klipper printers (not a Guest network or VPN).</li>
+      <li><strong>Firewall:</strong> Check that your host machine allows incoming traffic on port <code>7125</code>.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>How It Works (Privacy & Security)</summary>
+    <h3>100% Client-Side & Private</h3>
+    <p>This standalone HTML file contains zero external scripts, tracking, or network dependencies. All scanning runs locally inside your browser sandbox.</p>
+    
+    <h3>Batched Asynchronous Sweeping</h3>
+    <p>MoonScout probes local addresses in controlled batches across port <code>7125</code> (the default Moonraker API port) to prevent browser connection throttling and ensure 100% scan accuracy.</p>
   </details>
 </div>
 
@@ -410,13 +444,12 @@ function probeIP(ip) {
   return new Promise(resolve => {
     const img = new Image();
     const start = Date.now();
-    const t = setTimeout(() => { img.src = ""; resolve(false); }, 1000);
+    const t = setTimeout(() => { img.src = ""; resolve(false); }, 1500);
 
     img.onerror = () => {
       clearTimeout(t);
       const duration = Date.now() - start;
-      // Active Moonraker server rejects the image request almost instantly (< 800ms)
-      if (duration < 800) resolve(true);
+      if (duration < 1200) resolve(true);
       else resolve(false);
     };
 
@@ -436,22 +469,32 @@ async function scan(){
   const btn=document.getElementById("btn");
   if(!sn)return;
   localStorage.setItem("moonscout_subnet", sn);
-  rl.innerHTML="";btn.disabled=true;st.innerText="Scouting " + sn + ".1 to " + sn + ".254 on port 7125...";
-  let count=0,tasks=[];
-  for(let i=1;i<=254;i++){
-    const ip=sn + "." + i;
-    const task=probeIP(ip).then(found => {
-      if(found) {
-        count++;
-        const li=document.createElement("li");
-        li.innerHTML="<span>" + ip + "</span><a href='http://" + ip + "' target='_blank'>Open UI &rarr;</a>";
-        rl.appendChild(li);
-      }
-    });
-    tasks.push(task);
+  rl.innerHTML="";btn.disabled=true;
+  
+  let count=0;
+  const BATCH_SIZE = 20;
+  
+  for(let i=1; i<=254; i+=BATCH_SIZE) {
+    const batch = [];
+    const max = Math.min(i + BATCH_SIZE - 1, 254);
+    st.innerText = "Scouting " + sn + "." + i + " to " + sn + "." + max + " on port 7125...";
+    
+    for(let j=i; j<=max; j++) {
+      const ip = sn + "." + j;
+      batch.push(probeIP(ip).then(found => {
+        if(found) {
+          count++;
+          const li=document.createElement("li");
+          li.innerHTML="<span>" + ip + "</span><a href='http://" + ip + "' target='_blank'>Open UI &rarr;</a>";
+          rl.appendChild(li);
+        }
+      }));
+    }
+    await Promise.all(batch);
   }
-  await Promise.all(tasks);
-  btn.disabled=false;st.innerText="Scout complete. Found " + count + " active Klipper printer(s).";
+  
+  btn.disabled=false;
+  st.innerText="Scout complete. Found " + count + " active Klipper printer(s).";
 }
 <\/script>
 </body>
@@ -459,9 +502,8 @@ async function scan(){
 
       const blob = new Blob([standaloneHTML], { type: "text/html" });
       document.getElementById("downloadLink").href = URL.createObjectURL(blob);
-    });
+    }
 
-    // Detect Subnet
     async function detectSubnet() {
       const probes = COMMON_SUBNETS.map(sub => new Promise(resolve => {
         const img = new Image();
@@ -475,17 +517,16 @@ async function scan(){
       return results.find(s => s !== null) || "192.168.0";
     }
 
-    // DOM Image Probe for Port 7125
     function probeIP(ip) {
       return new Promise(resolve => {
         const img = new Image();
         const start = Date.now();
-        const t = setTimeout(() => { img.src = ""; resolve(false); }, 1000);
+        const t = setTimeout(() => { img.src = ""; resolve(false); }, 1500);
 
         img.onerror = () => {
           clearTimeout(t);
           const duration = Date.now() - start;
-          if (duration < 800) resolve(true);
+          if (duration < 1200) resolve(true);
           else resolve(false);
         };
 
@@ -510,25 +551,30 @@ async function scan(){
 
       resultsList.innerHTML = "";
       btn.disabled = true;
-      statusText.innerText = `Scouting ${subnet}.1 to ${subnet}.254 on port 7125...`;
 
       let count = 0;
-      const tasks = [];
+      const BATCH_SIZE = 20;
 
-      for (let i = 1; i <= 254; i++) {
-        const ip = `${subnet}.${i}`;
-        const task = probeIP(ip).then(found => {
-          if (found) {
-            count++;
-            const li = document.createElement("li");
-            li.innerHTML = `<span>${ip}</span><a class="result-link" href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
-            resultsList.appendChild(li);
-          }
-        });
-        tasks.push(task);
+      for (let i = 1; i <= 254; i += BATCH_SIZE) {
+        const batch = [];
+        const max = Math.min(i + BATCH_SIZE - 1, 254);
+        statusText.innerText = `Scouting ${subnet}.${i} to ${subnet}.${max} on port 7125...`;
+
+        for (let j = i; j <= max; j++) {
+          const ip = `${subnet}.${j}`;
+          batch.push(probeIP(ip).then(found => {
+            if (found) {
+              count++;
+              const li = document.createElement("li");
+              li.innerHTML = `<span>${ip}</span><a class="result-link" href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
+              resultsList.appendChild(li);
+            }
+          }));
+        }
+
+        await Promise.all(batch);
       }
 
-      await Promise.all(tasks);
       btn.disabled = false;
       statusText.innerText = `Scout complete. Found ${count} active Klipper instance(s).`;
     }
