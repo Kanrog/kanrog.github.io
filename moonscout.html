@@ -182,6 +182,7 @@
       font-size: 0.9rem;
       line-height: 1.5;
       color: var(--text-muted);
+      margin-bottom: 0.75rem;
     }
 
     summary {
@@ -259,11 +260,11 @@
     </div>
 
     <div class="input-group">
-      <input type="text" id="subnet" placeholder="e.g. 192.168.1">
+      <input type="text" id="subnet" placeholder="Detecting subnet...">
       <button id="scanBtn" class="scan-btn" onclick="scan()">Scout</button>
     </div>
 
-    <div class="status" id="status">Ready.</div>
+    <div class="status" id="status">Detecting local subnet...</div>
     <ul id="results"></ul>
 
     <details>
@@ -272,8 +273,8 @@
       <h3>How to Use</h3>
       <ol>
         <li>Download the standalone HTML file above or host it locally.</li>
-        <li>Open the saved <code>MoonScout.html</code> file in any mobile or desktop browser.</li>
-        <li>Enter your local subnet prefix (e.g., <code>192.168.0</code> or <code>192.168.1</code>).</li>
+        <li>Open the saved <code>MoonScout.html</code> file in any browser.</li>
+        <li>MoonScout will automatically test and pre-fill your gateway subnet.</li>
         <li>Tap <strong>Scout</strong> to sweep IPs <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
       </ol>
 
@@ -283,10 +284,21 @@
 cors_domains:
     *</code></pre>
     </details>
+
+    <details>
+      <summary>How It Works (Privacy & Security)</summary>
+      <h3>100% Client-Side & Private</h3>
+      <p>MoonScout runs entirely in your web browser. No analytics, tracking, external server calls, or network data ever leave your machine.</p>
+      
+      <h3>Port 7125 Asynchronous Sweep</h3>
+      <p>When you click <strong>Scout</strong>, MoonScout sends light, non-blocking HTTP probes across addresses <code>.1</code> through <code>.254</code> targeted specifically at port <code>7125</code> (the standard Moonraker API port). Active instances return immediately and display in the list with a direct link to open Fluidd or Mainsail.</p>
+    </details>
   </div>
 
   <script>
-    window.addEventListener("DOMContentLoaded", () => {
+    const COMMON_SUBNETS = ["192.168.0", "192.168.1", "10.0.0", "172.16.0", "192.168.50"];
+
+    window.addEventListener("DOMContentLoaded", async () => {
       const savedSubnet = localStorage.getItem("moonscout_subnet");
       const subnetInput = document.getElementById("subnet");
       
@@ -294,42 +306,113 @@ cors_domains:
         subnetInput.value = savedSubnet;
         document.getElementById("status").innerText = `Loaded saved subnet: ${savedSubnet}`;
       } else {
-        subnetInput.value = "192.168.1";
+        document.getElementById("status").innerText = "Detecting active subnet...";
+        const detected = await detectSubnet();
+        subnetInput.value = detected;
+        document.getElementById("status").innerText = `Detected subnet: ${detected}`;
       }
 
-      // Generate Data URI for local download with CORS-proof probing
+      // Generate Data URI for local download including full instructions & documentation
       const standaloneHTML = `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MoonScout Local</title>
 <style>
-body{font-family:system-ui,sans-serif;background:#0f172a;color:#f8fafc;padding:1.5rem;margin:0;display:flex;justify-content:center}
-.c{width:100%;max-width:500px}h1{font-size:1.5rem;margin:0 0 0.25rem 0}.s{color:#94a3b8;font-size:0.875rem;margin-bottom:1.5rem}
-.g{display:flex;gap:0.5rem;margin-bottom:1rem}input{flex:1;padding:0.75rem;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#fff;font-size:1rem}
-button{padding:0.75rem 1.25rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-ul{list-style:none;padding:0;margin:0}li{background:#1e293b;padding:1rem;margin-bottom:0.5rem;border-radius:8px;border-left:4px solid #10b981;font-family:monospace;display:flex;justify-content:space-between;align-items:center}
-a{color:#2563eb;text-decoration:none;font-weight:600}
+:root{--bg:#0f172a;--card:#1e293b;--accent:#2563eb;--accent-hover:#1d4ed8;--text:#f8fafc;--text-muted:#94a3b8;--border:#334155;--success:#10b981;--code-bg:#0f172a}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding:1.5rem 1rem;margin:0;display:flex;justify-content:center}
+.c{width:100%;max-width:500px}h1{font-size:1.5rem;margin:0 0 0.25rem 0}.s{color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem}
+.g{display:flex;gap:0.5rem;margin-bottom:1rem}input{flex:1;padding:0.75rem 1rem;border-radius:8px;border:1px solid var(--border);background:var(--card);color:#fff;font-size:1rem;outline:none}
+input:focus{border-color:var(--accent)}
+button{padding:0.75rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:1rem;cursor:pointer;transition:background 0.2s}
+button:hover{background:var(--accent-hover)}button:disabled{opacity:0.5;cursor:not-allowed}
+.st{color:var(--text-muted);font-size:0.875rem;margin-bottom:1rem;min-height:1.25rem}
+ul{list-style:none;padding:0;margin:0 0 1.5rem 0}li{background:var(--card);padding:1rem;margin-bottom:0.5rem;border-radius:8px;border-left:4px solid var(--success);font-family:ui-monospace,SFMono-Regular,monospace;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center}
+a{color:var(--accent);text-decoration:none;font-weight:600;font-size:0.9rem}a:hover{text-decoration:underline}
+details{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;font-size:0.9rem;line-height:1.5;color:var(--text-muted);margin-bottom:0.75rem}
+summary{font-weight:600;color:var(--text);cursor:pointer;user-select:none}
+details[open] summary{margin-bottom:0.75rem;border-bottom:1px solid var(--border);padding-bottom:0.5rem}
+details h3{font-size:0.95rem;color:var(--text);margin:1rem 0 0.25rem 0}
+details ol,details ul{padding-left:1.2rem;margin:0.25rem 0;list-style:auto}
+details li{background:none;padding:0;margin-bottom:0.25rem;border:none;font-family:inherit;font-size:0.875rem;display:list-item}
+code{background:var(--code-bg);padding:0.15rem 0.35rem;border-radius:4px;font-family:ui-monospace,SFMono-Regular,monospace;color:#38bdf8;font-size:0.85rem}
+pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;margin:0.5rem 0}pre code{padding:0;color:#f8fafc}
 </style>
 </head>
 <body>
 <div class="c">
   <h1>🌙 MoonScout Local</h1>
-  <div class="s">Local Network Klipper Scanner</div>
+  <div class="s">Scout local networks for active Moonraker / Klipper instances</div>
   <div class="g">
-    <input type="text" id="subnet" value="192.168.1">
+    <input type="text" id="subnet" placeholder="Detecting subnet...">
     <button id="btn" onclick="scan()">Scout</button>
   </div>
-  <div id="st" style="color:#94a3b8;font-size:0.875rem;margin-bottom:1rem">Ready.</div>
+  <div id="st" class="st">Detecting local subnet...</div>
   <ul id="res"></ul>
+
+  <details>
+    <summary>Instructions & Troubleshooting</summary>
+    <h3>How to Use</h3>
+    <ol>
+      <li>Verify your subnet prefix (e.g., <code>192.168.0</code> or <code>192.168.1</code>).</li>
+      <li>Click <strong>Scout</strong> to test addresses <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
+      <li>Click <strong>Open UI &rarr;</strong> to open Mainsail, Fluidd, or OctoApp directly.</li>
+    </ol>
+    <h3>Troubleshooting (No printers found?)</h3>
+    <ul>
+      <li><strong>Wi-Fi Network:</strong> Ensure your computer/phone is on the same local Wi-Fi subnet (not a Guest network or VPN).</li>
+      <li><strong>Moonraker CORS Configuration:</strong> Ensure your printers' <code>moonraker.conf</code> includes wildcard authorization:
+        <pre><code>[authorization]
+cors_domains:
+    *</code></pre>
+      </li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>How It Works (Privacy & Security)</summary>
+    <h3>100% Offline & Private</h3>
+    <p>This HTML file contains zero external scripts, trackers, or remote dependencies. All scanning runs locally in your browser sandboxed environment.</p>
+    
+    <h3>Port 7125 Async Sweeping</h3>
+    <p>MoonScout fires lightweight asynchronous <code>fetch()</code> requests in <code>no-cors</code> mode across all 254 local host addresses on port <code>7125</code> (the native Moonraker server port). Responding endpoints trigger an immediate hit and display directly in the list above.</p>
+  </details>
 </div>
+
 <script>
+const COMMON=["192.168.0","192.168.1","10.0.0","172.16.0","192.168.50"];
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const saved = localStorage.getItem("moonscout_subnet");
+  const input = document.getElementById("subnet");
+  const st = document.getElementById("st");
+  if (saved) {
+    input.value = saved;
+    st.innerText = "Loaded saved subnet: " + saved;
+  } else {
+    const det = await detectSubnet();
+    input.value = det;
+    st.innerText = "Detected subnet: " + det;
+  }
+});
+
+async function detectSubnet() {
+  const probes = COMMON.map(sub => new Promise(resolve => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 600);
+    fetch("http://" + sub + ".1", { mode: "no-cors", signal: ctrl.signal })
+      .then(() => { clearTimeout(t); resolve(sub); })
+      .catch(() => { clearTimeout(t); resolve(null); });
+  }));
+
+  const res = await Promise.all(probes);
+  return res.find(s => s !== null) || "192.168.0";
+}
+
 async function probeIP(ip) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 1200);
-  
   try {
-    // Mode no-cors bypasses browser file:// CORS restrictions on port 7125
-    await fetch(\`http://\${ip}:7125/server/info\`, { mode: 'no-cors', signal: controller.signal });
+    await fetch("http://" + ip + ":7125/server/info", { mode: "no-cors", signal: controller.signal });
     clearTimeout(timeout);
     return true;
   } catch (err) {
@@ -344,22 +427,23 @@ async function scan(){
   const st=document.getElementById("st");
   const btn=document.getElementById("btn");
   if(!sn)return;
-  rl.innerHTML="";btn.disabled=true;st.innerText=\`Scouting \${sn}.1 to \${sn}.254 on port 7125...\`;
+  localStorage.setItem("moonscout_subnet", sn);
+  rl.innerHTML="";btn.disabled=true;st.innerText="Scouting " + sn + ".1 to " + sn + ".254 on port 7125...";
   let count=0,tasks=[];
   for(let i=1;i<=254;i++){
-    const ip=\`\${sn}.\${i}\`;
+    const ip=sn + "." + i;
     const task=probeIP(ip).then(found => {
       if(found) {
         count++;
         const li=document.createElement("li");
-        li.innerHTML=\`<span>\${ip}</span><a href="http://\${ip}" target="_blank">Open UI &rarr;</a>\`;
+        li.innerHTML="<span>" + ip + "</span><a href='http://" + ip + "' target='_blank'>Open UI &rarr;</a>";
         rl.appendChild(li);
       }
     });
     tasks.push(task);
   }
   await Promise.all(tasks);
-  btn.disabled=false;st.innerText=\`Scout complete. Found \${count} active Klipper printer(s).\`;
+  btn.disabled=false;st.innerText="Scout complete. Found " + count + " active Klipper printer(s).";
 }
 <\/script>
 </body>
@@ -368,6 +452,19 @@ async function scan(){
       const blob = new Blob([standaloneHTML], { type: "text/html" });
       document.getElementById("downloadLink").href = URL.createObjectURL(blob);
     });
+
+    async function detectSubnet() {
+      const probes = COMMON_SUBNETS.map(sub => new Promise(resolve => {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 600);
+        fetch(`http://${sub}.1`, { mode: 'no-cors', signal: ctrl.signal })
+          .then(() => { clearTimeout(t); resolve(sub); })
+          .catch(() => { clearTimeout(t); resolve(null); });
+      }));
+
+      const results = await Promise.all(probes);
+      return results.find(s => s !== null) || "192.168.0";
+    }
 
     async function probeIP(ip) {
       const controller = new AbortController();
