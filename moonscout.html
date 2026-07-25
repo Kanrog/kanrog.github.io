@@ -205,7 +205,6 @@
       color: #f8fafc;
     }
 
-    /* Download Fallback Banner */
     .download-card {
       background: rgba(30, 41, 59, 0.5);
       border: 1px dashed var(--border);
@@ -277,10 +276,10 @@
       <h3>How to Find Your Subnet Prefix</h3>
       <p>Your subnet prefix consists of the first 3 numbers of your IP address (e.g., if your device IP is <code>192.168.0.45</code>, your subnet is <code>192.168.0</code>):</p>
       <ul>
-        <li><strong>Windows:</strong> Open Command Prompt and type <code>ipconfig</code> (look for IPv4 Address).</li>
-        <li><strong>macOS:</strong> Open System Settings &rarr; Network &rarr; Wi-Fi &rarr; Details.</li>
-        <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap the info icon <code>(i)</code> next to your network.</li>
-        <li><strong>Android:</strong> Settings &rarr; Network & internet &rarr; Wi-Fi &rarr; tap gear icon next to connected network.</li>
+        <li><strong>Windows:</strong> Command Prompt &rarr; <code>ipconfig</code></li>
+        <li><strong>macOS:</strong> System Settings &rarr; Network &rarr; Wi-Fi &rarr; Details</li>
+        <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap the info icon <code>(i)</code> next to network</li>
+        <li><strong>Android:</strong> Settings &rarr; Network & internet &rarr; Wi-Fi &rarr; tap gear icon</li>
       </ul>
 
       <h3>Moonraker Configuration Check</h3>
@@ -293,7 +292,7 @@ cors_domains:
     <details>
       <summary>Troubleshooting & Fallback Options</summary>
       <h3>Scan Blocked by Browser?</h3>
-      <p>Most modern browsers allow live local network probes directly on this page. However, if strict security policies or corporate mobile Profiles block the live web scanner, you can run MoonScout offline as a local file:</p>
+      <p>Most modern browsers allow live local network probes directly on this page. However, if strict security policies block the live web scanner, run MoonScout offline as a local file:</p>
       
       <div class="download-card">
         <p>Download the standalone single-file version to run scans directly from your local filesystem without browser origin restrictions.</p>
@@ -309,7 +308,7 @@ cors_domains:
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
       <h3>Port 7125 Asynchronous Sweep</h3>
-      <p>MoonScout issues light, non-blocking asynchronous requests across local addresses <code>.1</code> through <code>.254</code> targeted specifically at port <code>7125</code> (the standard Moonraker server port). Active Moonraker instances report back in real time and display directly in the list above.</p>
+      <p>MoonScout issues light, non-blocking requests across local addresses <code>.1</code> through <code>.254</code> targeted specifically at port <code>7125</code> (the standard Moonraker server port). Active Moonraker instances report back in real time and display directly in the list above.</p>
     </details>
   </div>
 
@@ -330,7 +329,7 @@ cors_domains:
         document.getElementById("status").innerText = `Detected subnet: ${detected}`;
       }
 
-      // Generate Data URI for local download fallback
+      // Standalone HTML Generator using DOM Image Probe
       const standaloneHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -375,27 +374,6 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
       <li>Click <strong>Scout</strong> to test addresses <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
       <li>Click <strong>Open UI &rarr;</strong> to launch Mainsail or Fluidd directly.</li>
     </ol>
-    <h3>Finding Your Subnet</h3>
-    <p>Check the first 3 octets of your device IP address:</p>
-    <ul>
-      <li><strong>Windows:</strong> Command Prompt &rarr; <code>ipconfig</code></li>
-      <li><strong>macOS:</strong> Settings &rarr; Network &rarr; Wi-Fi Details</li>
-      <li><strong>iOS/Android:</strong> Settings &rarr; Wi-Fi &rarr; Network Details</li>
-    </ul>
-    <h3>Moonraker CORS Configuration</h3>
-    <p>Ensure your printers' <code>moonraker.conf</code> includes wildcard authorization:</p>
-    <pre><code>[authorization]
-cors_domains:
-    *</code></pre>
-  </details>
-
-  <details>
-    <summary>How It Works (Privacy & Security)</summary>
-    <h3>100% Offline & Private</h3>
-    <p>This HTML file contains zero external dependencies. All scanning runs locally in your browser sandboxed environment.</p>
-    
-    <h3>Port 7125 Async Sweeping</h3>
-    <p>MoonScout fires lightweight asynchronous requests across all 254 local host addresses on port <code>7125</code> (the native Moonraker server port). Responding endpoints trigger an immediate hit and display directly in the list above.</p>
   </details>
 </div>
 
@@ -418,28 +396,37 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 async function detectSubnet() {
   const probes = COMMON.map(sub => new Promise(resolve => {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 600);
-    fetch("http://" + sub + ".1", { mode: "no-cors", signal: ctrl.signal })
-      .then(() => { clearTimeout(t); resolve(sub); })
-      .catch(() => { clearTimeout(t); resolve(null); });
+    const img = new Image();
+    const t = setTimeout(() => resolve(null), 500);
+    img.onerror = () => { clearTimeout(t); resolve(sub); };
+    img.onload = () => { clearTimeout(t); resolve(sub); };
+    img.src = "http://" + sub + ".1/?t=" + Date.now();
   }));
-
   const res = await Promise.all(probes);
   return res.find(s => s !== null) || "192.168.0";
 }
 
-async function probeIP(ip) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 1200);
-  try {
-    await fetch("http://" + ip + ":7125/server/info", { mode: "no-cors", signal: controller.signal });
-    clearTimeout(timeout);
-    return true;
-  } catch (err) {
-    clearTimeout(timeout);
-    return false;
-  }
+function probeIP(ip) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const start = Date.now();
+    const t = setTimeout(() => { img.src = ""; resolve(false); }, 1000);
+
+    img.onerror = () => {
+      clearTimeout(t);
+      const duration = Date.now() - start;
+      // Active Moonraker server rejects the image request almost instantly (< 800ms)
+      if (duration < 800) resolve(true);
+      else resolve(false);
+    };
+
+    img.onload = () => {
+      clearTimeout(t);
+      resolve(true);
+    };
+
+    img.src = "http://" + ip + ":7125/server/info?t=" + Date.now();
+  });
 }
 
 async function scan(){
@@ -474,30 +461,41 @@ async function scan(){
       document.getElementById("downloadLink").href = URL.createObjectURL(blob);
     });
 
+    // Detect Subnet
     async function detectSubnet() {
       const probes = COMMON_SUBNETS.map(sub => new Promise(resolve => {
-        const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), 600);
-        fetch(`http://${sub}.1`, { mode: 'no-cors', signal: ctrl.signal })
-          .then(() => { clearTimeout(t); resolve(sub); })
-          .catch(() => { clearTimeout(t); resolve(null); });
+        const img = new Image();
+        const t = setTimeout(() => resolve(null), 500);
+        img.onerror = () => { clearTimeout(t); resolve(sub); };
+        img.onload = () => { clearTimeout(t); resolve(sub); };
+        img.src = `http://${sub}.1/?t=${Date.now()}`;
       }));
 
       const results = await Promise.all(probes);
       return results.find(s => s !== null) || "192.168.0";
     }
 
-    async function probeIP(ip) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 1200);
-      try {
-        await fetch(`http://${ip}:7125/server/info`, { mode: 'no-cors', signal: controller.signal });
-        clearTimeout(timeout);
-        return true;
-      } catch (err) {
-        clearTimeout(timeout);
-        return false;
-      }
+    // DOM Image Probe for Port 7125
+    function probeIP(ip) {
+      return new Promise(resolve => {
+        const img = new Image();
+        const start = Date.now();
+        const t = setTimeout(() => { img.src = ""; resolve(false); }, 1000);
+
+        img.onerror = () => {
+          clearTimeout(t);
+          const duration = Date.now() - start;
+          if (duration < 800) resolve(true);
+          else resolve(false);
+        };
+
+        img.onload = () => {
+          clearTimeout(t);
+          resolve(true);
+        };
+
+        img.src = `http://${ip}:7125/server/info?t=${Date.now()}`;
+      });
     }
 
     async function scan() {
