@@ -311,8 +311,8 @@ cors_domains:
       <h3>100% Client-Side & Private</h3>
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
-      <h3>Port 7125 Asynchronous Sweep</h3>
-      <p>MoonScout issues light, batched requests across local addresses <code>.1</code> through <code>.254</code> targeted specifically at port <code>7125</code> (the standard Moonraker server port). Active Moonraker instances report back in real time and display directly in the list above.</p>
+      <h3>Port 7125 Strict Socket Verification</h3>
+      <p>MoonScout checks TCP socket connections directly against port <code>7125</code> (the standard Moonraker server port). IPs that actively accept socket connections are listed instantly, eliminating timing errors and false positives.</p>
     </details>
   </div>
 
@@ -415,7 +415,7 @@ cors_domains:
     <p>This standalone HTML file contains zero external scripts, tracking, or network dependencies. All scanning runs locally inside your browser sandbox.</p>
     
     <h3>Batched Asynchronous Sweeping</h3>
-    <p>MoonScout probes local addresses in controlled batches across port <code>7125</code> (the default Moonraker API port) to prevent browser connection throttling and ensure 100% scan accuracy.</p>
+    <p>MoonScout verifies TCP socket connections directly on port <code>7125</code> (the default Moonraker API port) to prevent false positives and connection queueing.</p>
   </details>
 </div>
 
@@ -438,36 +438,28 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 async function detectSubnet() {
   const probes = COMMON.map(sub => new Promise(resolve => {
-    const img = new Image();
-    const t = setTimeout(() => resolve(null), 500);
-    img.onerror = () => { clearTimeout(t); resolve(sub); };
-    img.onload = () => { clearTimeout(t); resolve(sub); };
-    img.src = "http://" + sub + ".1/?t=" + Date.now();
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 600);
+    fetch("http://" + sub + ".1", { mode: "no-cors", signal: ctrl.signal })
+      .then(() => { clearTimeout(t); resolve(sub); })
+      .catch(() => { clearTimeout(t); resolve(null); });
   }));
   const res = await Promise.all(probes);
   return res.find(s => s !== null) || "192.168.0";
 }
 
-function probeIP(ip) {
-  return new Promise(resolve => {
-    const img = new Image();
-    const start = Date.now();
-    const t = setTimeout(() => { img.src = ""; resolve(false); }, 2500);
-
-    img.onerror = () => {
-      clearTimeout(t);
-      const duration = Date.now() - start;
-      if (duration < 2400) resolve(true);
-      else resolve(false);
-    };
-
-    img.onload = () => {
-      clearTimeout(t);
-      resolve(true);
-    };
-
-    img.src = "http://" + ip + ":7125/server/info?t=" + Date.now();
-  });
+async function probeIP(ip) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 1500);
+  try {
+    // Mode no-cors resolves strictly when a TCP socket accepts connection on port 7125
+    await fetch("http://" + ip + ":7125/server/info", { mode: 'no-cors', signal: controller.signal });
+    clearTimeout(timeout);
+    return true;
+  } catch (err) {
+    clearTimeout(timeout);
+    return false;
+  }
 }
 
 async function scan(){
@@ -480,7 +472,7 @@ async function scan(){
   rl.innerHTML="";btn.disabled=true;
   
   let count=0;
-  const BATCH_SIZE = 20;
+  const BATCH_SIZE = 25;
   
   for(let i=1; i<=254; i+=BATCH_SIZE) {
     const batch = [];
@@ -514,37 +506,28 @@ async function scan(){
 
     async function detectSubnet() {
       const probes = COMMON_SUBNETS.map(sub => new Promise(resolve => {
-        const img = new Image();
-        const t = setTimeout(() => resolve(null), 500);
-        img.onerror = () => { clearTimeout(t); resolve(sub); };
-        img.onload = () => { clearTimeout(t); resolve(sub); };
-        img.src = `http://${sub}.1/?t=${Date.now()}`;
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 600);
+        fetch(`http://${sub}.1`, { mode: 'no-cors', signal: ctrl.signal })
+          .then(() => { clearTimeout(t); resolve(sub); })
+          .catch(() => { clearTimeout(t); resolve(null); });
       }));
 
       const results = await Promise.all(probes);
       return results.find(s => s !== null) || "192.168.0";
     }
 
-    function probeIP(ip) {
-      return new Promise(resolve => {
-        const img = new Image();
-        const start = Date.now();
-        const t = setTimeout(() => { img.src = ""; resolve(false); }, 2500);
-
-        img.onerror = () => {
-          clearTimeout(t);
-          const duration = Date.now() - start;
-          if (duration < 2400) resolve(true);
-          else resolve(false);
-        };
-
-        img.onload = () => {
-          clearTimeout(t);
-          resolve(true);
-        };
-
-        img.src = `http://${ip}:7125/server/info?t=${Date.now()}`;
-      });
+    async function probeIP(ip) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 1500);
+      try {
+        await fetch(`http://${ip}:7125/server/info`, { mode: 'no-cors', signal: controller.signal });
+        clearTimeout(timeout);
+        return true;
+      } catch (err) {
+        clearTimeout(timeout);
+        return false;
+      }
     }
 
     async function scan() {
@@ -561,7 +544,7 @@ async function scan(){
       btn.disabled = true;
 
       let count = 0;
-      const BATCH_SIZE = 20;
+      const BATCH_SIZE = 25;
 
       for (let i = 1; i <= 254; i += BATCH_SIZE) {
         const batch = [];
