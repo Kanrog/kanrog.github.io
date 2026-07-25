@@ -55,44 +55,7 @@
     .subtitle {
       color: var(--text-muted);
       font-size: 0.875rem;
-      margin-bottom: 1rem;
-    }
-
-    .download-card {
-      background: rgba(37, 99, 235, 0.1);
-      border: 1px solid rgba(37, 99, 235, 0.3);
-      border-radius: 8px;
-      padding: 0.85rem 1rem;
       margin-bottom: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .download-card p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #93c5fd;
-      line-height: 1.4;
-    }
-
-    .download-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      background: var(--accent);
-      color: #fff;
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-
-    .download-btn:hover {
-      background: var(--accent-hover);
     }
 
     .input-group {
@@ -241,6 +204,47 @@
       padding: 0;
       color: #f8fafc;
     }
+
+    /* Download Fallback Banner */
+    .download-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .download-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .download-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -252,13 +256,6 @@
     </div>
     <div class="subtitle">Scout local networks for active Moonraker / Klipper instances</div>
 
-    <div class="download-card">
-      <p><strong>Running on HTTPS?</strong> Browsers block public HTTPS pages from scanning local IP addresses. Download the standalone file to run local scans directly.</p>
-      <a id="downloadLink" class="download-btn" download="MoonScout.html" href="#">
-        <span>📥 Download Standalone MoonScout</span>
-      </a>
-    </div>
-
     <div class="input-group">
       <input type="text" id="subnet" placeholder="Detecting subnet...">
       <button id="scanBtn" class="scan-btn" onclick="scan()">Scout</button>
@@ -268,30 +265,51 @@
     <ul id="results"></ul>
 
     <details>
-      <summary>Instructions & Troubleshooting</summary>
+      <summary>Instructions & Finding Your Subnet</summary>
       
       <h3>How to Use</h3>
       <ol>
-        <li>Download the standalone HTML file above or host it locally.</li>
-        <li>Open the saved <code>MoonScout.html</code> file in any browser.</li>
-        <li>MoonScout will automatically test and pre-fill your gateway subnet.</li>
-        <li>Tap <strong>Scout</strong> to sweep IPs <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
+        <li>Ensure your device is connected to your home Wi-Fi / local network.</li>
+        <li>MoonScout will attempt to auto-detect your subnet. Tap <strong>Scout</strong> to begin scanning.</li>
+        <li>If no printers appear, verify your subnet prefix manually using the guide below.</li>
       </ol>
 
-      <h3>Moonraker CORS Configuration</h3>
-      <p>Ensure your printers' <code>moonraker.conf</code> accepts cross-origin requests:</p>
+      <h3>How to Find Your Subnet Prefix</h3>
+      <p>Your subnet prefix consists of the first 3 numbers of your IP address (e.g., if your device IP is <code>192.168.0.45</code>, your subnet is <code>192.168.0</code>):</p>
+      <ul>
+        <li><strong>Windows:</strong> Open Command Prompt and type <code>ipconfig</code> (look for IPv4 Address).</li>
+        <li><strong>macOS:</strong> Open System Settings &rarr; Network &rarr; Wi-Fi &rarr; Details.</li>
+        <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap the info icon <code>(i)</code> next to your network.</li>
+        <li><strong>Android:</strong> Settings &rarr; Network & internet &rarr; Wi-Fi &rarr; tap gear icon next to connected network.</li>
+      </ul>
+
+      <h3>Moonraker Configuration Check</h3>
+      <p>Ensure your printer's <code>moonraker.conf</code> accepts cross-origin API calls:</p>
       <pre><code>[authorization]
 cors_domains:
     *</code></pre>
     </details>
 
     <details>
+      <summary>Troubleshooting & Fallback Options</summary>
+      <h3>Scan Blocked by Browser?</h3>
+      <p>Most modern browsers allow live local network probes directly on this page. However, if strict security policies or corporate mobile Profiles block the live web scanner, you can run MoonScout offline as a local file:</p>
+      
+      <div class="download-card">
+        <p>Download the standalone single-file version to run scans directly from your local filesystem without browser origin restrictions.</p>
+        <a id="downloadLink" class="download-btn" download="MoonScout.html" href="#">
+          <span>📥 Download Standalone MoonScout</span>
+        </a>
+      </div>
+    </details>
+
+    <details>
       <summary>How It Works (Privacy & Security)</summary>
       <h3>100% Client-Side & Private</h3>
-      <p>MoonScout runs entirely in your web browser. No analytics, tracking, external server calls, or network data ever leave your machine.</p>
+      <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
       <h3>Port 7125 Asynchronous Sweep</h3>
-      <p>When you click <strong>Scout</strong>, MoonScout sends light, non-blocking HTTP probes across addresses <code>.1</code> through <code>.254</code> targeted specifically at port <code>7125</code> (the standard Moonraker API port). Active instances return immediately and display in the list with a direct link to open Fluidd or Mainsail.</p>
+      <p>MoonScout issues light, non-blocking asynchronous requests across local addresses <code>.1</code> through <code>.254</code> targeted specifically at port <code>7125</code> (the standard Moonraker server port). Active Moonraker instances report back in real time and display directly in the list above.</p>
     </details>
   </div>
 
@@ -312,7 +330,7 @@ cors_domains:
         document.getElementById("status").innerText = `Detected subnet: ${detected}`;
       }
 
-      // Generate Data URI for local download including full instructions & documentation
+      // Generate Data URI for local download fallback
       const standaloneHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -350,31 +368,34 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
   <ul id="res"></ul>
 
   <details>
-    <summary>Instructions & Troubleshooting</summary>
+    <summary>Instructions & Finding Your Subnet</summary>
     <h3>How to Use</h3>
     <ol>
       <li>Verify your subnet prefix (e.g., <code>192.168.0</code> or <code>192.168.1</code>).</li>
       <li>Click <strong>Scout</strong> to test addresses <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
-      <li>Click <strong>Open UI &rarr;</strong> to open Mainsail, Fluidd, or OctoApp directly.</li>
+      <li>Click <strong>Open UI &rarr;</strong> to launch Mainsail or Fluidd directly.</li>
     </ol>
-    <h3>Troubleshooting (No printers found?)</h3>
+    <h3>Finding Your Subnet</h3>
+    <p>Check the first 3 octets of your device IP address:</p>
     <ul>
-      <li><strong>Wi-Fi Network:</strong> Ensure your computer/phone is on the same local Wi-Fi subnet (not a Guest network or VPN).</li>
-      <li><strong>Moonraker CORS Configuration:</strong> Ensure your printers' <code>moonraker.conf</code> includes wildcard authorization:
-        <pre><code>[authorization]
+      <li><strong>Windows:</strong> Command Prompt &rarr; <code>ipconfig</code></li>
+      <li><strong>macOS:</strong> Settings &rarr; Network &rarr; Wi-Fi Details</li>
+      <li><strong>iOS/Android:</strong> Settings &rarr; Wi-Fi &rarr; Network Details</li>
+    </ul>
+    <h3>Moonraker CORS Configuration</h3>
+    <p>Ensure your printers' <code>moonraker.conf</code> includes wildcard authorization:</p>
+    <pre><code>[authorization]
 cors_domains:
     *</code></pre>
-      </li>
-    </ul>
   </details>
 
   <details>
     <summary>How It Works (Privacy & Security)</summary>
     <h3>100% Offline & Private</h3>
-    <p>This HTML file contains zero external scripts, trackers, or remote dependencies. All scanning runs locally in your browser sandboxed environment.</p>
+    <p>This HTML file contains zero external dependencies. All scanning runs locally in your browser sandboxed environment.</p>
     
     <h3>Port 7125 Async Sweeping</h3>
-    <p>MoonScout fires lightweight asynchronous <code>fetch()</code> requests in <code>no-cors</code> mode across all 254 local host addresses on port <code>7125</code> (the native Moonraker server port). Responding endpoints trigger an immediate hit and display directly in the list above.</p>
+    <p>MoonScout fires lightweight asynchronous requests across all 254 local host addresses on port <code>7125</code> (the native Moonraker server port). Responding endpoints trigger an immediate hit and display directly in the list above.</p>
   </details>
 </div>
 
