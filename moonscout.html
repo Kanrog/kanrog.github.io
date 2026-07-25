@@ -5,15 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoonScout</title>
   
-  <!-- Icon & Favicon -->
   <link rel="icon" type="image/svg+xml" href="image/moonscout.svg">
-  
-  <!-- PWA Manifest & Meta Tags -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MoonScout">
 
   <style>
     :root {
@@ -66,7 +58,6 @@
       margin-bottom: 1rem;
     }
 
-    /* Download Banner Card */
     .download-card {
       background: rgba(37, 99, 235, 0.1);
       border: 1px solid rgba(37, 99, 235, 0.3);
@@ -260,9 +251,8 @@
     </div>
     <div class="subtitle">Scout local networks for active Moonraker / Klipper instances</div>
 
-    <!-- Download Banner for Browser HTTPS Bypass -->
     <div class="download-card">
-      <p><strong>Running on HTTPS?</strong> Browsers block public HTTPS pages from scanning local IP addresses. Download the standalone file to run exact local scans.</p>
+      <p><strong>Running on HTTPS?</strong> Browsers block public HTTPS pages from scanning local IP addresses. Download the standalone file to run local scans directly.</p>
       <a id="downloadLink" class="download-btn" download="MoonScout.html" href="#">
         <span>📥 Download Standalone MoonScout</span>
       </a>
@@ -296,11 +286,6 @@ cors_domains:
   </div>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-
-    // Generate standalone local HTML file for download
     window.addEventListener("DOMContentLoaded", () => {
       const savedSubnet = localStorage.getItem("moonscout_subnet");
       const subnetInput = document.getElementById("subnet");
@@ -312,7 +297,7 @@ cors_domains:
         subnetInput.value = "192.168.1";
       }
 
-      // Generate Data URI for local download
+      // Generate Data URI for local download with CORS-proof probing
       const standaloneHTML = `<!DOCTYPE html>
 <html>
 <head>
@@ -322,7 +307,7 @@ body{font-family:system-ui,sans-serif;background:#0f172a;color:#f8fafc;padding:1
 .c{width:100%;max-width:500px}h1{font-size:1.5rem;margin:0 0 0.25rem 0}.s{color:#94a3b8;font-size:0.875rem;margin-bottom:1.5rem}
 .g{display:flex;gap:0.5rem;margin-bottom:1rem}input{flex:1;padding:0.75rem;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#fff;font-size:1rem}
 button{padding:0.75rem 1.25rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-ul{list-style:none;padding:0;margin:0}li{background:#1e293b;padding:1rem;margin-bottom:0.5rem;border-radius:8px;border-left:4px solid #10b981;font-family:monospace;display:flex;justify-space:between;align-items:center}
+ul{list-style:none;padding:0;margin:0}li{background:#1e293b;padding:1rem;margin-bottom:0.5rem;border-radius:8px;border-left:4px solid #10b981;font-family:monospace;display:flex;justify-content:space-between;align-items:center}
 a{color:#2563eb;text-decoration:none;font-weight:600}
 </style>
 </head>
@@ -338,6 +323,21 @@ a{color:#2563eb;text-decoration:none;font-weight:600}
   <ul id="res"></ul>
 </div>
 <script>
+async function probeIP(ip) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 1200);
+  
+  try {
+    // Mode no-cors bypasses browser file:// CORS restrictions on port 7125
+    await fetch(\`http://\${ip}:7125/server/info\`, { mode: 'no-cors', signal: controller.signal });
+    clearTimeout(timeout);
+    return true;
+  } catch (err) {
+    clearTimeout(timeout);
+    return false;
+  }
+}
+
 async function scan(){
   const sn=document.getElementById("subnet").value.trim();
   const rl=document.getElementById("res");
@@ -348,24 +348,18 @@ async function scan(){
   let count=0,tasks=[];
   for(let i=1;i<=254;i++){
     const ip=\`\${sn}.\${i}\`;
-    const ctrl=new AbortController();
-    const t=setTimeout(()=>ctrl.abort(),1200);
-    const task=fetch(\`http://\${ip}:7125/server/info\`,{signal:ctrl.signal})
-      .then(async(res)=>{
-        if(res.ok){
-          const d=await res.json();
-          if(d?.result?.klippy_state){
-            count++;
-            const li=document.createElement("li");
-            li.innerHTML=\`<span>\${ip}</span><a href="http://\${ip}" target="_blank">Open UI &rarr;</a>\`;
-            rl.appendChild(li);
-          }
-        }
-      }).catch(()=>{}).finally(()=>clearTimeout(t));
+    const task=probeIP(ip).then(found => {
+      if(found) {
+        count++;
+        const li=document.createElement("li");
+        li.innerHTML=\`<span>\${ip}</span><a href="http://\${ip}" target="_blank">Open UI &rarr;</a>\`;
+        rl.appendChild(li);
+      }
+    });
     tasks.push(task);
   }
   await Promise.all(tasks);
-  btn.disabled=false;st.innerText=\`Scout complete. Found \${count} verified Klipper printer(s).\`;
+  btn.disabled=false;st.innerText=\`Scout complete. Found \${count} active Klipper printer(s).\`;
 }
 <\/script>
 </body>
@@ -374,6 +368,19 @@ async function scan(){
       const blob = new Blob([standaloneHTML], { type: "text/html" });
       document.getElementById("downloadLink").href = URL.createObjectURL(blob);
     });
+
+    async function probeIP(ip) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 1200);
+      try {
+        await fetch(`http://${ip}:7125/server/info`, { mode: 'no-cors', signal: controller.signal });
+        clearTimeout(timeout);
+        return true;
+      } catch (err) {
+        clearTimeout(timeout);
+        return false;
+      }
+    }
 
     async function scan() {
       const subnet = document.getElementById("subnet").value.trim();
@@ -394,30 +401,20 @@ async function scan(){
 
       for (let i = 1; i <= 254; i++) {
         const ip = `${subnet}.${i}`;
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 1200);
-
-        const task = fetch(`http://${ip}:7125/server/info`, { signal: controller.signal })
-          .then(async (res) => {
-            if (res.ok) {
-              const data = await res.json();
-              if (data?.result?.klippy_state) {
-                count++;
-                const li = document.createElement("li");
-                li.innerHTML = `<span>${ip}</span><a class="result-link" href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
-                resultsList.appendChild(li);
-              }
-            }
-          })
-          .catch(() => {})
-          .finally(() => clearTimeout(timeout));
-
+        const task = probeIP(ip).then(found => {
+          if (found) {
+            count++;
+            const li = document.createElement("li");
+            li.innerHTML = `<span>${ip}</span><a class="result-link" href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
+            resultsList.appendChild(li);
+          }
+        });
         tasks.push(task);
       }
 
       await Promise.all(tasks);
       btn.disabled = false;
-      statusText.innerText = `Scout complete. Found ${count} verified Klipper instance(s).`;
+      statusText.innerText = `Scout complete. Found ${count} active Klipper instance(s).`;
     }
   </script>
 </body>
