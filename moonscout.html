@@ -311,8 +311,8 @@ cors_domains:
       <h3>100% Client-Side & Private</h3>
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
       
-      <h3>Port 7125 Strict Socket Verification</h3>
-      <p>MoonScout checks TCP socket connections directly against port <code>7125</code> (the standard Moonraker server port). IPs that actively accept socket connections are listed instantly, eliminating timing errors and false positives.</p>
+      <h3>Port 7125 Batched Verification</h3>
+      <p>MoonScout checks TCP socket connections in small batches of 10 targeted directly at port <code>7125</code> (the standard Moonraker server port) with an extended 5-second socket window to capture high-load or distant Pi hosts.</p>
     </details>
   </div>
 
@@ -439,7 +439,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 async function detectSubnet() {
   const probes = COMMON.map(sub => new Promise(resolve => {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 600);
+    const t = setTimeout(() => ctrl.abort(), 800);
     fetch("http://" + sub + ".1", { mode: "no-cors", signal: ctrl.signal })
       .then(() => { clearTimeout(t); resolve(sub); })
       .catch(() => { clearTimeout(t); resolve(null); });
@@ -450,9 +450,8 @@ async function detectSubnet() {
 
 async function probeIP(ip) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 1500);
+  const timeout = setTimeout(() => controller.abort(), 5000);
   try {
-    // Mode no-cors resolves strictly when a TCP socket accepts connection on port 7125
     await fetch("http://" + ip + ":7125/server/info", { mode: 'no-cors', signal: controller.signal });
     clearTimeout(timeout);
     return true;
@@ -460,6 +459,21 @@ async function probeIP(ip) {
     clearTimeout(timeout);
     return false;
   }
+}
+
+function renderResults(foundIPs, resultsList) {
+  foundIPs.sort((a, b) => {
+    const numA = parseInt(a.split('.').pop(), 10);
+    const numB = parseInt(b.split('.').pop(), 10);
+    return numA - numB;
+  });
+
+  resultsList.innerHTML = "";
+  foundIPs.forEach(ip => {
+    const li = document.createElement("li");
+    li.innerHTML = "<span>" + ip + "</span><a href='http://" + ip + "' target='_blank'>Open UI &rarr;</a>";
+    resultsList.appendChild(li);
+  });
 }
 
 async function scan(){
@@ -471,8 +485,8 @@ async function scan(){
   localStorage.setItem("moonscout_subnet", sn);
   rl.innerHTML="";btn.disabled=true;
   
-  let count=0;
-  const BATCH_SIZE = 25;
+  const foundIPs = [];
+  const BATCH_SIZE = 10;
   
   for(let i=1; i<=254; i+=BATCH_SIZE) {
     const batch = [];
@@ -483,10 +497,8 @@ async function scan(){
       const ip = sn + "." + j;
       batch.push(probeIP(ip).then(found => {
         if(found) {
-          count++;
-          const li=document.createElement("li");
-          li.innerHTML="<span>" + ip + "</span><a href='http://" + ip + "' target='_blank'>Open UI &rarr;</a>";
-          rl.appendChild(li);
+          foundIPs.push(ip);
+          renderResults(foundIPs, rl);
         }
       }));
     }
@@ -494,7 +506,7 @@ async function scan(){
   }
   
   btn.disabled=false;
-  st.innerText="Scout complete. Found " + count + " active Klipper printer(s).";
+  st.innerText="Scout complete. Found " + foundIPs.length + " active Klipper printer(s).";
 }
 <\/script>
 </body>
@@ -507,7 +519,7 @@ async function scan(){
     async function detectSubnet() {
       const probes = COMMON_SUBNETS.map(sub => new Promise(resolve => {
         const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), 600);
+        const t = setTimeout(() => ctrl.abort(), 800);
         fetch(`http://${sub}.1`, { mode: 'no-cors', signal: ctrl.signal })
           .then(() => { clearTimeout(t); resolve(sub); })
           .catch(() => { clearTimeout(t); resolve(null); });
@@ -519,7 +531,7 @@ async function scan(){
 
     async function probeIP(ip) {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 1500);
+      const timeout = setTimeout(() => controller.abort(), 5000);
       try {
         await fetch(`http://${ip}:7125/server/info`, { mode: 'no-cors', signal: controller.signal });
         clearTimeout(timeout);
@@ -528,6 +540,21 @@ async function scan(){
         clearTimeout(timeout);
         return false;
       }
+    }
+
+    function renderResults(foundIPs, resultsList) {
+      foundIPs.sort((a, b) => {
+        const numA = parseInt(a.split('.').pop(), 10);
+        const numB = parseInt(b.split('.').pop(), 10);
+        return numA - numB;
+      });
+
+      resultsList.innerHTML = "";
+      foundIPs.forEach(ip => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${ip}</span><a class="result-link" href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
+        resultsList.appendChild(li);
+      });
     }
 
     async function scan() {
@@ -543,8 +570,8 @@ async function scan(){
       resultsList.innerHTML = "";
       btn.disabled = true;
 
-      let count = 0;
-      const BATCH_SIZE = 25;
+      const foundIPs = [];
+      const BATCH_SIZE = 10;
 
       for (let i = 1; i <= 254; i += BATCH_SIZE) {
         const batch = [];
@@ -555,10 +582,8 @@ async function scan(){
           const ip = `${subnet}.${j}`;
           batch.push(probeIP(ip).then(found => {
             if (found) {
-              count++;
-              const li = document.createElement("li");
-              li.innerHTML = `<span>${ip}</span><a class="result-link" href="http://${ip}" target="_blank">Open UI &rarr;</a>`;
-              resultsList.appendChild(li);
+              foundIPs.push(ip);
+              renderResults(foundIPs, resultsList);
             }
           }));
         }
@@ -567,7 +592,7 @@ async function scan(){
       }
 
       btn.disabled = false;
-      statusText.innerText = `Scout complete. Found ${count} active Klipper instance(s).`;
+      statusText.innerText = `Scout complete. Found ${foundIPs.length} active Klipper instance(s).`;
     }
   </script>
 </body>
