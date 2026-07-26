@@ -140,7 +140,6 @@
       gap: 0.5rem;
     }
 
-    /* Radar / Searchlight Scanner Animation */
     .searchlight-track {
       display: none;
       width: 100%;
@@ -491,7 +490,7 @@
       </ol>
 
       <h3>🚀 "Launch Fleet" Launcher</h3>
-      <p>Clicking <strong>Launch Fleet</strong> opens a quick-launch drawer. Click each printer's button to open its interface cleanly in a new tab without security blocks!</p>
+      <p>Clicking <strong>Launch Fleet</strong> opens a quick-launch drawer. Click each printer's button to open its interface in a background tab without stealing window focus!</p>
 
       <h3>🔖 "Export Bookmarks" Feature</h3>
       <p>To easily save your fleet into your browser's bookmarks bar:</p>
@@ -657,7 +656,7 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
     </ol>
     
     <h3>🚀 "Launch Fleet" Launcher</h3>
-    <p>Clicking <strong>Launch Fleet</strong> opens a quick-launch drawer. Click each printer's button to open its interface cleanly in a new tab without security blocks!</p>
+    <p>Clicking <strong>Launch Fleet</strong> opens a quick-launch drawer. Click each printer's button to open its interface in a background tab without stealing window focus!</p>
 
     <h3>🔖 "Export Bookmarks" Feature</h3>
     <p>To easily save your fleet into your browser's bookmarks bar:</p>
@@ -763,7 +762,7 @@ function renderResults(foundPrinters, resultsList) {
     const nameLabel = item.name ? "<div class='printer-name'>" + item.name + "</div>" : "";
     const ipLabel = "<div class='printer-ip'>" + item.ip + "</div>";
     
-    li.innerHTML = "<div class='printer-info'>" + nameLabel + ipLabel + "</div><a href='http://" + item.ip + "' target='_blank'>Open UI &rarr;</a>";
+    li.innerHTML = "<div class='printer-info'>" + nameLabel + ipLabel + "</div><a href='http://" + item.ip + "' target='_blank'>Open UI &rrarr;</a>";
     resultsList.appendChild(li);
   });
 }
@@ -790,7 +789,11 @@ function closeLaunchModal() {
 }
 
 function launchTab(btn, url) {
-  window.open(url, "_blank");
+  const newWin = window.open(url, "_blank");
+  if (newWin) {
+    newWin.blur();
+    window.focus();
+  }
   btn.innerText = "Opened ✓";
   btn.className = "opened";
 }
@@ -950,7 +953,11 @@ async function scan(){
     }
 
     function launchTab(btn, url) {
-      window.open(url, "_blank");
+      const newWin = window.open(url, "_blank");
+      if (newWin) {
+        newWin.blur();
+        window.focus();
+      }
       btn.innerText = "Opened ✓";
       btn.className = "opened";
     }
