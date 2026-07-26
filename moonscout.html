@@ -360,9 +360,9 @@
         <li>Once the scan finishes, action buttons will appear to open or save your discovered printer fleet.</li>
       </ol>
 
-      <h3>🚀 "Open All" Feature & Pop-up Blockers</h3>
-      <p>Clicking <strong>Open All</strong> launches a new browser tab for every printer found simultaneously.</p>
-      <p><em>If only 1 tab opens:</em> Look for a small <strong>"Pop-up blocked"</strong> icon on the right side of your browser's address bar. Click it and select <strong>"Always allow pop-ups from this site/file"</strong>. Future clicks will open all tabs instantly!</p>
+      <h3>🚀 "Open All" & Pop-up Blocker Setup</h3>
+      <p>Clicking <strong>Open All</strong> synchronously opens a new browser tab for every printer found.</p>
+      <p><strong>First-Time Setup Step:</strong> On your first click, your browser will open the 1st printer tab and show a small <strong>"Pop-up blocked"</strong> icon in the address bar for the remaining 5 printers. Click that address bar icon, select <strong>"Always allow pop-ups from this site/file"</strong>, and click <strong>Open All</strong> again. From then on, every single printer opens instantly in one click!</p>
 
       <h3>🔖 "Export Bookmarks" Feature</h3>
       <p>To easily save your fleet into your browser's bookmarks bar:</p>
@@ -498,9 +498,9 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
       <li>Discovered printers will list their system hostname along with direct UI action buttons.</li>
     </ol>
     
-    <h3>🚀 "Open All" Feature & Pop-up Blockers</h3>
-    <p>Clicking <strong>Open All</strong> launches a new browser tab for every printer found simultaneously.</p>
-    <p><em>If only 1 tab opens:</em> Look for a small <strong>"Pop-up blocked"</strong> icon on the right side of your browser's address bar. Click it and select <strong>"Always allow pop-ups from this site/file"</strong>. Future clicks will open all tabs instantly!</p>
+    <h3>🚀 "Open All" & Pop-up Blocker Setup</h3>
+    <p>Clicking <strong>Open All</strong> synchronously opens a new browser tab for every printer found.</p>
+    <p><strong>First-Time Setup Step:</strong> On your first click, your browser will open the 1st printer tab and show a small <strong>"Pop-up blocked"</strong> icon in the address bar for the remaining printers. Click that address bar icon, select <strong>"Always allow pop-ups"</strong>, and click <strong>Open All</strong> again!</p>
 
     <h3>🔖 "Export Bookmarks" Feature</h3>
     <p>To easily save your fleet into your browser's bookmarks bar:</p>
@@ -611,14 +611,9 @@ function renderResults(foundPrinters, resultsList) {
 
 function openAllTabs() {
   if (!discoveredPrinters.length) return;
-  const st = document.getElementById("st");
-  st.innerText = "Launching tabs... (Check address bar if pop-ups get blocked)";
-  
-  discoveredPrinters.forEach((p, idx) => {
-    setTimeout(() => {
-      window.open("http://" + p.ip, "_blank");
-    }, idx * 150);
-  });
+  for (let i = 0; i < discoveredPrinters.length; i++) {
+    window.open("http://" + discoveredPrinters[i].ip, "_blank");
+  }
 }
 
 function exportBookmarks() {
@@ -753,14 +748,9 @@ async function scan(){
 
     function openAllTabs() {
       if (!discoveredPrinters.length) return;
-      const statusText = document.getElementById("status");
-      statusText.innerText = "Launching tabs... (Check address bar if pop-ups get blocked)";
-
-      discoveredPrinters.forEach((p, idx) => {
-        setTimeout(() => {
-          window.open(`http://${p.ip}`, "_blank");
-        }, idx * 150);
-      });
+      for (let i = 0; i < discoveredPrinters.length; i++) {
+        window.open(`http://${discoveredPrinters[i].ip}`, "_blank");
+      }
     }
 
     function exportBookmarks() {
