@@ -128,13 +128,58 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       min-height: 2rem;
     }
 
     .status {
       color: var(--text-muted);
       font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Radar / Searchlight Scanner Animation */
+    .searchlight-track {
+      display: none;
+      width: 100%;
+      height: 4px;
+      background: var(--card);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .searchlight-beam {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 35%;
+      background: linear-gradient(90deg, transparent, var(--accent), #38bdf8, var(--accent), transparent);
+      box-shadow: 0 0 12px #38bdf8;
+      border-radius: 2px;
+      animation: sweep 1.2s infinite ease-in-out alternate;
+    }
+
+    @keyframes sweep {
+      0% { left: -10%; }
+      100% { left: 75%; }
+    }
+
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 8px var(--accent); }
     }
 
     .action-group {
@@ -320,7 +365,6 @@
       color: #fff;
     }
 
-    /* Modal Launcher Styles */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -430,6 +474,10 @@
       </div>
     </div>
 
+    <div class="searchlight-track" id="searchlight">
+      <div class="searchlight-beam"></div>
+    </div>
+
     <ul id="results"></ul>
 
     <details>
@@ -443,7 +491,7 @@
       </ol>
 
       <h3>🚀 "Launch Fleet" Launcher</h3>
-      <p>Because browsers strictly block local HTML files from opening multiple background tabs in a loop, clicking <strong>Launch Fleet</strong> opens a quick-launch drawer. Click each printer's button to open its interface cleanly in a new tab without security blocks!</p>
+      <p>Clicking <strong>Launch Fleet</strong> opens a quick-launch drawer. Click each printer's button to open its interface cleanly in a new tab without security blocks!</p>
 
       <h3>🔖 "Export Bookmarks" Feature</h3>
       <p>To easily save your fleet into your browser's bookmarks bar:</p>
@@ -487,7 +535,6 @@ cors_domains:
     </details>
   </div>
 
-  <!-- Launch Drawer Modal -->
   <div class="modal-overlay" id="launchModal">
     <div class="modal-card">
       <div class="modal-header">
@@ -495,7 +542,7 @@ cors_domains:
         <button class="close-btn" onclick="closeLaunchModal()">✖</button>
       </div>
       <div class="launch-list" id="launchList"></div>
-      <button class="download-btn" style="width: 100%; border-style: solid;" onclick="closeLaunchModal()">Done</button>
+      <button class="action-btn" style="width:100%; justify-content:center; padding:0.6rem;" onclick="closeLaunchModal()">Done</button>
     </div>
   </div>
 
@@ -536,8 +583,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 input:focus{border-color:var(--accent)}
 button{padding:0.75rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:1rem;cursor:pointer;transition:background 0.2s}
 button:hover{background:var(--accent-hover)}button:disabled{opacity:0.5;cursor:not-allowed}
-.status-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;min-height:2rem}
-.st{color:var(--text-muted);font-size:0.875rem}
+.status-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;min-height:2rem}
+.st{color:var(--text-muted);font-size:0.875rem;display:flex;align-items:center;gap:0.5rem}
+.searchlight-track{display:none;width:100%;height:4px;background:var(--card);border-radius:2px;overflow:hidden;margin-bottom:1rem;position:relative}
+.searchlight-beam{position:absolute;top:0;bottom:0;width:35%;background:linear-gradient(90deg,transparent,var(--accent),#38bdf8,var(--accent),transparent);box-shadow:0 0 12px #38bdf8;border-radius:2px;animation:sweep 1.2s infinite ease-in-out alternate}
+@keyframes sweep{0%{left:-10%}100%{left:75%}}
+.pulse-dot{display:inline-block;width:8px;height:8px;background-color:var(--accent);border-radius:50%;animation:pulse 1s infinite alternate}
+@keyframes pulse{0%{opacity:0.3;transform:scale(0.8)}100%{opacity:1;transform:scale(1.2);box-shadow:0 0 8px var(--accent)}}
 .action-group{display:none;gap:0.5rem}
 .action-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.65rem;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all 0.2s}
 .action-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -587,6 +639,10 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
       <button class="action-btn" onclick="openLaunchModal()">🚀 Launch Fleet</button>
       <button class="action-btn" onclick="exportBookmarks()">🔖 Export Bookmarks</button>
     </div>
+  </div>
+
+  <div class="searchlight-track" id="searchlight">
+    <div class="searchlight-beam"></div>
   </div>
 
   <ul id="res"></ul>
@@ -772,10 +828,12 @@ async function scan(){
   const st=document.getElementById("st");
   const btn=document.getElementById("btn");
   const actionGroup=document.getElementById("actionGroup");
+  const searchlight=document.getElementById("searchlight");
   if(!sn)return;
 
   localStorage.setItem("moonscout_subnet", sn);
   rl.innerHTML=""; btn.disabled=true; actionGroup.style.display="none";
+  searchlight.style.display="block";
   discoveredPrinters = [];
   
   const BATCH_SIZE = 10;
@@ -783,7 +841,7 @@ async function scan(){
   for(let i=1; i<=254; i+=BATCH_SIZE) {
     const batch = [];
     const max = Math.min(i + BATCH_SIZE - 1, 254);
-    st.innerText = "Scouting " + sn + "." + i + " to " + sn + "." + max + " on port 7125...";
+    st.innerHTML = "<span class='pulse-dot'></span> Scouting " + sn + "." + i + " to " + sn + "." + max + " on port 7125...";
     
     for(let j=i; j<=max; j++) {
       const ip = sn + "." + j;
@@ -798,6 +856,7 @@ async function scan(){
   }
   
   btn.disabled=false;
+  searchlight.style.display="none";
   st.innerText="Found " + discoveredPrinters.length + " active printer(s).";
   if(discoveredPrinters.length > 0) {
     actionGroup.style.display="flex";
@@ -930,6 +989,7 @@ async function scan(){
       const statusText = document.getElementById("status");
       const btn = document.getElementById("scanBtn");
       const actionGroup = document.getElementById("actionGroup");
+      const searchlight = document.getElementById("searchlight");
 
       if (!subnet) return;
 
@@ -938,6 +998,7 @@ async function scan(){
       resultsList.innerHTML = "";
       btn.disabled = true;
       actionGroup.style.display = "none";
+      searchlight.style.display = "block";
       discoveredPrinters = [];
 
       const BATCH_SIZE = 10;
@@ -945,7 +1006,7 @@ async function scan(){
       for (let i = 1; i <= 254; i += BATCH_SIZE) {
         const batch = [];
         const max = Math.min(i + BATCH_SIZE - 1, 254);
-        statusText.innerText = `Scouting ${subnet}.${i} to ${subnet}.${max} on port 7125...`;
+        statusText.innerHTML = `<span class="pulse-dot"></span> Scouting ${subnet}.${i} to ${subnet}.${max} on port 7125...`;
 
         for (let j = i; j <= max; j++) {
           const ip = `${subnet}.${j}`;
@@ -961,6 +1022,7 @@ async function scan(){
       }
 
       btn.disabled = false;
+      searchlight.style.display = "none";
       statusText.innerText = `Found ${discoveredPrinters.length} active printer(s).`;
       if (discoveredPrinters.length > 0) {
         actionGroup.style.display = "flex";
