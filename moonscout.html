@@ -361,11 +361,11 @@
       </ol>
 
       <h3>🚀 "Open All" Feature & Pop-up Blockers</h3>
-      <p>Clicking <strong>Open All</strong> will attempt to launch a new browser tab for every printer found simultaneously.</p>
-      <p><em>Note on Pop-up Blockers:</em> Browsers usually block web pages from opening multiple pop-up windows at once. The first time you click <strong>Open All</strong>, look for a small <strong>"Pop-up blocked"</strong> icon in your browser's address bar and select <strong>"Always allow pop-ups"</strong>. Subsequent clicks will launch all tabs instantly!</p>
+      <p>Clicking <strong>Open All</strong> launches a new browser tab for every printer found simultaneously.</p>
+      <p><em>If only 1 tab opens:</em> Look for a small <strong>"Pop-up blocked"</strong> icon on the right side of your browser's address bar. Click it and select <strong>"Always allow pop-ups from this site/file"</strong>. Future clicks will open all tabs instantly!</p>
 
       <h3>🔖 "Export Bookmarks" Feature</h3>
-      <p>Because browser security forbids scripts from directly modifying your personal bookmarks, MoonScout generates a standard <strong>HTML Bookmark File</strong> containing your printer fleet:</p>
+      <p>To easily save your fleet into your browser's bookmarks bar:</p>
       <ol>
         <li>Click <strong>Export Bookmarks</strong> to download <code>Klipper_Printers_Bookmarks.html</code>.</li>
         <li>Open your browser's Bookmark Manager (<code>Ctrl+Shift+O</code> on Windows/Linux or <code>Cmd+Option+B</code> on Mac).</li>
@@ -499,8 +499,8 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
     </ol>
     
     <h3>🚀 "Open All" Feature & Pop-up Blockers</h3>
-    <p>Clicking <strong>Open All</strong> will attempt to launch a new browser tab for every printer found simultaneously.</p>
-    <p><em>Note on Pop-up Blockers:</em> Browsers usually block scripts from opening multiple pop-up windows at once. The first time you click <strong>Open All</strong>, look for a small <strong>"Pop-up blocked"</strong> icon in your browser's address bar and select <strong>"Always allow pop-ups"</strong>. Subsequent clicks will launch all tabs instantly!</p>
+    <p>Clicking <strong>Open All</strong> launches a new browser tab for every printer found simultaneously.</p>
+    <p><em>If only 1 tab opens:</em> Look for a small <strong>"Pop-up blocked"</strong> icon on the right side of your browser's address bar. Click it and select <strong>"Always allow pop-ups from this site/file"</strong>. Future clicks will open all tabs instantly!</p>
 
     <h3>🔖 "Export Bookmarks" Feature</h3>
     <p>To easily save your fleet into your browser's bookmarks bar:</p>
@@ -611,8 +611,13 @@ function renderResults(foundPrinters, resultsList) {
 
 function openAllTabs() {
   if (!discoveredPrinters.length) return;
-  discoveredPrinters.forEach(p => {
-    window.open("http://" + p.ip, "_blank");
+  const st = document.getElementById("st");
+  st.innerText = "Launching tabs... (Check address bar if pop-ups get blocked)";
+  
+  discoveredPrinters.forEach((p, idx) => {
+    setTimeout(() => {
+      window.open("http://" + p.ip, "_blank");
+    }, idx * 150);
   });
 }
 
@@ -748,8 +753,13 @@ async function scan(){
 
     function openAllTabs() {
       if (!discoveredPrinters.length) return;
-      discoveredPrinters.forEach(p => {
-        window.open(`http://${p.ip}`, "_blank");
+      const statusText = document.getElementById("status");
+      statusText.innerText = "Launching tabs... (Check address bar if pop-ups get blocked)";
+
+      discoveredPrinters.forEach((p, idx) => {
+        setTimeout(() => {
+          window.open(`http://${p.ip}`, "_blank");
+        }, idx * 150);
       });
     }
 
