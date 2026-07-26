@@ -319,6 +319,88 @@
       border-color: var(--accent);
       color: #fff;
     }
+
+    /* Modal Launcher Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .launch-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .launch-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .launch-item button {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .launch-item button.opened {
+      background: var(--border);
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
@@ -343,7 +425,7 @@
     <div class="status-bar">
       <div class="status" id="status">Detecting local subnet...</div>
       <div class="action-group" id="actionGroup">
-        <button class="action-btn" onclick="openAllTabs()" title="Open each printer in a new tab">🚀 Open All</button>
+        <button class="action-btn" onclick="openLaunchModal()" title="Open fleet launcher modal">🚀 Launch Fleet</button>
         <button class="action-btn" onclick="exportBookmarks()" title="Download a bookmark file for your browser">🔖 Export Bookmarks</button>
       </div>
     </div>
@@ -357,12 +439,11 @@
       <ol>
         <li>Ensure your device is connected to your home Wi-Fi / local network.</li>
         <li>MoonScout will attempt to auto-detect your subnet. Tap <strong>Scout</strong> to begin scanning.</li>
-        <li>Once the scan finishes, action buttons will appear to open or save your discovered printer fleet.</li>
+        <li>Once the scan finishes, action buttons will appear to launch tabs or export bookmarks.</li>
       </ol>
 
-      <h3>🚀 "Open All" & Pop-up Blocker Setup</h3>
-      <p>Clicking <strong>Open All</strong> synchronously opens a new browser tab for every printer found.</p>
-      <p><strong>First-Time Setup Step:</strong> On your first click, your browser will open the 1st printer tab and show a small <strong>"Pop-up blocked"</strong> icon in the address bar for the remaining 5 printers. Click that address bar icon, select <strong>"Always allow pop-ups from this site/file"</strong>, and click <strong>Open All</strong> again. From then on, every single printer opens instantly in one click!</p>
+      <h3>🚀 "Launch Fleet" Launcher</h3>
+      <p>Because browsers strictly block local HTML files from opening multiple background tabs in a loop, clicking <strong>Launch Fleet</strong> opens a quick-launch drawer. Click each printer's button to open its interface cleanly in a new tab without security blocks!</p>
 
       <h3>🔖 "Export Bookmarks" Feature</h3>
       <p>To easily save your fleet into your browser's bookmarks bar:</p>
@@ -404,6 +485,18 @@ cors_domains:
       <h3>100% Client-Side & Private</h3>
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
     </details>
+  </div>
+
+  <!-- Launch Drawer Modal -->
+  <div class="modal-overlay" id="launchModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>🚀 Launch Fleet UIs</h2>
+        <button class="close-btn" onclick="closeLaunchModal()">✖</button>
+      </div>
+      <div class="launch-list" id="launchList"></div>
+      <button class="download-btn" style="width: 100%; border-style: solid;" onclick="closeLaunchModal()">Done</button>
+    </div>
   </div>
 
   <script>
@@ -462,6 +555,15 @@ details ol,details ul{padding-left:1.2rem;margin:0.25rem 0;list-style:auto}
 details li{background:none;padding:0;margin-bottom:0.25rem;border:none;font-family:inherit;font-size:0.875rem;display:list-item}
 code{background:var(--code-bg);padding:0.15rem 0.35rem;border-radius:4px;font-family:ui-monospace,SFMono-Regular,monospace;color:#38bdf8;font-size:0.85rem}
 pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;margin:0.5rem 0}pre code{padding:0;color:#f8fafc}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.85);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center;padding:1rem}
+.modal-card{background:var(--card);border:1px solid var(--border);border-radius:12px;width:100%;max-width:420px;padding:1.5rem;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.modal-header h2{margin:0;font-size:1.25rem}
+.close-btn{background:none;border:none;color:var(--text-muted);font-size:1.25rem;cursor:pointer;padding:0}
+.launch-list{display:flex;flex-direction:column;gap:0.5rem;max-height:300px;overflow-y:auto;margin-bottom:1rem}
+.launch-item{display:flex;justify-content:space-between;align-items:center;background:var(--bg);padding:0.75rem 1rem;border-radius:8px;border:1px solid var(--border)}
+.launch-item button{background:var(--accent);border:none;color:#fff;padding:0.4rem 0.8rem;border-radius:6px;font-weight:600;font-size:0.85rem;cursor:pointer}
+.launch-item button.opened{background:var(--border);color:var(--text-muted)}
 </style>
 </head>
 <body>
@@ -482,8 +584,8 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
   <div class="status-bar">
     <div id="st" class="st">Detecting local subnet...</div>
     <div class="action-group" id="actionGroup">
-      <button class="action-btn" onclick="openAllTabs()" title="Open each printer in a new tab">🚀 Open All</button>
-      <button class="action-btn" onclick="exportBookmarks()" title="Download a bookmark file for your browser">🔖 Export Bookmarks</button>
+      <button class="action-btn" onclick="openLaunchModal()">🚀 Launch Fleet</button>
+      <button class="action-btn" onclick="exportBookmarks()">🔖 Export Bookmarks</button>
     </div>
   </div>
 
@@ -498,9 +600,8 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
       <li>Discovered printers will list their system hostname along with direct UI action buttons.</li>
     </ol>
     
-    <h3>🚀 "Open All" & Pop-up Blocker Setup</h3>
-    <p>Clicking <strong>Open All</strong> synchronously opens a new browser tab for every printer found.</p>
-    <p><strong>First-Time Setup Step:</strong> On your first click, your browser will open the 1st printer tab and show a small <strong>"Pop-up blocked"</strong> icon in the address bar for the remaining printers. Click that address bar icon, select <strong>"Always allow pop-ups"</strong>, and click <strong>Open All</strong> again!</p>
+    <h3>🚀 "Launch Fleet" Launcher</h3>
+    <p>Clicking <strong>Launch Fleet</strong> opens a quick-launch drawer. Click each printer's button to open its interface cleanly in a new tab without security blocks!</p>
 
     <h3>🔖 "Export Bookmarks" Feature</h3>
     <p>To easily save your fleet into your browser's bookmarks bar:</p>
@@ -523,15 +624,17 @@ port: 7125
 cors_domains:
     *</code></pre>
   </details>
+</div>
 
-  <details>
-    <summary>Troubleshooting</summary>
-    <h3>Missing Hostnames?</h3>
-    <p>If printers show up as <em>"Klipper Instance (CORS Locked)"</em> or without a name, Moonraker is rejecting local file reads. Ensure wildcard authorization is set in <code>moonraker.conf</code> on that printer:</p>
-    <pre><code>[authorization]
-cors_domains:
-    *</code></pre>
-  </details>
+<div class="modal-overlay" id="launchModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>🚀 Launch Fleet UIs</h2>
+      <button class="close-btn" onclick="closeLaunchModal()">✖</button>
+    </div>
+    <div class="launch-list" id="launchList"></div>
+    <button class="action-btn" style="width:100%; justify-content:center; padding:0.6rem;" onclick="closeLaunchModal()">Done</button>
+  </div>
 </div>
 
 <script>
@@ -609,11 +712,31 @@ function renderResults(foundPrinters, resultsList) {
   });
 }
 
-function openAllTabs() {
-  if (!discoveredPrinters.length) return;
-  for (let i = 0; i < discoveredPrinters.length; i++) {
-    window.open("http://" + discoveredPrinters[i].ip, "_blank");
-  }
+function openLaunchModal() {
+  const modal = document.getElementById("launchModal");
+  const list = document.getElementById("launchList");
+  list.innerHTML = "";
+
+  discoveredPrinters.forEach(p => {
+    const item = document.createElement("div");
+    item.className = "launch-item";
+    const title = p.name ? p.name : p.ip;
+    item.innerHTML = "<div><strong>" + title + "</strong><br><small style='color:var(--text-muted);'>" + p.ip + "</small></div>" +
+                     "<button onclick='launchTab(this, \"http://" + p.ip + "\")'>Launch</button>";
+    list.appendChild(item);
+  });
+
+  modal.style.display = "flex";
+}
+
+function closeLaunchModal() {
+  document.getElementById("launchModal").style.display = "none";
+}
+
+function launchTab(btn, url) {
+  window.open(url, "_blank");
+  btn.innerText = "Opened ✓";
+  btn.className = "opened";
 }
 
 function exportBookmarks() {
@@ -746,11 +869,31 @@ async function scan(){
       });
     }
 
-    function openAllTabs() {
-      if (!discoveredPrinters.length) return;
-      for (let i = 0; i < discoveredPrinters.length; i++) {
-        window.open(`http://${discoveredPrinters[i].ip}`, "_blank");
-      }
+    function openLaunchModal() {
+      const modal = document.getElementById("launchModal");
+      const list = document.getElementById("launchList");
+      list.innerHTML = "";
+
+      discoveredPrinters.forEach(p => {
+        const item = document.createElement("div");
+        item.className = "launch-item";
+        const title = p.name ? p.name : p.ip;
+        item.innerHTML = `<div><strong>${title}</strong><br><small style="color:var(--text-muted);">${p.ip}</small></div>` +
+                         `<button onclick="launchTab(this, 'http://${p.ip}')">Launch</button>`;
+        list.appendChild(item);
+      });
+
+      modal.style.display = "flex";
+    }
+
+    function closeLaunchModal() {
+      document.getElementById("launchModal").style.display = "none";
+    }
+
+    function launchTab(btn, url) {
+      window.open(url, "_blank");
+      btn.innerText = "Opened ✓";
+      btn.className = "opened";
     }
 
     function exportBookmarks() {
