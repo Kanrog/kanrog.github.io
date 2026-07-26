@@ -124,11 +124,43 @@
       cursor: not-allowed;
     }
 
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      min-height: 2rem;
+    }
+
     .status {
       color: var(--text-muted);
       font-size: 0.875rem;
-      margin-bottom: 1rem;
-      min-height: 1.25rem;
+    }
+
+    .action-group {
+      display: none;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
     }
 
     ul {
@@ -308,31 +340,40 @@
       <button id="scanBtn" class="scan-btn" onclick="scan()">Scout</button>
     </div>
 
-    <div class="status" id="status">Detecting local subnet...</div>
+    <div class="status-bar">
+      <div class="status" id="status">Detecting local subnet...</div>
+      <div class="action-group" id="actionGroup">
+        <button class="action-btn" onclick="openAllTabs()" title="Open each printer in a new tab">🚀 Open All</button>
+        <button class="action-btn" onclick="exportBookmarks()" title="Download a bookmark file for your browser">🔖 Export Bookmarks</button>
+      </div>
+    </div>
+
     <ul id="results"></ul>
 
     <details>
-      <summary>Instructions & Finding Your Subnet</summary>
+      <summary>Instructions & Features Guide</summary>
       
       <h3>How to Use</h3>
       <ol>
         <li>Ensure your device is connected to your home Wi-Fi / local network.</li>
         <li>MoonScout will attempt to auto-detect your subnet. Tap <strong>Scout</strong> to begin scanning.</li>
-        <li>To display printer system hostnames, use the Standalone HTML file below.</li>
+        <li>Once the scan finishes, action buttons will appear to open or save your discovered printer fleet.</li>
+      </ol>
+
+      <h3>🚀 "Open All" Feature & Pop-up Blockers</h3>
+      <p>Clicking <strong>Open All</strong> will attempt to launch a new browser tab for every printer found simultaneously.</p>
+      <p><em>Note on Pop-up Blockers:</em> Browsers usually block web pages from opening multiple pop-up windows at once. The first time you click <strong>Open All</strong>, look for a small <strong>"Pop-up blocked"</strong> icon in your browser's address bar and select <strong>"Always allow pop-ups"</strong>. Subsequent clicks will launch all tabs instantly!</p>
+
+      <h3>🔖 "Export Bookmarks" Feature</h3>
+      <p>Because browser security forbids scripts from directly modifying your personal bookmarks, MoonScout generates a standard <strong>HTML Bookmark File</strong> containing your printer fleet:</p>
+      <ol>
+        <li>Click <strong>Export Bookmarks</strong> to download <code>Klipper_Printers_Bookmarks.html</code>.</li>
+        <li>Open your browser's Bookmark Manager (<code>Ctrl+Shift+O</code> on Windows/Linux or <code>Cmd+Option+B</code> on Mac).</li>
+        <li>Select <strong>Import Bookmarks</strong> and choose the downloaded file. A new <strong>"Klipper Printers"</strong> folder containing all hostnames and links will appear on your bookmark bar!</li>
       </ol>
 
       <h3>How Hostnames Work</h3>
       <p>MoonScout reads the Linux system <strong>hostname</strong> of the host device (e.g., Raspberry Pi or CB1) via Moonraker's system API—not the custom display name set inside Mainsail or Fluidd GUI settings.</p>
-      <p>To change a printer's displayed name in MoonScout, update the Linux system hostname on that host machine (e.g., via <code>sudo raspi-config</code> or <code>sudo hostnamectl set-hostname your-printer-name</code>).</p>
-
-      <h3>How to Find Your Subnet Prefix</h3>
-      <p>Your subnet prefix consists of the first 3 numbers of your IP address (e.g., if your device IP is <code>192.168.0.45</code>, your subnet is <code>192.168.0</code>):</p>
-      <ul>
-        <li><strong>Windows:</strong> Command Prompt &rarr; <code>ipconfig</code></li>
-        <li><strong>macOS:</strong> System Settings &rarr; Network &rarr; Wi-Fi &rarr; Details</li>
-        <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap the info icon <code>(i)</code> next to network</li>
-        <li><strong>Android:</strong> Settings &rarr; Network & internet &rarr; Wi-Fi &rarr; tap gear icon</li>
-      </ul>
 
       <h3>Moonraker Configuration Requirement</h3>
       <p>To allow local browser scripts to read printer hostnames, ensure your <code>moonraker.conf</code> includes wildcard authorization:</p>
@@ -362,14 +403,12 @@ cors_domains:
       <summary>How It Works (Privacy & Security)</summary>
       <h3>100% Client-Side & Private</h3>
       <p>MoonScout runs entirely in your web browser. No telemetry, analytics, tracking, or local IP details are ever transmitted to any external server.</p>
-      
-      <h3>Port 7125 Batched Verification</h3>
-      <p>MoonScout issues queries to port <code>7125</code> in controlled batches of 10. When executed locally via the standalone file, MoonScout reads the <code>/printer/info</code> payload to display your printer's system hostname.</p>
     </details>
   </div>
 
   <script>
     const COMMON_SUBNETS = ["192.168.0", "192.168.1", "10.0.0", "172.16.0", "192.168.50"];
+    let discoveredPrinters = [];
 
     window.addEventListener("DOMContentLoaded", async () => {
       const savedSubnet = localStorage.getItem("moonscout_subnet");
@@ -404,7 +443,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 input:focus{border-color:var(--accent)}
 button{padding:0.75rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:1rem;cursor:pointer;transition:background 0.2s}
 button:hover{background:var(--accent-hover)}button:disabled{opacity:0.5;cursor:not-allowed}
-.st{color:var(--text-muted);font-size:0.875rem;margin-bottom:1rem;min-height:1.25rem}
+.status-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;min-height:2rem}
+.st{color:var(--text-muted);font-size:0.875rem}
+.action-group{display:none;gap:0.5rem}
+.action-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:0.35rem 0.65rem;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all 0.2s}
+.action-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 ul{list-style:none;padding:0;margin:0 0 1.5rem 0}
 li{background:var(--card);padding:1rem;margin-bottom:0.5rem;border-radius:8px;border-left:4px solid var(--success);font-family:ui-monospace,SFMono-Regular,monospace;font-size:1rem;display:flex;justify-content:space-between;align-items:center}
 .printer-info{display:flex;flex-direction:column;gap:0.2rem}
@@ -428,37 +471,47 @@ pre{background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;
 
   <div class="feature-card">
     <span class="icon">✨</span>
-    <p><strong>System Hostname Discovery ACTIVE:</strong> System hostnames (e.g. <code>rook-mk2</code>, <code>voron-switchwire</code>) are extracted from Moonraker's API and displayed next to each IP address.</p>
+    <p><strong>System Hostname Discovery ACTIVE:</strong> System hostnames are extracted from Moonraker's API and displayed next to each IP address.</p>
   </div>
 
   <div class="g">
     <input type="text" id="subnet" placeholder="Detecting subnet...">
     <button id="btn" onclick="scan()">Scout</button>
   </div>
-  <div id="st" class="st">Detecting local subnet...</div>
+  
+  <div class="status-bar">
+    <div id="st" class="st">Detecting local subnet...</div>
+    <div class="action-group" id="actionGroup">
+      <button class="action-btn" onclick="openAllTabs()" title="Open each printer in a new tab">🚀 Open All</button>
+      <button class="action-btn" onclick="exportBookmarks()" title="Download a bookmark file for your browser">🔖 Export Bookmarks</button>
+    </div>
+  </div>
+
   <ul id="res"></ul>
 
   <details>
-    <summary>Instructions & Finding Your Subnet</summary>
+    <summary>Instructions & Features Guide</summary>
     <h3>How to Use</h3>
     <ol>
       <li>Verify your subnet prefix (e.g., <code>192.168.0</code> or <code>192.168.1</code>).</li>
       <li>Click <strong>Scout</strong> to test addresses <code>.1</code> through <code>.254</code> on port <code>7125</code>.</li>
-      <li>Discovered printers will list their system hostname along with a direct link to open the UI.</li>
+      <li>Discovered printers will list their system hostname along with direct UI action buttons.</li>
     </ol>
     
+    <h3>🚀 "Open All" Feature & Pop-up Blockers</h3>
+    <p>Clicking <strong>Open All</strong> will attempt to launch a new browser tab for every printer found simultaneously.</p>
+    <p><em>Note on Pop-up Blockers:</em> Browsers usually block scripts from opening multiple pop-up windows at once. The first time you click <strong>Open All</strong>, look for a small <strong>"Pop-up blocked"</strong> icon in your browser's address bar and select <strong>"Always allow pop-ups"</strong>. Subsequent clicks will launch all tabs instantly!</p>
+
+    <h3>🔖 "Export Bookmarks" Feature</h3>
+    <p>To easily save your fleet into your browser's bookmarks bar:</p>
+    <ol>
+      <li>Click <strong>Export Bookmarks</strong> to download <code>Klipper_Printers_Bookmarks.html</code>.</li>
+      <li>Open your browser's Bookmark Manager (<code>Ctrl+Shift+O</code> on Windows/Linux or <code>Cmd+Option+B</code> on Mac).</li>
+      <li>Select <strong>Import Bookmarks</strong> and choose the downloaded file. A new <strong>"Klipper Printers"</strong> folder containing all hostnames and links will appear on your bookmark bar!</li>
+    </ol>
+
     <h3>About Displayed Names</h3>
     <p>MoonScout displays the Linux <strong>system hostname</strong> of the host SBC/Raspberry Pi (not the custom name configured inside Mainsail or Fluidd web UI settings).</p>
-    <p>To change a printer's name in MoonScout, update the Linux system hostname on the host machine (e.g., via <code>sudo hostnamectl set-hostname new-name</code>).</p>
-
-    <h3>How to Find Your Subnet Prefix</h3>
-    <p>Your subnet prefix consists of the first 3 numbers of your IP address (e.g., if your device IP is <code>192.168.0.45</code>, your subnet is <code>192.168.0</code>):</p>
-    <ul>
-      <li><strong>Windows:</strong> Command Prompt &rarr; <code>ipconfig</code></li>
-      <li><strong>macOS:</strong> System Settings &rarr; Network &rarr; Wi-Fi Details</li>
-      <li><strong>iOS:</strong> Settings &rarr; Wi-Fi &rarr; tap info icon <code>(i)</code></li>
-      <li><strong>Android:</strong> Settings &rarr; Wi-Fi &rarr; tap gear icon</li>
-    </ul>
 
     <h3>Moonraker CORS Configuration</h3>
     <p>Ensure your printers' <code>moonraker.conf</code> accepts wildcard cross-origin API calls:</p>
@@ -483,6 +536,7 @@ cors_domains:
 
 <script>
 const COMMON=["192.168.0","192.168.1","10.0.0","172.16.0","192.168.50"];
+let discoveredPrinters = [];
 
 window.addEventListener("DOMContentLoaded", async () => {
   const saved = localStorage.getItem("moonscout_subnet");
@@ -555,16 +609,52 @@ function renderResults(foundPrinters, resultsList) {
   });
 }
 
+function openAllTabs() {
+  if (!discoveredPrinters.length) return;
+  discoveredPrinters.forEach(p => {
+    window.open("http://" + p.ip, "_blank");
+  });
+}
+
+function exportBookmarks() {
+  if (!discoveredPrinters.length) return;
+  
+  let bookmarksHTML = '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n' +
+    '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n' +
+    '<TITLE>Bookmarks</TITLE>\n' +
+    '<H1>Bookmarks</H1>\n' +
+    '<DL><p>\n' +
+    '    <DT><H3>Klipper Printers</H3>\n' +
+    '    <DL><p>\n';
+
+  discoveredPrinters.forEach(p => {
+    const title = p.name ? (p.name + " (" + p.ip + ")") : p.ip;
+    bookmarksHTML += '        <DT><A HREF="http://' + p.ip + '">' + title + '</A>\n';
+  });
+
+  bookmarksHTML += '    </DL><p>\n</DL><p>';
+
+  const blob = new Blob([bookmarksHTML], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Klipper_Printers_Bookmarks.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 async function scan(){
   const sn=document.getElementById("subnet").value.trim();
   const rl=document.getElementById("res");
   const st=document.getElementById("st");
   const btn=document.getElementById("btn");
+  const actionGroup=document.getElementById("actionGroup");
   if(!sn)return;
+
   localStorage.setItem("moonscout_subnet", sn);
-  rl.innerHTML="";btn.disabled=true;
+  rl.innerHTML=""; btn.disabled=true; actionGroup.style.display="none";
+  discoveredPrinters = [];
   
-  const foundPrinters = [];
   const BATCH_SIZE = 10;
   
   for(let i=1; i<=254; i+=BATCH_SIZE) {
@@ -576,8 +666,8 @@ async function scan(){
       const ip = sn + "." + j;
       batch.push(probeIP(ip).then(res => {
         if(res.found) {
-          foundPrinters.push(res);
-          renderResults(foundPrinters, rl);
+          discoveredPrinters.push(res);
+          renderResults(discoveredPrinters, rl);
         }
       }));
     }
@@ -585,7 +675,10 @@ async function scan(){
   }
   
   btn.disabled=false;
-  st.innerText="Scout complete. Found " + foundPrinters.length + " active Klipper printer(s).";
+  st.innerText="Found " + discoveredPrinters.length + " active printer(s).";
+  if(discoveredPrinters.length > 0) {
+    actionGroup.style.display="flex";
+  }
 }
 <\/script>
 </body>
@@ -653,11 +746,47 @@ async function scan(){
       });
     }
 
+    function openAllTabs() {
+      if (!discoveredPrinters.length) return;
+      discoveredPrinters.forEach(p => {
+        window.open(`http://${p.ip}`, "_blank");
+      });
+    }
+
+    function exportBookmarks() {
+      if (!discoveredPrinters.length) return;
+      
+      let bookmarksHTML = `<!DOCTYPE NETSCAPE-Bookmark-file-1>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>Bookmarks</TITLE>
+<H1>Bookmarks</H1>
+<DL><p>
+    <DT><H3>Klipper Printers</H3>
+    <DL><p>
+`;
+
+      discoveredPrinters.forEach(p => {
+        const title = p.name ? `${p.name} (${p.ip})` : p.ip;
+        bookmarksHTML += `        <DT><A HREF="http://${p.ip}">${title}</A>\n`;
+      });
+
+      bookmarksHTML += `    </DL><p>\n</DL><p>`;
+
+      const blob = new Blob([bookmarksHTML], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Klipper_Printers_Bookmarks.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
     async function scan() {
       const subnet = document.getElementById("subnet").value.trim();
       const resultsList = document.getElementById("results");
       const statusText = document.getElementById("status");
       const btn = document.getElementById("scanBtn");
+      const actionGroup = document.getElementById("actionGroup");
 
       if (!subnet) return;
 
@@ -665,8 +794,9 @@ async function scan(){
 
       resultsList.innerHTML = "";
       btn.disabled = true;
+      actionGroup.style.display = "none";
+      discoveredPrinters = [];
 
-      const foundPrinters = [];
       const BATCH_SIZE = 10;
 
       for (let i = 1; i <= 254; i += BATCH_SIZE) {
@@ -678,8 +808,8 @@ async function scan(){
           const ip = `${subnet}.${j}`;
           batch.push(probeIP(ip).then(res => {
             if (res.found) {
-              foundPrinters.push(res);
-              renderResults(foundPrinters, resultsList);
+              discoveredPrinters.push(res);
+              renderResults(discoveredPrinters, resultsList);
             }
           }));
         }
@@ -688,7 +818,10 @@ async function scan(){
       }
 
       btn.disabled = false;
-      statusText.innerText = `Scout complete. Found ${foundPrinters.length} active Klipper printer(s).`;
+      statusText.innerText = `Found ${discoveredPrinters.length} active printer(s).`;
+      if (discoveredPrinters.length > 0) {
+        actionGroup.style.display = "flex";
+      }
     }
   </script>
 </body>
