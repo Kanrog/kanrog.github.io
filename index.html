@@ -26,7 +26,22 @@
 </section>
         </header>
         <main>
-            <section class="links-section">
+            <!-- Tab Navigation Menu -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" onclick="openTab(event, 'social')"><i class="fas fa-share-nodes"></i> Social Media</button>
+                <button class="tab-btn" onclick="openTab(event, 'repos')"><i class="fas fa-cube"></i> Repositories</button>
+                <button class="tab-btn" onclick="openTab(event, 'articles')"><i class="fa-solid fa-newspaper"></i> Articles</button>
+                <button class="tab-btn" onclick="openTab(event, 'merch')"><i class="fas fa-tshirt"></i> Merch</button>
+                <button class="tab-btn" onclick="openTab(event, 'support')"><i class="fas fa-heart"></i> Support My Work</button>
+                <button class="tab-btn" onclick="openTab(event, 'services')"><i class="fas fa-laptop-code"></i> Services</button>
+                <button class="tab-btn" onclick="openTab(event, 'portfolio')"><i class="fas fa-folder-open"></i> Portfolio</button>
+                <button class="tab-btn" onclick="openTab(event, 'projects')"><i class="fab fa-github"></i> Projects</button>
+                <button class="tab-btn" onclick="openTab(event, 'affiliate')"><i class="fas fa-link"></i> Affiliate</button>
+                <button class="tab-btn" onclick="openTab(event, 'contact')"><i class="fas fa-envelope"></i> Get in Touch</button>
+            </div>
+
+            <!-- Tab Content Sections -->
+            <section id="social" class="links-section tab-content active">
                 <h2><i class="fas fa-share-nodes"></i> Social Media</h2>
                 <div class="links-grid">
                     <a href="https://youtube.com/@kanrogcreations" target="_blank" class="link-card youtube">
@@ -54,7 +69,7 @@
                 </div>
             </section>
 
-            <section class="links-section">
+            <section id="repos" class="links-section tab-content">
                 <h2><i class="fas fa-cube"></i> 3D Printing Repositories</h2>
                 <div class="links-grid">
                     <a href="https://www.printables.com/@Kanrog" target="_blank" class="link-card printables">
@@ -68,7 +83,7 @@
                 </div>
             </section>
 
-<section id="articles" class="links-section">
+<section id="articles" class="links-section tab-content">
     <h2><i class="fa-solid fa-newspaper"></i> Articles</h2>
     <div class="links-grid">
         <a href="https://kanrog.github.io/printing_guide.html" target="_blank" class="link-card articles">
@@ -117,7 +132,7 @@
     </div>
 </section>
   
-<section class="links-section">
+<section id="merch" class="links-section tab-content">
                    <h2><i class="fas fa-tshirt"></i> Merch</h2>
                    <div class="links-grid">
                        <a href="https://kanrogcreations.creator-spring.com/" target="_blank" class="link-card merch">
@@ -127,7 +142,7 @@
                    </div>
                </section>
 
-               <section class="links-section">
+               <section id="support" class="links-section tab-content">
                    <h2><i class="fas fa-heart"></i> Support My Work</h2>
                    <div class="links-grid">
                        <a href="https://ko-fi.com/kanrog" target="_blank" class="link-card kofi">
@@ -145,7 +160,7 @@
                    </div>
                </section>
 
-               <section class="links-section">
+               <section id="services" class="links-section tab-content">
                    <h2><i class="fas fa-laptop-code"></i> Services</h2>
                    <div class="links-grid">
                        <a href="https://www.fiverr.com/s/Zm14A2l" target="_blank" class="link-card fiverr">
@@ -154,7 +169,7 @@
                        </a>
                    </div>
                </section>
-                <section class="links-section">
+                <section id="portfolio" class="links-section tab-content">
                     <h2><i class="fas fa-folder-open"></i> Portfolio</h2>
                     <div class="links-grid">
                         <a href="portfolio.html" class="link-card portfolio">
@@ -163,7 +178,7 @@
                         </a>
                     </div>
                 </section>
-                <section class="links-section">
+                <section id="projects" class="links-section tab-content">
                    <h2><i class="fab fa-github"></i> Projects</h2>
                    <div class="links-grid">
                        <a href="https://github.com/Kanrog" target="_blank" class="link-card github">
@@ -225,7 +240,7 @@
                    </div>
                </section>
 
-               <section class="links-section">
+               <section id="affiliate" class="links-section tab-content">
                    <h2><i class="fas fa-link"></i> Affiliate</h2>
                    <div class="links-grid">
                        <a href="https://best.aliexpress.com/?aff_fcid=0919076d663542d4a29b9b8e07282dc4-1759613440745-08004-_DdX9LHz&tt=CPS_NORMAL&aff_fsk=_DdX9LHz&aff_platform=portals-tool&sk=_DdX9LHz&aff_trace_key=0919076d663542d4a29b9b8e07282dc4-1759613440745-08004-_DdX9LHz&terminal_id=d5904ca0458b4ea0b11f79c90c2d4d5d&gatewayAdapt=vnm2glo&browser_redirect=true" target="_blank" class="link-card aliexpress">
@@ -235,7 +250,7 @@
                    </div>
                </section>
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
-            <section class="contact-section">
+            <section id="contact" class="contact-section tab-content">
                 <h2><i class="fas fa-envelope"></i> Get in Touch</h2>
                 <form id="contactForm" class="contact-form" netlify>
                     <div class="form-group">
@@ -266,7 +281,27 @@
         </footer>
     </div>
 
+    <!-- Tab Switching Logic embedded to run seamlessly -->
+    <script>
+        function openTab(evt, tabName) {
+            // Hide all tab contents
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            
+            // Remove active class from all buttons
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            
+            // Show current tab and set button as active
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
-if you can read this, GZ, DING!
