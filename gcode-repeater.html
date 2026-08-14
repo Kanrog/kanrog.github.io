@@ -114,33 +114,52 @@ M400           ; Wait for moves to finish"></textarea>
                 downloadBtn.download = repeatedResult.filename;
 
                 // Show status
-                statusMessage.textContent = `Success! Processed ${multiplier} copies. Total lines: ${repeatedResult.lineCount.toLocaleString()}`;
+                statusMessage.textContent = `Success! Processed ${multiplier} copies (thumbnails optimized). Total lines: ${repeatedResult.lineCount.toLocaleString()}`;
                 outputArea.classList.remove('hidden');
             };
 
             reader.readAsText(file);
         });
 
-        function repeatGCode(gcodeText, customBlock, multiplier, originalFilename) {
-            // Normalize line endings
+        function removeThumbnails(gcodeText) {
             const lines = gcodeText.split(/\r?\n/);
+            const cleanLines = [];
+            let skipping = false;
 
-            // Find slicing metadata markers if possible, or strip original end macros if desired.
-            // Slicers typically put end macros at the very end (e.g., M104 S0, M140 S0, M84).
-            // For a clean loop, we slice out the very final shutdown lines or keep them depending on intent.
-            // Safe approach: We execute the full file, then insert custom block, then repeat the full file 
-            // (excluding startup init codes if necessary, but duplicating the full file works nicely 
-            // if the custom macro resets coordinates/temps safely).
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line.toLowerCase().startsWith('; thumbnail begin')) {
+                    skipping = true;
+                    continue;
+                }
+                if (skipping && line.toLowerCase().startsWith('; thumbnail end')) {
+                    skipping = false;
+                    continue;
+                }
+                if (!skipping) {
+                    cleanLines.push(lines[i]);
+                }
+            }
+            return cleanLines.join('\n');
+        }
+
+        function repeatGCode(gcodeText, customBlock, multiplier, originalFilename) {
+            // Keep thumbnails for copy 1, but strip them from subsequent copies to save space and avoid UI bugs
+            const firstCopy = gcodeText;
+            const subsequentCopy = removeThumbnails(gcodeText);
             
             let accumulatedGCode = [];
             
             for (let i = 0; i < multiplier; i++) {
-                // Add a comment block marking each print copy
                 accumulatedGCode.push(`\n; ==========================================`);
                 accumulatedGCode.push(`; START OF PRINT COPY ${i + 1} OF ${multiplier}`);
                 accumulatedGCode.push(`; ==========================================\n`);
                 
-                accumulatedGCode.push(gcodeText);
+                if (i === 0) {
+                    accumulatedGCode.push(firstCopy);
+                } else {
+                    accumulatedGCode.push(subsequentCopy);
+                }
 
                 // If it's not the last print, append the custom clearance block
                 if (i < multiplier - 1) {
