@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-Code Farm Repeater</title>
+    <!-- Tailwind CSS for modern UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center py-10 px-4">
+
+    <div class="max-w-3xl w-full bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-6 sm:p-8 space-y-6">
+        
+        <!-- Header -->
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">G-Code Farm Repeater</h1>
+            <p class="text-slate-400 text-sm mt-1">
+                Upload your sliced G-code, define your clearance macro (e.g., bed push-off, nozzle wipe), and duplicate it for automated print farm runs.
+            </p>
+        </div>
+
+        <hr class="border-slate-700">
+
+        <!-- Form / Controls -->
+        <div class="space-y-5">
+            
+            <!-- 1. File Upload -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2" for="gcodeFile">
+                    1. Upload Sliced G-Code File (.gcode)
+                </label>
+                <input class="block w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500 file:cursor-pointer cursor-pointer bg-slate-900/50 border border-slate-700 rounded-lg p-2" 
+                    type="file" id="gcodeFile" accept=".gcode,.g">
+            </div>
+
+            <!-- 2. Multiplier Selection -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2" for="multiplier">
+                    2. Number of Total Prints (Multiplier)
+                </label>
+                <select id="multiplier" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-sky-500">
+                    <option value="1">1 Print (Original)</option>
+                    <option value="2">2 Prints</option>
+                    <option value="3" selected>3 Prints</option>
+                    <option value="4">4 Prints</option>
+                    <option value="5">5 Prints</option>
+                    <option value="10">10 Prints</option>
+                    <option value="15">15 Prints</option>
+                    <option value="20">20 Prints</option>
+                </select>
+            </div>
+
+            <!-- 3. Custom G-Code Block -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1" for="customGcode">
+                    3. Inter-Print Clearance G-Code (Runs between copies)
+                </label>
+                <p class="text-xs text-slate-400 mb-2">
+                    This block will be inserted <em>after</em> the end sequence of print N and <em>before</em> the start sequence of print N+1.
+                </p>
+                <textarea id="customGcode" rows="6" class="w-full font-mono text-xs bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:outline-none focus:border-sky-500" placeholder="; Example clearance macro
+G1 X0 Y200 F3000 ; Push print off bed
+G28 X          ; Home X axis
+M400           ; Wait for moves to finish"></textarea>
+            </div>
+
+        </div>
+
+        <!-- Action Button -->
+        <button id="processBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-150 shadow-lg cursor-pointer">
+            Generate Repeated G-Code
+        </button>
+
+        <!-- Status & Download Area -->
+        <div id="outputArea" class="hidden space-y-4 pt-4 border-t border-slate-700">
+            <div id="statusMessage" class="text-sm p-3 rounded-lg bg-emerald-950/50 border border-emerald-800 text-emerald-300"></div>
+            
+            <a id="downloadBtn" class="block text-center w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 px-4 rounded-lg transition duration-150 shadow-lg">
+                Download Repeated G-Code File
+            </a>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.getElementById('processBtn').addEventListener('click', () => {
+            const fileInput = document.getElementById('gcodeFile');
+            const multiplier = parseInt(document.getElementById('multiplier').value, 10);
+            const customGcode = document.getElementById('customGcode').value;
+            const outputArea = document.getElementById('outputArea');
+            const statusMessage = document.getElementById('statusMessage');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            if (fileInput.files.length === 0) {
+                alert('Please upload a G-code file first.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const originalText = e.target.result;
+                
+                // Process the G-code
+                const repeatedResult = repeatGCode(originalText, customGcode, multiplier, file.name);
+
+                // Create Blob and Object URL for download
+                const blob = new Blob([repeatedResult.content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+
+                downloadBtn.href = url;
+                downloadBtn.download = repeatedResult.filename;
+
+                // Show status
+                statusMessage.textContent = `Success! Processed ${multiplier} copies. Total lines: ${repeatedResult.lineCount.toLocaleString()}`;
+                outputArea.classList.remove('hidden');
+            };
+
+            reader.readAsText(file);
+        });
+
+        function repeatGCode(gcodeText, customBlock, multiplier, originalFilename) {
+            // Normalize line endings
+            const lines = gcodeText.split(/\r?\n/);
+
+            // Find slicing metadata markers if possible, or strip original end macros if desired.
+            // Slicers typically put end macros at the very end (e.g., M104 S0, M140 S0, M84).
+            // For a clean loop, we slice out the very final shutdown lines or keep them depending on intent.
+            // Safe approach: We execute the full file, then insert custom block, then repeat the full file 
+            // (excluding startup init codes if necessary, but duplicating the full file works nicely 
+            // if the custom macro resets coordinates/temps safely).
+            
+            let accumulatedGCode = [];
+            
+            for (let i = 0; i < multiplier; i++) {
+                // Add a comment block marking each print copy
+                accumulatedGCode.push(`\n; ==========================================`);
+                accumulatedGCode.push(`; START OF PRINT COPY ${i + 1} OF ${multiplier}`);
+                accumulatedGCode.push(`; ==========================================\n`);
+                
+                accumulatedGCode.push(gcodeText);
+
+                // If it's not the last print, append the custom clearance block
+                if (i < multiplier - 1) {
+                    accumulatedGCode.push(`\n; --- CUSTOM FARM CLEARANCE BLOCK ---`);
+                    accumulatedGCode.push(customBlock);
+                    accumulatedGCode.push(`; -----------------------------------\n`);
+                }
+            }
+
+            const finalContent = accumulatedGCode.join('\n');
+            const lineCount = finalContent.split('\n').length;
+            
+            // Build new filename (e.g., "benchy.gcode" -> "benchy_x3_farm.gcode")
+            const nameParts = originalFilename.split('.');
+            const extension = nameParts.pop();
+            const baseName = nameParts.join('.');
+            const newFilename = `${baseName}_x${multiplier}_farm.${extension}`;
+
+            return {
+                content: finalContent,
+                filename: newFilename,
+                lineCount: lineCount
+            };
+        }
+    </script>
+</body>
+</html>
