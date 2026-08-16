@@ -1,0 +1,8 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" id="ss-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+            <!-- Speech Bubble Body -->
+            <path d="M 448, 224 C 448, 332.25 358.25, 420 248, 420 C 217.5, 420 188.75, 412.75 163.5, 400 L 96, 432 L 124, 356 C 88.5, 321.25 64, 275.5 64, 224 C 64, 115.75 153.75, 28 264, 28 C 374.25, 28 448, 115.75 448, 224 Z" fill="#7b2cbf" stroke="#000000" stroke-width="24" stroke-linejoin="round"/>
+            
+            <!-- SS Letters -->
+            <text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-weight="900" font-size="190px" letter-spacing="5px">SS</text>
+        </svg>
