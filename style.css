@@ -28,30 +28,33 @@ body {
     line-height: 1.6;
 }
 
-
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* Header Styles */
+/* =========================================
+   HEADER & COMPACT VIEW TRANSITIONS
+   ========================================= */
 header {
     text-align: center;
     padding: 40px 20px;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
+    transition: all 0.4s ease-in-out;
 }
 
 .logo-container {
     margin-bottom: 20px;
     animation: fadeInDown 1s ease-out;
+    transition: all 0.4s ease-in-out;
 }
 
 .logo {
     max-width: 300px;
     height: auto;
     filter: drop-shadow(0 0 20px rgba(155, 89, 182, 0.5));
-    transition: transform 0.3s ease;
+    transition: all 0.4s ease-in-out;
 }
 
 .logo:hover {
@@ -73,7 +76,60 @@ h1 {
     animation: fadeInUp 1.2s ease-out;
 }
 
-/* Section Styles */
+/* About Section default state */
+.about-section {
+    max-width: 700px;
+    margin: 2em auto 0 auto;
+    text-align: center;
+    line-height: 1.5;
+    opacity: 1;
+    max-height: 500px;
+    overflow: hidden;
+    transition: all 0.4s ease-in-out;
+}
+
+.about-section h2 {
+    margin-bottom: 0.5em;
+    color: var(--primary-purple);
+}
+
+/* COMPACT VIEW STATE (Triggered when category is selected) */
+body.compact-view header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+}
+
+body.compact-view .logo-container {
+    margin-bottom: 0;
+}
+
+body.compact-view .logo {
+    max-width: 120px;
+}
+
+body.compact-view header .tagline {
+    margin-left: 20px;
+    font-size: 1.1rem;
+    border-left: 2px solid var(--border-color);
+    padding-left: 20px;
+}
+
+body.compact-view .about-section {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+/* =========================================
+   SECTION STYLES
+   ========================================= */
 .links-section,
 .contact-section {
     background: var(--medium-gray);
@@ -174,67 +230,151 @@ h1 {
     font-weight: 600;
 }
 
-/* Specific Platform Colors */
-.youtube:hover {
-    border-color: #FF0000;
-}
+/* =========================================
+   SPECIFIC PLATFORM HOVER COLORS
+   ========================================= */
+.youtube:hover { border-color: #FF0000; }
+.youtube:hover i { color: #FF0000; }
 
-.youtube:hover i {
-    color: #FF0000;
-}
+.instagram:hover { border-color: #E4405F; }
+.instagram:hover i { color: #E4405F; }
 
-.instagram:hover {
-    border-color: #E4405F;
-}
-
-.instagram:hover i {
-    color: #E4405F;
-}
-
-.twitter:hover {
-    border-color: #1DA1F2;
-}
-
+.twitter:hover { border-color: #1DA1F2; }
 .twitter:hover i,
 .twitter:hover .x-icon {
     color: #000000;
     fill: #000000;
 }
 
-.printables:hover {
-    border-color: #FF6B35;
+.printables:hover { border-color: #FF6B35; }
+.printables:hover i { color: #FF6B35; }
+
+.makerworld:hover { border-color: #00D9FF; }
+.makerworld:hover i { color: #00D9FF; }
+
+.tinkeratlas:hover { border-color: #FFD700; }
+.tinkeratlas:hover i { color: #FFD700; }
+
+.articles:hover { border-color: #FF1493; }
+.articles:hover i { color: #FF1493; }
+
+.merch:hover { border-color: #FF6B35; }
+.merch:hover i { color: #FF6B35; }
+
+.kofi:hover { border-color: #FF5722; }
+.kofi:hover i { color: #FF5722; }
+
+.patreon:hover { border-color: #F96854; }
+.patreon:hover i { color: #F96854; }
+
+.fiverr:hover { border-color: #1DBF73; }
+.fiverr:hover i { color: #1DBF73; }
+
+.github:hover { border-color: #333; }
+.github:hover i { color: #333; }
+
+.aliexpress:hover { border-color: #FF8C00; }
+.aliexpress:hover i { color: #FF8C00; }
+
+.portfolio:hover { border-color: #9b59b6; }
+.portfolio:hover i { color: #9b59b6; }
+
+/* =========================================
+   ARTICLES & THUMBNAILS
+   ========================================= */
+.article-thumbnail {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
 }
 
-.printables:hover i {
-    color: #FF6B35;
+/* =========================================
+   HORIZONTAL SCROLL CONTAINER FOR TABS
+   ========================================= */
+.tab-navigation-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 30px;
+    padding-bottom: 5px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-purple) var(--dark-gray);
 }
 
-.makerworld:hover {
-    border-color: #00D9FF;
+.tab-navigation-wrapper::-webkit-scrollbar {
+    height: 6px;
 }
 
-.makerworld:hover i {
-    color: #00D9FF;
+.tab-navigation-wrapper::-webkit-scrollbar-track {
+    background: var(--dark-gray);
+    border-radius: 4px;
 }
 
-.tinkeratlas:hover {
-    border-color: #FFD700;
+.tab-navigation-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary-purple);
+    border-radius: 4px;
 }
 
-.tinkeratlas:hover i {
-    color: #FFD700;
+.tab-navigation {
+    display: inline-flex;
+    gap: 10px;
+    justify-content: center;
+    min-width: 100%;
 }
 
-.articles:hover {
-    border-color: #FF1493;
+.tab-btn {
+    background: var(--dark-gray);
+    border: 2px solid var(--border-color);
+    color: var(--white);
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
-.articles:hover i {
-    color: #FF1493;
+.tab-btn:hover {
+    border-color: var(--primary-purple);
+    color: var(--light-purple);
+    transform: translateY(-2px);
 }
 
+.tab-btn.active {
+    background: var(--primary-purple);
+    border-color: var(--primary-purple);
+    color: var(--white);
+    box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
+}
 
-/* Contact Form Styles */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* =========================================
+   PROJECT DESCRIPTION STYLES
+   ========================================= */
+.project-desc {
+    font-size: 0.9rem;
+    color: var(--light-purple);
+    font-weight: 400;
+    line-height: 1.4;
+    margin-top: -5px;
+}
+
+/* =========================================
+   CONTACT FORM STYLES
+   ========================================= */
 .contact-form {
     max-width: 600px;
     margin: 0 auto;
@@ -344,7 +484,9 @@ h1 {
     text-decoration: underline;
 }
 
-/* Footer */
+/* =========================================
+   FOOTER & ANIMATIONS
+   ========================================= */
 footer {
     text-align: center;
     padding: 30px 20px;
@@ -353,14 +495,9 @@ footer {
     margin-top: 40px;
 }
 
-/* Animations */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes fadeInDown {
@@ -385,8 +522,22 @@ footer {
     }
 }
 
-/* Responsive Design */
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
 @media (max-width: 768px) {
+    body.compact-view header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    body.compact-view header .tagline {
+        margin-left: 0;
+        margin-top: 10px;
+        border-left: none;
+        padding-left: 0;
+    }
+
     h1 {
         font-size: 2rem;
     }
@@ -429,295 +580,5 @@ footer {
 
     .link-card i {
         font-size: 2.5rem;
-    }
-}
-/* New Platform Colors */
-.merch:hover {
-    border-color: #FF6B35;
-}
-
-.merch:hover i {
-    color: #FF6B35;
-}
-
-.kofi:hover {
-    border-color: #FF5722;
-}
-
-.kofi:hover i {
-    color: #FF5722;
-}
-
-.patreon:hover {
-    border-color: #F96854;
-}
-
-.patreon:hover i {
-    color: #F96854;
-}
-
-.fiverr:hover {
-    border-color: #1DBF73;
-}
-
-.fiverr:hover i {
-    color: #1DBF73;
-}
-
-.github:hover {
-    border-color: #333;
-}
-
-.github:hover i {
-    color: #333;
-}
-
-.aliexpress:hover {
-    border-color: #FF8C00;
-}
-
-.aliexpress:hover i {
-    color: #FF8C00;
-}
-
-.portfolio:hover {
-    border-color: #9b59b6;
-}
-
-.portfolio:hover i {
-    color: #9b59b6;
-}
-.article-thumbnail {
-    width: 100%;
-    height: 250px; /* Adjust to fit your design */
-    border: none;
-    pointer-events: none; /* Important: prevents iframe from blocking clicks */
-    display: block;
-}
-.article-thumbnail {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
-}
-
-/* =========================================
-   NEW TAB NAVIGATION STYLES
-   ========================================= */
-.tab-navigation {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 30px;
-}
-
-.tab-btn {
-    background: var(--dark-gray);
-    border: 2px solid var(--border-color);
-    color: var(--white);
-    padding: 12px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.tab-btn:hover {
-    border-color: var(--primary-purple);
-    color: var(--light-purple);
-    transform: translateY(-2px);
-}
-
-.tab-btn.active {
-    background: var(--primary-purple);
-    border-color: var(--primary-purple);
-    color: var(--white);
-    box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
-}
-
-.tab-content {
-    display: none;
-    animation: fadeIn 0.5s ease-out;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* =========================================
-   PROJECT DESCRIPTION STYLES
-   ========================================= */
-.project-desc {
-    font-size: 0.9rem;
-    color: var(--light-purple);
-    font-weight: 400;
-    line-height: 1.4;
-    margin-top: -5px;
-}
-/* =========================================
-   COMPACT HEADER & STATE TRANSITIONS
-   ========================================= */
-
-header {
-    text-align: center;
-    padding: 40px 20px;
-    margin-bottom: 20px;
-    transition: all 0.4s ease-in-out;
-}
-
-.logo-container {
-    margin-bottom: 20px;
-    transition: all 0.4s ease-in-out;
-}
-
-.logo {
-    max-width: 300px;
-    height: auto;
-    filter: drop-shadow(0 0 20px rgba(155, 89, 182, 0.5));
-    transition: max-width 0.4s ease-in-out;
-}
-
-/* About Section default state */
-.about-section {
-    max-width: 700px;
-    margin: 2em auto 0 auto;
-    text-align: center;
-    line-height: 1.5;
-    opacity: 1;
-    max-height: 500px;
-    overflow: hidden;
-    transition: all 0.4s ease-in-out;
-}
-
-.about-section h2 {
-    margin-bottom: 0.5em;
-    color: var(--primary-purple);
-}
-
-/* COMPACT VIEW STATE (Triggered when a category is selected) */
-body.compact-view header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 10px 20px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-    text-align: left;
-}
-
-body.compact-view .logo-container {
-    margin-bottom: 0;
-}
-
-body.compact-view .logo {
-    max-width: 120px;
-}
-
-body.compact-view header .tagline {
-    margin-left: 20px;
-    font-size: 1.1rem;
-    border-left: 2px solid var(--border-color);
-    padding-left: 20px;
-}
-
-body.compact-view .about-section {
-    opacity: 0;
-    max-height: 0;
-    margin: 0;
-    padding: 0;
-    pointer-events: none;
-}
-
-/* =========================================
-   HORIZONTAL SCROLL CONTAINER FOR TABS
-   ========================================= */
-
-.tab-navigation-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;
-    margin-bottom: 30px;
-    padding-bottom: 5px;
-    /* Custom scrollbar styling for neat UX */
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-purple) var(--dark-gray);
-}
-
-.tab-navigation-wrapper::-webkit-scrollbar {
-    height: 6px;
-}
-
-.tab-navigation-wrapper::-webkit-scrollbar-track {
-    background: var(--dark-gray);
-    border-radius: 4px;
-}
-
-.tab-navigation-wrapper::-webkit-scrollbar-thumb {
-    background: var(--primary-purple);
-    border-radius: 4px;
-}
-
-.tab-navigation {
-    display: inline-flex;
-    gap: 10px;
-    justify-content: center;
-    min-width: 100%;
-}
-
-.tab-btn {
-    background: var(--dark-gray);
-    border: 2px solid var(--border-color);
-    color: var(--white);
-    padding: 12px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    font-size: 1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-.tab-btn:hover {
-    border-color: var(--primary-purple);
-    color: var(--light-purple);
-    transform: translateY(-2px);
-}
-
-.tab-btn.active {
-    background: var(--primary-purple);
-    border-color: var(--primary-purple);
-    color: var(--white);
-    box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
-}
-
-.tab-content {
-    display: none;
-    animation: fadeIn 0.5s ease-out;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* Responsive adjustment for compact view on smaller screens */
-@media (max-width: 768px) {
-    body.compact-view header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    body.compact-view header .tagline {
-        margin-left: 0;
-        margin-top: 10px;
-        border-left: none;
-        padding-left: 0;
     }
 }
