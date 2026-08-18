@@ -10,38 +10,41 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="logo-container">
-                <img src="Kanrog LOGO wtext.png" alt="Kanrog Creations Logo" class="logo">
+        <header id="site-header">
+            <div class="logo-container" id="logo-container">
+                <a href="#" id="home-link" title="Reset to Home">
+                    <img src="Kanrog LOGO wtext.png" alt="Kanrog Creations Logo" class="logo">
+                </a>
             </div>
             <p class="tagline">Tinkering in three dimensions.</p>
             
-<section id="about" class="tagline" style="max-width: 700px; margin: 2em auto; text-align: center; line-height: 1.5;">
-  <h2 style="margin-bottom: 0.5em;">About Me</h2>
-  <p>I’m a self-taught 3D designer, content creator, and tinkerer from northwest Norway. 
-  I create all my content in English, focusing on functional 3D-printed projects that solve real problems.</p>
-  <p>Check out my work on YouTube and Printables, 
-    support me on Ko-fi, or book an Onshape lesson; either on Fiverr or Patreon.
-    You can also get in touch through the contact form below.
-  </p>
-</section>
+            <section id="about" class="about-section">
+              <h2>About Me</h2>
+              <p>I’m a self-taught 3D designer, content creator, and tinkerer from northwest Norway. 
+              I create all my content in English, focusing on functional 3D-printed projects that solve real problems.</p>
+              <p>Check out my work on YouTube and Printables, 
+                support me on Ko-fi, or book an Onshape lesson; either on Fiverr or Patreon.
+                You can also get in touch through the contact form below.
+              </p>
+            </section>
         </header>
+
         <main>
-            <!-- Tab Navigation Menu -->
-            <div class="tab-navigation">
-                <button class="tab-btn active" onclick="openTab(event, 'social')"><i class="fas fa-share-nodes"></i> Social Media</button>
-                <button class="tab-btn" onclick="openTab(event, 'repos')"><i class="fas fa-cube"></i> Repositories</button>
-                <button class="tab-btn" onclick="openTab(event, 'articles')"><i class="fa-solid fa-newspaper"></i> Articles</button>
-                <button class="tab-btn" onclick="openTab(event, 'merch')"><i class="fas fa-tshirt"></i> Merch</button>
-                <button class="tab-btn" onclick="openTab(event, 'support')"><i class="fas fa-heart"></i> Support My Work</button>
-                <button class="tab-btn" onclick="openTab(event, 'services')"><i class="fas fa-laptop-code"></i> Services</button>
-                <button class="tab-btn" onclick="openTab(event, 'portfolio')"><i class="fas fa-folder-open"></i> Portfolio</button>
-                <button class="tab-btn" onclick="openTab(event, 'projects')"><i class="fab fa-github"></i> Projects</button>
-                <button class="tab-btn" onclick="openTab(event, 'affiliate')"><i class="fas fa-link"></i> Affiliate</button>
+            <div class="tab-navigation-wrapper">
+                <div class="tab-navigation">
+                    <button class="tab-btn" data-tab="social"><i class="fas fa-share-nodes"></i> Social Media</button>
+                    <button class="tab-btn" data-tab="repos"><i class="fas fa-cube"></i> Repositories</button>
+                    <button class="tab-btn" data-tab="articles"><i class="fa-solid fa-newspaper"></i> Articles</button>
+                    <button class="tab-btn" data-tab="merch"><i class="fas fa-tshirt"></i> Merch</button>
+                    <button class="tab-btn" data-tab="support"><i class="fas fa-heart"></i> Support My Work</button>
+                    <button class="tab-btn" data-tab="services"><i class="fas fa-laptop-code"></i> Services</button>
+                    <button class="tab-btn" data-tab="portfolio"><i class="fas fa-folder-open"></i> Portfolio</button>
+                    <button class="tab-btn" data-tab="projects"><i class="fab fa-github"></i> Projects</button>
+                    <button class="tab-btn" data-tab="affiliate"><i class="fas fa-link"></i> Affiliate</button>
+                </div>
             </div>
 
-            <!-- Tab Content Sections -->
-            <section id="social" class="links-section tab-content active">
+            <section id="social" class="links-section tab-content">
                 <h2><i class="fas fa-share-nodes"></i> Social Media</h2>
                 <div class="links-grid">
                     <a href="https://youtube.com/@kanrogcreations" target="_blank" class="link-card youtube">
@@ -83,343 +86,145 @@
                 </div>
             </section>
 
-<section id="articles" class="links-section tab-content">
-    <h2><i class="fa-solid fa-newspaper"></i> Articles</h2>
-    <div class="links-grid">
-        <a href="https://kanrog.github.io/printing_guide.html" target="_blank" class="link-card articles">
-            <img src="image/printing_guide_image.png" alt="Understanding Material Requirements" class="article-thumbnail">
-            <div class="article-content">
-                <i class="fa-solid fa-pencil"></i>
-                <span>Understanding Material Requirements</span>
-            </div>
-        </a>
-        <a href="https://kanrog.github.io/morethanpla.html" target="_blank" class="link-card articles">
-            <img src="image/morethanpla_image.png" alt="Beyond the Basics: Why PLA is Just the Beginning" class="article-thumbnail">
-            <div class="article-content">
-                <i class="fa-solid fa-pencil"></i>
-                <span>Beyond the Basics: Why PLA is Just the Beginning</span>
-            </div>
-        </a>
-        <a href="https://kanrog.github.io/printed_frame_material.html" target="_blank" class="link-card articles">
-            <img src="image/printed_frame_material.png" alt="Why PETG Isn't Good for 3D Printed Printer Frames" class="article-thumbnail">
-            <div class="article-content">
-                <i class="fa-solid fa-pencil"></i>
-                <span>Why PETG Isn't Good for 3D Printed Printer Frames</span>
-            </div>
-        </a>
-        <a href="https://kanrog.github.io/3d_printing_food_safe_research.html" target="_blank" class="link-card articles">
-            <img src="image/3d_printing_food_safe_research.png" alt="Making 3D Printed Objects Food Safe and Sterile" class="article-thumbnail">
-            <div class="article-content">
-                <i class="fa-solid fa-pencil"></i>
-                <span>Making 3D Printed Objects Food Safe and Sterile</span>
-            </div>
-        </a>
-        <!-- New Articles -->
-        <a href="https://kanrog.com/klipper-soc-list" target="_blank" class="link-card articles">
-            <img src="image/klipper-soc.png" alt="Klipper Host List" class="article-thumbnail">
-            <div class="article-content">
-                <i class="fa-solid fa-pencil"></i>
-                <span>Klipper Host List</span>
-            </div>
-        </a>
-        <a href="https://kanrog.com/klipper-laptop-install" target="_blank" class="link-card articles">
-            <img src="image/klipper-laptop-install.png" alt="Laptop Klipper Install Guide" class="article-thumbnail">
-            <div class="article-content">
-                <i class="fa-solid fa-pencil"></i>
-                <span>Laptop Klipper Install Guide</span>
-            </div>
-        </a>
-    </div>
-</section>
-  
-<section id="merch" class="links-section tab-content">
-                   <h2><i class="fas fa-tshirt"></i> Merch</h2>
-                   <div class="links-grid">
-                       <a href="https://kanrogcreations.creator-spring.com/" target="_blank" class="link-card merch">
-                           <i class="fas fa-shopping-bag"></i>
-                           <span>Creator Spring</span>
-                       </a>
-                   </div>
-               </section>
+            <section id="articles" class="links-section tab-content">
+                <h2><i class="fa-solid fa-newspaper"></i> Articles</h2>
+                <div class="links-grid">
+                    <a href="https://kanrog.github.io/printing_guide.html" target="_blank" class="link-card articles">
+                        <img src="image/printing_guide_image.png" alt="Understanding Material Requirements" class="article-thumbnail">
+                        <div class="article-content">
+                            <i class="fa-solid fa-pencil"></i>
+                            <span>Understanding Material Requirements</span>
+                        </div>
+                    </a>
+                    <a href="https://kanrog.github.io/morethanpla.html" target="_blank" class="link-card articles">
+                        <img src="image/morethanpla_image.png" alt="Beyond the Basics: Why PLA is Just the Beginning" class="article-thumbnail">
+                        <div class="article-content">
+                            <i class="fa-solid fa-pencil"></i>
+                            <span>Beyond the Basics: Why PLA is Just the Beginning</span>
+                        </div>
+                    </a>
+                    <a href="https://kanrog.github.io/printed_frame_material.html" target="_blank" class="link-card articles">
+                        <img src="image/printed_frame_material.png" alt="Why PETG Isn't Good for 3D Printed Printer Frames" class="article-thumbnail">
+                        <div class="article-content">
+                            <i class="fa-solid fa-pencil"></i>
+                            <span>Why PETG Isn't Good for 3D Printed Printer Frames</span>
+                        </div>
+                    </a>
+                    <a href="https://kanrog.github.io/3d_printing_food_safe_research.html" target="_blank" class="link-card articles">
+                        <img src="image/3d_printing_food_safe_research.png" alt="Making 3D Printed Objects Food Safe and Sterile" class="article-thumbnail">
+                        <div class="article-content">
+                            <i class="fa-solid fa-pencil"></i>
+                            <span>Making 3D Printed Objects Food Safe and Sterile</span>
+                        </div>
+                    </a>
+                    <a href="https://kanrog.com/klipper-soc-list" target="_blank" class="link-card articles">
+                        <img src="image/klipper-soc.png" alt="Klipper Host List" class="article-thumbnail">
+                        <div class="article-content">
+                            <i class="fa-solid fa-pencil"></i>
+                            <span>Klipper Host List</span>
+                        </div>
+                    </a>
+                    <a href="https://kanrog.com/klipper-laptop-install" target="_blank" class="link-card articles">
+                        <img src="image/klipper-laptop-install.png" alt="Laptop Klipper Install Guide" class="article-thumbnail">
+                        <div class="article-content">
+                            <i class="fa-solid fa-pencil"></i>
+                            <span>Laptop Klipper Install Guide</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+              
+            <section id="merch" class="links-section tab-content">
+                <h2><i class="fas fa-tshirt"></i> Merch</h2>
+                <div class="links-grid">
+                    <a href="https://kanrogcreations.creator-spring.com/" target="_blank" class="link-card merch">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Creator Spring</span>
+                    </a>
+                </div>
+            </section>
 
-               <section id="support" class="links-section tab-content">
-                   <h2><i class="fas fa-heart"></i> Support My Work</h2>
-                   <div class="links-grid">
-                       <a href="https://ko-fi.com/kanrog" target="_blank" class="link-card kofi">
-                           <i class="fas fa-coffee"></i>
-                           <span>Ko-fi</span>
-                       </a>
-                       <a href="https://www.patreon.com/c/KanrogCreations" target="_blank" class="link-card patreon">
-                           <i class="fab fa-patreon"></i>
-                           <span>Patreon</span>
-                       </a>
-                       <a href="https://onshape.pro/KanrogCreations" class="link-card fiverr">
-                          <i class="fa-solid fa-draw-polygon"></i>
-                          <span>Try Onshape</span>
-                          </a>
-                   </div>
-               </section>
+            <section id="support" class="links-section tab-content">
+                <h2><i class="fas fa-heart"></i> Support My Work</h2>
+                <div class="links-grid">
+                    <a href="https://ko-fi.com/kanrog" target="_blank" class="link-card kofi">
+                        <i class="fas fa-coffee"></i>
+                        <span>Ko-fi</span>
+                    </a>
+                    <a href="https://www.patreon.com/c/KanrogCreations" target="_blank" class="link-card patreon">
+                        <i class="fab fa-patreon"></i>
+                        <span>Patreon</span>
+                    </a>
+                    <a href="https://onshape.pro/KanrogCreations" class="link-card fiverr">
+                       <i class="fa-solid fa-draw-polygon"></i>
+                       <span>Try Onshape</span>
+                    </a>
+                </div>
+            </section>
 
-               <section id="services" class="links-section tab-content">
-                   <h2><i class="fas fa-laptop-code"></i> Services</h2>
-                   <div class="links-grid">
-                       <a href="https://www.fiverr.com/s/Zm14A2l" target="_blank" class="link-card fiverr">
-                           <i class="fas fa-briefcase"></i>
-                           <span>Fiverr</span>
-                       </a>
-                   </div>
-               </section>
+            <section id="services" class="links-section tab-content">
+                <h2><i class="fas fa-laptop-code"></i> Services</h2>
+                <div class="links-grid">
+                    <a href="https://www.fiverr.com/s/Zm14A2l" target="_blank" class="link-card fiverr">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Fiverr</span>
+                    </a>
+                </div>
+            </section>
 
-                <section id="portfolio" class="links-section tab-content">
-                    <h2><i class="fas fa-folder-open"></i> Portfolio</h2>
-                    
-                    <!-- Portfolio Intro incorporated from portfolio.html -->
-                    <div style="max-width: 700px; margin: 0 auto 2em auto; text-align: center; line-height: 1.5;">
-                        <p>Most of my printable models are available on <a href="https://www.printables.com/@Kanrog/models" target="_blank" style="color: var(--primary-purple); text-decoration: none; font-weight: 600;">Printables</a>, where you can download them for free and support my work.</p>
+            <section id="portfolio" class="links-section tab-content">
+                <h2><i class="fas fa-folder-open"></i> Portfolio</h2>
+                <div style="max-width: 700px; margin: 0 auto 2em auto; text-align: center; line-height: 1.5;">
+                    <p>Most of my printable models are available on <a href="https://www.printables.com/@Kanrog/models" target="_blank" style="color: var(--primary-purple); text-decoration: none; font-weight: 600;">Printables</a>, where you can download them for free and support my work.</p>
+                </div>
+
+                <section class="portfolio-item">
+                    <h2 class="portfolio-title">Rolohaun Delta Flyer</h2>
+                    <div class="portfolio-content">
+                        <div class="portfolio-image">
+                            <img src="image/Delta_Flyer_Refit_Full_Assembly_11.png?w=800" alt="Project Image">
+                        </div>
+                        <div class="portfolio-details">
+                            <div class="portfolio-links">
+                                <a href="https://youtu.be/1Zi_YIisRXk" target="_blank" class="portfolio-link"><i class="fab fa-youtube"></i> Watch Video</a>
+                                <a href="https://www.printables.com/model/1327596-delta-flyer-refit-3d-printer" target="_blank" class="portfolio-link"><i class="fas fa-print"></i> View on Printables</a>
+                                <a href="https://kanrog.github.io/Delta-Flyer/" target="_blank" class="portfolio-link"><i class="fas fa-rocket"></i> Config-repo</a>
+                            </div>
+                            <div class="portfolio-description">
+                                <h3>Most in depth yet</h3>
+                                <p>I worked with Rolohaun on this project. My main focus was general polish of all files, clean up CAD, and adapt for LDO printer kit needs...</p>
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Portfolio Item 1 -->
-                    <section class="portfolio-item">
-                        <h2 class="portfolio-title">Rolohaun Delta Flyer</h2>
-                        <div class="portfolio-content">
-                            <div class="portfolio-image">
-                                <img src="image/Delta_Flyer_Refit_Full_Assembly_11.png?w=800" alt="Project Image">
-                            </div>
-                            <div class="portfolio-details">
-                                <div class="portfolio-links">
-                                    <a href="https://youtu.be/1Zi_YIisRXk" target="_blank" class="portfolio-link">
-                                        <i class="fab fa-youtube"></i> Watch Video
-                                    </a>
-                                    <a href="https://www.printables.com/model/1327596-delta-flyer-refit-3d-printer" target="_blank" class="portfolio-link">
-                                        <i class="fas fa-print"></i> View on Printables
-                                    </a>
-                                    <a href="https://kanrog.github.io/Delta-Flyer/" target="_blank" class="portfolio-link">
-                                        <i class="fas fa-rocket"></i> Config-repo
-                                    </a>
-                                </div>
-                                <div class="portfolio-description">
-                                    <h3>Most in depth yet</h3>
-                                    <p>
-                                        I worked with Rolohaun on this project.
-                                        My main focus was general polish of all the
-                                        files, clean up the CAD and adapt it for
-                                        some of the spesific needs when creating a
-                                        printer kit with LDO. I made all the Renders
-                                        and made sure the CAD was nice and easy for
-                                        people to view and use as reference, including
-                                        all the correct screws, components and reference
-                                        models and the documentation.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Portfolio Item 2 -->
-                    <section class="portfolio-item">
-                        <h2 class="portfolio-title">WRAP - Wondrous, Replaceable, and Adaptable Pieces</h2>
-                        <div class="portfolio-content">
-                            <div class="portfolio-image">
-                                <img src="image/wrap.png?w=800" alt="Project Image">
-                            </div>
-                            <div class="portfolio-details">
-                                <div class="portfolio-links">
-                                    <a href="https://youtube.com/@kanrogcreations" target="_blank" class="portfolio-link">
-                                        <i class="fab fa-youtube"></i> Watch Video
-                                    </a>
-                                    <a href="https://www.printables.com/model/1259287-wrap-wondrous-replaceable-and-adaptable-pieces" target="_blank" class="portfolio-link">
-                                        <i class="fas fa-print"></i> View on Printables
-                                    </a>
-                                </div>
-                                <div class="portfolio-description">
-                                    <h3>A bit of fun</h3>
-                                    <p>
-                                     This was somewhat of a fun weekend project.
-                                     I was going to an event and wanted some fun
-                                     headbands I could print and wear, but everything
-                                     I could find online would need adapting to fit
-                                     my need, so I made my own interchangeable system
-                                     to easily adapt and print new pieces.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Portfolio Item 3 -->
-                    <section class="portfolio-item">
-                        <h2 class="portfolio-title">Rook 2020 MK2</h2>
-                        <div class="portfolio-content">
-                            <div class="portfolio-image">
-                                <img src="image/rook-2020-mk2.png?w=800" alt="Project Image">
-                            </div>
-                            <div class="portfolio-details">
-                                <div class="portfolio-links">
-                                    <a href="https://www.youtube.com/@kanrogcreations/search?query=Rook%202020%20MK2" target="_blank" class="portfolio-link">
-                                        <i class="fab fa-youtube"></i> Watch Video Playlist
-                                    </a>
-                                    <a href="https://www.printables.com/model/798733-rook-2020-mk2" target="_blank" class="portfolio-link">
-                                        <i class="fas fa-download"></i> View on Printables
-                                    </a>
-                                    <a href="https://www.printables.com/@Kanrog/collections/652555" target="_blank" class="portfolio-link">
-                                        <i class="fas fa-download"></i> All my modifications
-                                    </a>
-                                </div>
-                                <div class="portfolio-description">
-                                    <h3>Getting started</h3>
-                                    <p>
-                                        My first "big" project, a 2020 extrusion adaptation of the popular 
-                                        <a href="https://www.printables.com/model/387431-rook-mk1-3d-printer" target="_blank" style="color: #9b59b6; text-decoration: none; font-weight: 600;">"Rook 3D printer by Rolohaun"</a>. 
-                                        This was all done by myself, from the original (no longer published) Legacy version, 
-                                        <a href="https://www.printables.com/model/447255-rook-2020-mk1" target="_blank" style="color: #9b59b6; text-decoration: none; font-weight: 600;">"MK1"</a> and finally the 
-                                        <a href="https://www.printables.com/model/798733-rook-2020-mk2" style="color: #9b59b6; text-decoration: none; font-weight: 600;">"MK2"</a>. 
-                                        This project has a special place in my heart, and I have at least 4 of these printers in my studio, 
-                                        including the larger <a href="https://www.printables.com/model/818501-rook-2020-scalable-mk2" target="_blank" style="color: #9b59b6; text-decoration: none; font-weight: 600;">"Scalable"</a> version.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Portfolio Item 4 -->
-                    <section class="portfolio-item">
-                        <h2 class="portfolio-title">Mini Rotary Display Table</h2>
-                        <div class="portfolio-content">
-                            <div class="portfolio-image">
-                                <img src="image/rotary.png?w=800" alt="Project Image">
-                            </div>
-                            <div class="portfolio-details">
-                                <div class="portfolio-links">
-                                    <a href="https://www.printables.com/model/1452429-mini-rotary-display-table" target="_blank" class="portfolio-link">
-                                        <i class="fas fa-download"></i> View on Printables
-                                    </a>
-                                </div>
-                                <div class="portfolio-description">
-                                    <h3>All in a day</h3>
-                                    <p>
-                                        A one-day project.
-                                        A long time ago I printed a rotary table and 
-                                        assembled it using some simple components, but 
-                                        I never used it because it kept getting 
-                                        broken because of some flimsy printed parts.
-                                        I had an idea one day of making a more sleek design 
-                                        that was more robust that I can use when showcasing 
-                                        projects and items in the future.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
                 </section>
+            </section>
 
-<section id="projects" class="links-section tab-content">
-                   <h2><i class="fab fa-github"></i> Projects</h2>
-                   <div class="links-grid">
-                       <a href="https://github.com/Kanrog" target="_blank" class="link-card github">
-                           <i class="fab fa-github"></i>
-                           <span>GitHub</span>
-                           <p class="project-desc">Link to my main Github Repository.</p>
-                       </a>
-                       <a href="https://github.com/Kanrog/Moonitor" target="_blank" class="link-card github">
-                           <img src="image/moonitor-logo.png" alt="Moonitor Logo" style="width: 80px; height: 60px; margin-bottom: 10px; object-fit: contain;">
-                           <span>Moonitor</span>
-                           <p class="project-desc">A lightweight, zero-latency fleet dashboard for Klipper and Moonraker.</p>
-                       </a>
-                       <a href="https://github.com/Kanrog/FilaFinder" target="_blank" class="link-card github">
-                            <img src="image/filafinder-logo.svg" alt="Filafinder Logo" style="width: 80px; height: 60px; margin-bottom: 10px; object-fit: contain;">
-                            <span>Filafinder</span>
-                            <p class="project-desc">An interactive web tool to help beginners choose the right 3D printer filament based on project needs and hardware.</p>
-                        </a>
-                       <a href="https://kanrog.com/Delta-Flyer" target="_blank" class="link-card portfolio">
-                           <i class="fas fa-rocket"></i>
-                           <span>Delta Flyer</span>
-                           <p class="project-desc">Official website for the Delta Flyer 3D Printer project.</p>
-                       </a>
-                       <a href="https://kanrog.com/3dpcr" target="_blank" class="link-card portfolio">
-                           <i class="fa-solid fa-cube"></i>
-                           <span>3DPCR Master CAD Library</span>
-                           <p class="project-desc">A configurable collection of common parts for designing your 3d printer related projects.</p>
-                       </a>
-                       <a href="https://github.com/Kanrog/TermWorm" target="_blank" class="link-card portfolio">
-                            <i class="fa-solid fa-worm"></i>
-                            <span>TermWorm</span>
-                            <p class="project-desc">A one-click, embedded Linux terminal integrated directly into your Mainsail sidebar for Klipper hosts.</p>
-                        </a>
-                       <a href="https://kanrog.com/moonscout" target="_blank" class="link-card github">
-                           <img src="image/moonscout.svg" alt="MoonScoot Logo" style="width: 80px; height: 60px; margin-bottom: 10px; object-fit: contain;">
-                           <span>MoonScoot klipper IP locator</span>
-                           <p class="project-desc">A web-tool that searches your local network for Moonraker (Klipper) printers.</p>
-                       </a>
-                       <a href="https://github.com/kanrog/ScriptScreen" target="_blank" class="link-card github">
-                            <img src="image/ss-icon.png" alt="ScriptScreen Logo" style="width: 80px; height: 60px; margin-bottom: 10px; object-fit: contain;">
-                            <span>ScriptScreen</span>
-                            <p class="project-desc">A minimalist, high-contrast digital communication board designed for zero-latency, distraction-free text display.</p>
-                        </a>
-                       <a href="https://kanrog.com/3D-print-Price-calculator" target="_blank" class="link-card portfolio">
-                           <i class="fa-solid fa-money-bill-1"></i>
-                           <span>3D Print cost calculator</span>
-                           <p class="project-desc">Simple tool to estimate prices for printing items.</p>
-                       </a>
-                       <a href="https://github.com/Kanrog/Kobra-S1-config-and-macros" target="_blank" class="link-card github">
-                           <i class="fa-solid fa-cubes"></i>
-                           <span>Kobra S1 Macros</span>
-                           <p class="project-desc">My collection of macros for the Anycubic Kobra S1</p>
-                       </a>
-                       <a href="https://kanrog.com/macro-generator/" target="_blank" class="link-card github">
-                           <i class="fa-solid fa-cubes"></i>
-                           <span>Klipper Macro Generator</span>
-                           <p class="project-desc">Web-generator that produces macros for your klipper printer.</p>
-                       </a>
-                       <a href="https://kanrog.com/klipper-config-generator/" target="_blank" class="link-card github">
-                           <img src="image/fairline_logo.png" alt="Fairline Logo" style="width: 80px; height: 60px; margin-bottom: 10px; object-fit: contain;">
-                           <span>Fairline Klipper Config Generator</span>
-                           <p class="project-desc">Lets you easily create a base config file for your klipper printer.</p>
-                       </a>
-                       <a href="https://github.com/Kanrog/Rook-Config-Repo" target="_blank" class="link-card github">
-                           <i class="fa-solid fa-chess-rook"></i>
-                           <span>Rook Configs</span>
-                           <p class="project-desc">Collection of macros for the Rook 3D printer.</p>
-                       </a>
-                       <a href="https://github.com/Kanrog/website_maker/" target="_blank" class="link-card portfolio">
-                           <i class="fas fa-globe"></i>
-                           <span>Website-maker</span>
-                           <p class="project-desc">A fun little guide to make a simple website in just a few minutes.</p>
-                       </a>
-                       <a href="https://github.com/Kanrog/klipper-usb-copy" target="_blank" class="link-card github">
-                           <i class="fa-brands fa-usb"></i>
-                           <span>Klipper USB Transfer</span>
-                           <p class="project-desc">A tool to put on your klipper host to automatically transfer gcode files from any USB drive to the printers gcode folder.</p>
-                       </a>
-                       <a href="https://github.com/Kanrog/klipper-shaper-snap" target="_blank" class="link-card github">
-                           <i class="fa-solid fa-cube"></i>
-                           <span>Klipper Shaper one-click tool</span>
-                           <p class="project-desc">One-click input shaper tool that automatically calibrates graphs and moves them to the printers config tab for easy access.</p>
-                       </a>
-                       <a href="https://kanrog.github.io/F1-107-calc" target="_blank" class="link-card github">
-                           <i class="fa-solid fa-percent"></i>
-                           <span>F1 107% calculator</span>
-                           <p class="project-desc">Simple calculator for the F1 Fans!</p>
-                       </a>
-                       <a href="https://kanrog.github.io/shop-roulette" target="_blank" class="link-card github">
-                           <i class="fa-solid fa-shuffle"></i>
-                           <span>Mystery Shop Roulette</span>
-                           <p class="project-desc">For when you are bored and have nothing else to do, WARNING, this might be the dumbest thing I have made.</p>
-                       </a>
-                   </div>
-               </section>
+            <section id="projects" class="links-section tab-content">
+                <h2><i class="fab fa-github"></i> Projects</h2>
+                <div class="links-grid">
+                    <a href="https://github.com/Kanrog" target="_blank" class="link-card github">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                        <p class="project-desc">Link to my main Github Repository.</p>
+                    </a>
+                    <a href="https://github.com/Kanrog/Moonitor" target="_blank" class="link-card github">
+                        <img src="image/moonitor-logo.png" alt="Moonitor Logo" style="width: 80px; height: 60px; margin-bottom: 10px; object-fit: contain;">
+                        <span>Moonitor</span>
+                        <p class="project-desc">A lightweight, zero-latency fleet dashboard for Klipper and Moonraker.</p>
+                    </a>
+                </div>
+            </section>
 
-               <section id="affiliate" class="links-section tab-content">
-                   <h2><i class="fas fa-link"></i> Affiliate</h2>
-                   <div class="links-grid">
-                       <a href="https://best.aliexpress.com/?aff_fcid=0919076d663542d4a29b9b8e07282dc4-1759613440745-08004-_DdX9LHz&tt=CPS_NORMAL&aff_fsk=_DdX9LHz&aff_platform=portals-tool&sk=_DdX9LHz&aff_trace_key=0919076d663542d4a29b9b8e07282dc4-1759613440745-08004-_DdX9LHz&terminal_id=d5904ca0458b4ea0b11f79c90c2d4d5d&gatewayAdapt=vnm2glo&browser_redirect=true" target="_blank" class="link-card aliexpress">
-                           <i class="fas fa-shopping-cart"></i>
-                           <span>Aliexpress</span>
-                       </a>
-                   </div>
-               </section>
-<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+            <section id="affiliate" class="links-section tab-content">
+                <h2><i class="fas fa-link"></i> Affiliate</h2>
+                <div class="links-grid">
+                    <a href="https://best.aliexpress.com/?aff_fcid=0919076d663542d4a29b9b8e07282dc4-1759613440745-08004-_DdX9LHz&tt=CPS_NORMAL&aff_fsk=_DdX9LHz&aff_platform=portals-tool&sk=_DdX9LHz&aff_trace_key=0919076d663542d4a29b9b8e07282dc4-1759613440745-08004-_DdX9LHz&terminal_id=d5904ca0458b4ea0b11f79c90c2d4d5d&gatewayAdapt=vnm2glo&browser_redirect=true" target="_blank" class="link-card aliexpress">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Aliexpress</span>
+                    </a>
+                </div>
+            </section>
 
-            <!-- Permanently visible Contact Section placed below the tabs -->
             <section class="contact-section">
                 <h2><i class="fas fa-envelope"></i> Get in Touch</h2>
                 <form id="contactForm" class="contact-form" netlify>
@@ -451,26 +256,80 @@
         </footer>
     </div>
 
-    <!-- Tab Switching Logic embedded to run seamlessly -->
     <script>
-        function openTab(evt, tabName) {
-            // Hide all tab contents
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].classList.remove("active");
+        function switchTab(tabName, updateHash = true) {
+            const tabcontents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontents.length; i++) {
+                tabcontents[i].classList.remove("active");
             }
             
-            // Remove active class from all buttons
-            tablinks = document.getElementsByClassName("tab-btn");
-            for (i = 0; i < tablinks.length; i++) {
+            const tablinks = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tablinks.length; i++) {
                 tablinks[i].classList.remove("active");
             }
             
-            // Show current tab and set button as active
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
+            const targetContent = document.getElementById(tabName);
+            if (targetContent) {
+                targetContent.classList.add("active");
+                document.body.classList.add("compact-view");
+                
+                // Find matching button and activate
+                const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add("active");
+                    // Scroll active button into view within horizontal container if needed
+                    activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+                }
+
+                if (updateHash) {
+                    history.pushState(null, null, `#${tabName}`);
+                }
+            }
         }
+
+        function resetToHome() {
+            document.body.classList.remove("compact-view");
+            const tabcontents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontents.length; i++) {
+                tabcontents[i].classList.remove("active");
+            }
+            const tablinks = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+
+        // Event listeners for buttons
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const tabName = button.getAttribute('data-tab');
+                switchTab(tabName);
+            });
+        });
+
+        // Logo home click
+        document.getElementById('home-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            resetToHome();
+        });
+
+        // Handle initial load hash or browser back/forward buttons
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                switchTab(hash, false);
+            }
+        });
+
+        window.addEventListener('popstate', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                switchTab(hash, false);
+            } else {
+                resetToHome();
+            }
+        });
     </script>
     <script src="script.js"></script>
 </body>

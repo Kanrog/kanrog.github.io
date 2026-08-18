@@ -559,3 +559,165 @@ footer {
     line-height: 1.4;
     margin-top: -5px;
 }
+/* =========================================
+   COMPACT HEADER & STATE TRANSITIONS
+   ========================================= */
+
+header {
+    text-align: center;
+    padding: 40px 20px;
+    margin-bottom: 20px;
+    transition: all 0.4s ease-in-out;
+}
+
+.logo-container {
+    margin-bottom: 20px;
+    transition: all 0.4s ease-in-out;
+}
+
+.logo {
+    max-width: 300px;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(155, 89, 182, 0.5));
+    transition: max-width 0.4s ease-in-out;
+}
+
+/* About Section default state */
+.about-section {
+    max-width: 700px;
+    margin: 2em auto 0 auto;
+    text-align: center;
+    line-height: 1.5;
+    opacity: 1;
+    max-height: 500px;
+    overflow: hidden;
+    transition: all 0.4s ease-in-out;
+}
+
+.about-section h2 {
+    margin-bottom: 0.5em;
+    color: var(--primary-purple);
+}
+
+/* COMPACT VIEW STATE (Triggered when a category is selected) */
+body.compact-view header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+}
+
+body.compact-view .logo-container {
+    margin-bottom: 0;
+}
+
+body.compact-view .logo {
+    max-width: 120px;
+}
+
+body.compact-view header .tagline {
+    margin-left: 20px;
+    font-size: 1.1rem;
+    border-left: 2px solid var(--border-color);
+    padding-left: 20px;
+}
+
+body.compact-view .about-section {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+/* =========================================
+   HORIZONTAL SCROLL CONTAINER FOR TABS
+   ========================================= */
+
+.tab-navigation-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 30px;
+    padding-bottom: 5px;
+    /* Custom scrollbar styling for neat UX */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-purple) var(--dark-gray);
+}
+
+.tab-navigation-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.tab-navigation-wrapper::-webkit-scrollbar-track {
+    background: var(--dark-gray);
+    border-radius: 4px;
+}
+
+.tab-navigation-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary-purple);
+    border-radius: 4px;
+}
+
+.tab-navigation {
+    display: inline-flex;
+    gap: 10px;
+    justify-content: center;
+    min-width: 100%;
+}
+
+.tab-btn {
+    background: var(--dark-gray);
+    border: 2px solid var(--border-color);
+    color: var(--white);
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.tab-btn:hover {
+    border-color: var(--primary-purple);
+    color: var(--light-purple);
+    transform: translateY(-2px);
+}
+
+.tab-btn.active {
+    background: var(--primary-purple);
+    border-color: var(--primary-purple);
+    color: var(--white);
+    box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Responsive adjustment for compact view on smaller screens */
+@media (max-width: 768px) {
+    body.compact-view header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    body.compact-view header .tagline {
+        margin-left: 0;
+        margin-top: 10px;
+        border-left: none;
+        padding-left: 0;
+    }
+}
