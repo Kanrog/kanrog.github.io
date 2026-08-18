@@ -1,0 +1,30 @@
+<svg id="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="w-40 h-40 drop-shadow-lg">
+                <defs>
+                    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#22d3ee"/>
+                        <stop offset="100%" stop-color="#0284c7"/>
+                    </linearGradient>
+                    <linearGradient id="glassGlint" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
+                        <stop offset="50%" stop-color="#ffffff" stop-opacity="0.05"/>
+                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- Background Glow / Ring -->
+                <circle cx="100" cy="100" r="90" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+
+                <!-- Filament Strand (Curled Loop) -->
+                <path d="M 45 130 Q 80 130 100 100 Q 120 70 155 70" fill="none" stroke="url(#cyanGrad)" stroke-width="14" stroke-linecap="round"/>
+                
+                <!-- Magnifying Glass Handle -->
+                <line x1="115" y1="115" x2="155" y2="155" stroke="#475569" stroke-width="12" stroke-linecap="round"/>
+                <line x1="115" y1="115" x2="155" y2="155" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/>
+
+                <!-- Magnifying Glass Rim -->
+                <circle cx="85" cy="85" r="42" fill="none" stroke="#334155" stroke-width="8"/>
+                <circle cx="85" cy="85" r="42" fill="none" stroke="url(#cyanGrad)" stroke-width="6"/>
+
+                <!-- Glass Lens Reflection -->
+                <circle cx="85" cy="85" r="38" fill="url(#glassGlint)"/>
+            </svg>
