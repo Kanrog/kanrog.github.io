@@ -128,8 +128,9 @@
                     <p>Download the official <a href="https://www.debian.org/download" target="_blank">Debian Netinst ISO</a> and flash it to your USB stick using a software like Balena Etcher. You can connect your laptop via Ethernet or safely use the installer's built-in Wi-Fi setup to connect to your network (our automated KLap script in Step 4 will automatically handle any backend Wi-Fi conflicts for you!). When the machine boots into the USB stick, select <strong>"Install"</strong>. During the installation steps:</p>
                     <ul>
                         <li><strong>Hostname & Domain:</strong> Set the hostname to <code>klap-host</code> and leave the domain blank.</li>
+                        <li><strong>Root Password:</strong> Set a password for the 'root' administrator account. You will need this password during the "Pre-Flight" step to grant your new user administrative privileges.</li>
                         <li><strong>Set up User:</strong> Set both the full name and username to <code>klap</code>. <em>(Note: These names are arbitrary. You can choose anything except "root", but using "klap" simply makes the rest of this guide easier to follow).</em></li>
-                        <li><strong>Software Selection:</strong> Deselect all Desktop Environments to keep it headless. Ensure you explicitly select <strong>SSH Server</strong> and <strong>standard system utilities</strong>.</li>
+<p><strong>User Password:</strong> Set a password for your <code>klap</code> user. You will use this to log into the machine locally, authorize administrative commands with <code>sudo</code>, and authenticate over SSH from other computers on your network.</p>                        <li><strong>Software Selection:</strong> Deselect all Desktop Environments to keep it headless. Ensure you explicitly select <strong>SSH Server</strong> and <strong>standard system utilities</strong>.</li>
                     </ul>
 
                     <div class="warning-block">
@@ -184,7 +185,12 @@
                         <li><strong>Moonraker:</strong> The API service that lets web interfaces talk to Klipper.</li>
                         <li><strong>Mainsail or Fluidd:</strong> The web-based dashboard. <em>(Choose only one. Do not install both, as they perform the same function).</em></li>
                         <li><strong>Crowsnest:</strong> (Optional) The webcam daemon. Install this if you want to use a webcam (either the laptop's integrated camera or a USB unit) to monitor your prints.</li>
-                        <li><strong>KlipperScreen:</strong> The interface specifically designed for the laptop's own physical screen. <strong>(Install this LAST, as the KlipperScreen installation process will reboot your laptop once it finishes).</strong></li>
+                        <li><strong>KlipperScreen or HelixScreen:</strong> The interface specifically designed for the laptop's own physical screen. <strong>(Install this LAST, as the installation process will reboot your laptop once it finishes).</strong>
+                    <ul>
+                        <li><strong>KlipperScreen:</strong> Works perfectly with both touchscreens and standard laptops (using a mouse or trackpad).</li>
+                        <li><strong><a href="https://github.com/mainsail-crew/helixscreen" target="_blank">HelixScreen</a>:</strong> An ultra-lightweight alternative, but <strong>ONLY works with native touchscreens</strong>. Do not install this on a standard laptop without a touchscreen, or you will not be able to interact with the interface! This cannot be installed with KIAUH at this point, follow the instructions on their website.</li>
+                    </ul>
+                </li>
                     </ul>
                 </div>
             </div>
@@ -199,8 +205,8 @@
                 <div class="step-content">
                     <div class="info-block">
                         <h4>⌨️ The "Emergency Exit" (TTY Trick)</h4>
-                        <p>When you are logged into the laptop directly and KlipperScreen is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to run scripts or fix something, you don't need a second computer.</p>
-                        <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Once you have finished your repairs, press <strong>Ctrl + Alt + F2</strong> (or sometimes F1) to jump back to the KlipperScreen interface.</p>
+                        <p>When you are logged into the laptop directly and your screen interface (like KlipperScreen or HelixScreen) is running, it "traps" your keyboard and screen for the printer interface. If you need to access the command line to run scripts or fix something, you don't need a second computer.</p>
+                        <p>Press <strong>Ctrl + Alt + F3</strong> to jump to a standard terminal login. Once you have finished your repairs, press <strong>Ctrl + Alt + F2</strong> (or sometimes F1) to jump back to the graphical interface.</p>
                     </div>
 
                     <p>Instead of manually editing configuration files for the mouse cursor, lid sleep, network authentication and battery charge thresholds you can run my <strong><a href="https://github.com/Kanrog/klap" target="_blank">KLap</a></strong> utility to automatically configure your machine in one go.</p>
